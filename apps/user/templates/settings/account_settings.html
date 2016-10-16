@@ -1,0 +1,15 @@
+{% extends 'settings/settings.html' %}
+{% load crispy_forms_tags %}
+
+{% block setting_header %}
+    <h3>Accounteinstellungen</h3>
+{% endblock %}
+
+{% block setting_content %}
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% crispy form %}
+        {% crispy form2 %}
+    </form>
+
+{% endblock %}

@@ -1,0 +1,29 @@
+{% load staticfiles %}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="{% static 'search/js/tag-it.js' %}" type="text/javascript" charset="utf-8"></script>
+
+<div class="row">
+    <div id="tag-input" class="col-md-10 col-sm-10 col-xs-12">
+        <ul id="tag-bar">
+        </ul>
+    </div>
+    <div class="col-md-1 col-sm-1 hidden-xs" style="padding-left:0; padding-right:0;">
+        <span class="tag-clear-all">
+            <a href="#" onclick='$("#tag-bar").tagit("removeAll")'>
+                <img id="x" width="16px" src="{% static 'images/x.svg' %}">
+            </a>
+        </span>
+    </div>
+    <div class="col-md-1 col-sm-1 hidden-xs" style="padding-left:0;">
+        <a class="btn btn-sort dropdown-toggle" data-toggle="dropdown" href="#">
+            <i id="sorter" class="fa fa-sort-amount-desc"></i>
+        </a>
+        <ul id="searchsort-dropdown" class="dropdown-menu sort-menu pull-right" style="margin-right:15px;">
+            <h6 class="dropdown-header">Sortierung</h6>
+            <li class="active"><a id="sort-default" href="#" onclick="changeOrder('default')">Relevanz <i class="fa fa-check" aria-hidden="true"></i></a></li>
+            <li><a id="sort-most-views" href="#" onclick="changeOrder('most_views')">Meistgesehen</a></li>
+            <li><a id="sort-newest" href="#" onclick="changeOrder('newest')">Neuste</a></li>
+        </ul>
+    </div>
+</div>

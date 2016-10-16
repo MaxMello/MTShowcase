@@ -1,0 +1,104 @@
+{% extends 'projects.html' %}
+{% block title %}
+    {{ names.project_name }}
+{% endblock %}
+{% block aboveprojects %}
+    {% load staticfiles %}
+    <div class="container-row" id="search-area">
+        <div class="row">
+            <div class="col-md-12">
+                {% include 'search/tags.html' %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12" id="tag-suggestions">
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block additionalScripts %}
+    <script src="{% static 'search/js/TagHandler.js' %}" type="text/javascript" charset="utf-8"></script>
+    <script src="{% static 'home/js/search.js' %}" type="text/javascript" charset="utf-8"></script>
+    <script>
+        var tagHandler = new TagHandler();
+        /*
+         * Set the 4 listeners to be executed after the ajax request
+         */
+        var onActiveProjectsSet = function () {
+            console.log("On active projects set");
+            tagHandler.manageTagSuggestions(projectLoader.getActiveProjects());
+            showTagSuggestions(tagHandler);
+            projectLoader.setProjectColors(tagHandler.getTagSuggestions());
+            showActiveProjects(projectLoader, $grid);
+            if (projectLoader.getOldActiveProjects().length != projectLoader.getActiveProjects().length) {
+                $('#load-more-projects').show();
+            }
+        };
+
+        var onFailedSearch = function () {
+            console.log("Search failed");
+            showFailedSearch();
+        };
+
+        var onLoadMoreProjectsSuccess = function () {
+            projectLoader.setProjectColors(tagHandler.getTagSuggestions());
+            appendProjects(projectLoader, $grid);
+            $('#load-more-projects').show();
+        };
+
+        var onLoadMoreProjectsFailure = function () {
+            $('#load-more-projects').hide();
+        };
+
+        projectLoader.onAjaxSuccess(onActiveProjectsSet).onFailedSearch(onFailedSearch).onLoadMoreProjectsSuccess(onLoadMoreProjectsSuccess)
+                .onLoadMoreProjectsFailure(onLoadMoreProjectsFailure);
+
+
+        $(document).ready(function () {
+            $("#tag-bar").tagit({
+                placeholderText: 'Suchbegriff eingeben',
+                afterTagAdded: function (event, ui) {
+                    onTagChange();
+                },
+                afterTagRemoved: function (event, ui) {
+                    onTagChange();
+                }
+            });
+
+            $("#tag-suggestions").on("click", ".tag-btn", function () {
+                console.log($(this).attr("id"));
+                $("#tag-bar").tagit("createTag", $(this).attr("id"));
+            });
+
+            var tagBarHeight = $('#tag-bar')[0].getBoundingClientRect().height;
+
+            //DIRTY
+            function onTagBarHeightChange() {
+                var newHeight = $('#tag-bar')[0].getBoundingClientRect().height;
+                if (tagBarHeight != newHeight) {
+                    tagBarHeight = newHeight;
+                    $('.tag-clear-all').css('height', tagBarHeight);
+                    if(newHeight > 50) {
+                        $('#x').css('padding-top', ((tagBarHeight / 4) + 16));
+                        $('#sorter').css('padding-top', (tagBarHeight/4) + 8);
+                    } else {
+                        $('#x').css('padding-top', 11);
+                        $('#sorter').css('padding-top', 8);
+                    }
+                    $('.btn-sort').css('height', tagBarHeight);
+
+                }
+                 console.log(tagBarHeight);
+            }
+
+            function onTagChange() {
+                console.log("Tag change");
+                projectLoader.setActiveTags($("#tag-bar").tagit("assignedTags")).getProjects(false);
+                onTagBarHeightChange();
+            }
+        });
+
+
+        projectLoader.getProjects(false);
+    </script>
+{% endblock %}

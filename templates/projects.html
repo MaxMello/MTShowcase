@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% load staticfiles %}
+    {% block aboveprojects %}
+    {% endblock %}
+    <div class="container-row" id="projects-area">
+        <!-- Fill this row with project cards -->
+        <div class="row" id="projects-row">
+        </div>
+        <div class="row" id="load-more-projects">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <a class="btn btn-primary btn-block btn-lg" onclick="loadMoreProjects()">Mehr Projekte laden...</a>
+            </div>
+        </div>
+    </div>
+    {% block belowprojects %}
+    {% endblock %}
+{% endblock %}
+{% block scripts %}
+    <script src="{% static 'js/libs/imagesloaded.pkgd.min.js' %}" type="text/javascript" charset="utf-8"></script>
+    <script src="{% static 'js/chaosgrid.js' %}" type="text/javascript" charset="utf-8"></script>
+    <script src="{% static 'js/ProjectLoader.js' %}" type="text/javascript" charset="utf-8"></script>
+    <script src="{% static 'js/projects.js' %}" type="text/javascript" charset="utf-8"></script>
+    <script>
+            var goToProject = function(id) {
+              window.location = "/project/" + id;
+              return false;
+            };
+
+            var $grid = new ChaosGrid();
+            $grid.addBreakpoint({width: 580, cols: 1, use: 'col-xs-12'});
+            $grid.addBreakpoint({width: 850, cols: 2, use: 'col-sm-6'});
+            $grid.addBreakpoint({width: 1200, cols: 3, use: 'col-md-4 col-lg-4'});
+
+            var projectLoader = new ProjectLoader();
+
+            function loadMoreProjects(){
+                console.log("Load more projects");
+                projectLoader.getProjects(true);
+            }
+        </script>
+    {% block additionalScripts %} {% endblock %}
+{% endblock %}

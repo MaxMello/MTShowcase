@@ -1,0 +1,218 @@
+{% extends 'project.html' %}
+{% block title %}
+    {{ project.heading }} - {{ names.project_name_short }}
+{% endblock %}
+{% block id %}
+    projectdetail-area
+{% endblock %}
+{% load staticfiles %}
+{% block imagespace %}
+    <img src="{{ project.project_image_cropped.url }}" class="img-responsive">
+{% endblock %}
+{% block maininfo %}
+    <h1 class="font-elegance">{{ project.heading }}</h1>
+    <h4 class="font-elegance">{{ project.subheading }}</h4>
+    <hr>
+    <p>
+        {% autoescape off %}
+            {{ project.description }}
+        {% endautoescape %}
+    </p>
+{% endblock %}
+{% block contentbody %}
+    <div class="project-content">
+        {% for content in project.get_all_content_json %}
+            {% if not content.visibility == "hidden" or request.user.is_authenticated %}
+                {% if content.subheading %}
+                    <h4>{{ content.subheading }}</h4>
+                {% endif %}
+                <p>
+                    {% if content.content_type == "TEXT" %}
+                        {{ content.text }}
+                    {% elif content.content_type == "IMAGE" %}
+                        {% if content.filename %}
+                            <div class="image-wrapper">
+                                <img src="{{ content.content_path }}{{ content.filename }}" class="img-responsive"></div>
+                        {% elif content.url %}
+                            <div class="image-wrapper">
+                                <img src="{{ content.url }}" class="img-responsive"></div>
+                        {% else %}
+                            <img src="{% static 'project/images/default_content_image.jpg' %}" class="img-responsive">
+                            <div class="alert alert-warning">Fehler beim laden des Bildes.</div>
+                        {% endif %}
+                        {{ content.text }}
+                    {% elif content.content_type == "VIDEO" %}
+                        {% if content.filename %}
+                            <video class="embedded" controls style="margin-bottom: 20px;">
+                                <source src="{{ content.content_path }}{{ content.filename }}" type="video/mp4">
+                            </video>
+                        {% elif content.video_id %}
+                            {% if content.media_host == "YOUTUBE" %}
+                                <div class="video-wrapper">
+                                    <iframe src="https://www.youtube.com/embed/{{ content.video_id }}" frameborder="0"
+                                            webkitallowfullscreen allowfullscreen></iframe>
+                                </div>
+                            {% elif content.media_host == "VIMEO" %}
+                                <div class="video-wrapper">
+                                    <iframe src="https://player.vimeo.com/video/{{ content.video_id }}" frameborder="0"
+                                            webkitallowfullscreen allowfullscreen></iframe>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-warning">Fehler beim laden des Videos.</div>
+                            {% endif %}
+                        {% else %}
+                            <div class="alert alert-warning">Fehler beim laden des Videos.</div>
+                        {% endif %}
+                        {{ content.text }}
+                    {% elif content.content_type == "AUDIO" %}
+                        {% if content.filename %}
+                            <audio controls class="embedded" style="margin-bottom: 20px;">
+                                <source src="{{ content.content_path }}{{ content.filename }}" type="audio/mp3">
+                            </audio>
+                        {% elif content.audio_id %}
+                            {% if content.media_host == "SOUNDCLOUD" %}
+                                <!-- TODO: Soundcloud url -> ID: http://stackoverflow.com/questions/20870270/how-to-get-soundcloud-embed-code-by-soundcloud-com-url -->
+                                <div style="margin-bottom: 20px;">
+                                    <iframe width="100%" height="166" scrolling="no" frameborder="no"
+                                            src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/{{ content.audio_id }}&amp;color=334d5b&amp;auto_play=false&amp;sharing=false&amp;liking=false&amp;buying=false&amp;show_comments=false&amp;show_user=true&amp;show_reposts=false">
+                                    </iframe>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-warning">Fehler beim laden des Audios.</div>
+                            {% endif %}
+                        {% else %}
+                            <div class="alert alert-warning">Fehler beim laden des Audios.</div>
+                        {% endif %}
+                        {{ content.text }}
+                    {% elif content.content_type == "SLIDESHOW" %}
+                        <div id="imageCarousel{{ content.id }}" class="carousel slide" data-ride="carousel" data-interval="false"
+                             style="margin-bottom: 20px;">
+                            <!-- Indicators -->
+                            <ol class="carousel-indicators">
+                                {% for image in content.images %}
+                                    <li data-target="#imageCarousel{{ content.id }}" data-slide-to="{{ forloop.counter0 }}"
+                                            {% if forloop.counter0 == 0 %} class="active">{% endif %}</li>
+                                {% endfor %}
+                            </ol>
+                            <!-- Wrapper for slides -->
+                            <div class="carousel-inner" role="listbox">
+                                {% for image in content.images %}
+                                    <div class="item {% if forloop.counter0 == 0 %}active{% endif %}" class="img-responsive">
+                                        {% if image.filename %}
+                                            <div class="carousel-image-wrapper">
+                                                <img src="{{ content.content_path }}{{ image.filename }}"></div>
+                                        {% elif image.url %}
+                                            <div class="carousel-image-wrapper">
+                                                <img src="{{ image.url }}"></div>
+                                        {% else %}
+                                            <img src="{% static 'project/images/default_content_image.jpg' %}">
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <!-- Left and right controls -->
+                            <a class="left carousel-control" href="#imageCarousel{{ content.id }}" role="button" data-slide="prev">
+                              <span class="carousel-prev">
+                                <span class="fa fa-arrow-left" aria-hidden="true"></span>
+                                <span class="sr-only">Zurück</span>
+                              </span>
+                            </a>
+                            <a class="right carousel-control" href="#imageCarousel{{ content.id }}" role="button" data-slide="next">
+                              <span class="carousel-next">
+                                <span class="fa fa-arrow-right" aria-hidden="true"></span>
+                                <span class="sr-only">Weiter</span>
+                              </span>
+                            </a>
+                        </div>
+                        {{ content.text }}
+                    {% else %}
+                        <div class="alert alert-warning">Fehler beim laden des Inhalts.</div>
+                    {% endif %}
+                </p>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endblock %}
+{% block projectsocials-panel %}
+    {% if project_socials %}
+        <div class="panel">
+            <div class="panel-body">
+                {% for social in project_socials %}
+                    <div class="psocial col-xs-12 col-sm-4 col-md-4 col-lg-4 text-center">
+                        <a href="{{ social.url }}">
+                            <p class="btn btn-primary btn-lg"><i class="fa fa-{{ social.social.icon }}"></i></p>
+                            <br>
+                            {{ social.description }}
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+{% block projectmember %}
+    <table class="table table-small">
+        {% for member,should_display, member_resps in entries %}
+
+            {% if forloop.last or entries.count == 1 %}
+                <tr class="spacer">
+                    {% else %}
+                <tr>
+            {% endif %}
+        {% if should_display %}
+            <td><a href="/apps/user/{{ member.id }}">
+                {% if  member.show_clear_name %}
+                    {{ member.auth_user.first_name }} {{ member.auth_user.last_name }}
+                {% elif member.alias %}
+                    {{ member.alias }}
+                {% endif %}
+            </a>
+            </td>
+            <td>{% for e in member_resps %}{{ e }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+        {% endif %}
+
+        </tr>
+        {% endfor %}
+
+        {% for member in project.supervisors.all %}
+            <tr>
+                <td><strong><a href="/apps/user/{{ member.id }}">{{ member.auth_user.first_name }} {{ member.auth_user.last_name }}</a></strong></td>
+                <td><strong>Betreuer</strong></td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}
+{% block projectinfo %}
+    {{ project.subject.name }}
+    <br> {{ project.degree_program.name }}
+    <br> {{ project.get_semester_year_string }}
+{% endblock %}
+{% block tags %}
+    {% for tag in project.tags.all %}
+        <button id="{{ tag.id }}" class="btn btn-colorful-{{ tag.mod10 }}">{{ tag.value }}</button>
+    {% endfor %}
+{% endblock %}
+<!-- Overlay customization-->
+{% block visibility %}visible-xs visible-sm visible-md visible-lg{% endblock %}
+{% block left-link %}
+    <a href="/">
+        <i class="fa fa-search text-primary" style="font-size:2.1em;" aria-hidden="true"></i>
+    </a>
+{% endblock %}
+{% block right-link %}
+    <a href="/project/{{ next.id }}">
+        <i class="fa fa-arrow-right text-primary" style="font-size:2.1em;" aria-hidden="true"></i>
+    </a>
+{% endblock %}
+{% block metadatabox %}
+    <div class="panel">
+        <div class="panel-body">
+            <span class="pull-left">
+                {{ project.views }} Aufrufe
+            </span>
+            <span class="pull-right">
+                {{ project.get_date_string }}
+            </span>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Admin Bereich{% endblock %}
+
+{% block content %}
+    <div class="container-row" id="admin-area">
+        <div class="row">
+            {% if view.enter_allowed %}
+                <div class="col-lg-3 col-md-4">
+                    <div class="panel">
+                        <div class="panel-body">
+                            <h3>Actions</h3>
+                            <h3>Actions</h3>
+                            <h3>Actions</h3>
+                            <h3>Actions</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-9 col-md-8">
+                    <div class="panel">
+                        <div class="panel-body">
+                            <h3>Display</h3>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <p>Du musst eingeloggt sein, um diesen Bereich zu betreten</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

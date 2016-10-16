@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Nutzereinstellungen{% endblock %}
+{% block content %}
+    <div class="container-row" id="usersettings-area">
+        <div class="row">
+            <div class="col-lg-3 col-md-4">
+                <div class="panel">
+                    <div class="panel-body">
+                        <h3>Einstellungen</h3>
+                        <table id="settings-bar" class="table table-small">
+                            <tr>
+                                <td><a href="{% url 'settings-account' %}">Account</a></td>
+                            </tr>
+                            <tr>
+                                <td><a href="{% url 'settings-user-socials' %}">Socials</a></td>
+                            </tr>
+                            <tr>
+                                <td><a href="{% url 'settings-privacy' %}">Privatsphäre</a></td>
+                            </tr>
+                            <tr>
+                                <td><a href="{% url 'password-change' %}">Passwort ändern</a></td>
+                            </tr>
+
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-9 col-md-8">
+                <div class="panel">
+                    <div class="panel-body">
+                        <div id="setting-content-wrapper">
+                            {% block setting_header %}
+                            {% endblock %}
+
+                            {% block setting_content %}
+                            {% endblock %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endblock %}

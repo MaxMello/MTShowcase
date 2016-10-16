@@ -1,0 +1,15 @@
+{% load crispy_forms_tags %}
+<form id="login_submit" method="POST" action=''>
+    {% csrf_token %}
+    {{ form | crispy }}
+
+    <div class="form-group">
+
+        <input type="submit" value="Login" class="btn btn-primary">
+        <!--<a class="btn" href="">Passwort vergessen?</a>-->
+        <button type="button" class="btn btn-primary" data-toggle="modal"
+                data-target="#myModal">Registrieren
+        </button>
+
+    </div>
+</form>

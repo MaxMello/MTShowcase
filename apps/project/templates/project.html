@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block content %}
+    <div class="container-row" id="{% block id %}{% endblock %}">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="panel">
+                    <div class="panel-body">
+                        <div class="panel-image">
+                            {% block imagespace %} {% endblock %}
+                        </div>
+                        {% block maininfo %} {% endblock %}
+                        {% block contentbody %} {% endblock %}
+                    </div>
+                </div>
+                {% block projectsocials-panel %}
+                    <div class="panel">
+                        <div class="panel-body">
+                            {% block projectsocials %} {% endblock %}
+                        </div>
+                    </div>
+                {% endblock %}
+            </div>
+            <div class="col-md-4">
+                <div class="panel">
+                    <div class="panel-body">
+                        <h4>Projektmitglieder</h4>
+                        {% block projectmember %} {% endblock %}
+                    </div>
+                </div>
+                <div class="panel">
+                    <div class="panel-body">
+                        <h4>Projektdaten</h4>
+                        {% block projectinfo %} {% endblock %}
+                    </div>
+                </div>
+                <div class="panel">
+                    <div class="panel-body">
+                        <h4>Tags</h4>
+                        {% block tags %} {% endblock %}
+                    </div>
+                </div>
+                {% block metadatabox %} {% endblock %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

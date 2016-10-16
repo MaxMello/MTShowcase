@@ -1,0 +1,161 @@
+{% extends 'project.html' %}
+{% load staticfiles %}
+{% block title %}
+    Neues Projekt hochladen
+{% endblock %}
+{% block id %}
+    projectupload-area
+{% endblock %}
+{% block imagespace %}
+    <div class="upload-title-image-wrapper">
+        <a class="text-center text-primary" data-toggle="modal" data-target="#imgUploadModal">
+            <span class="fa fa-upload fa-4x" style="padding-top:22%;"></span><br>
+            <span style="display:inline-block;">Titelbild hochladen</span>
+        </a>
+    </div>
+
+    {% include 'upload/imguploadmodal.html' %}
+{% endblock %}
+
+{% block maininfo %}
+    <input type="text" id="heading" class="form-control input-lg h1 font-elegance" placeholder="Titel" maxlength="40">
+    <input type="text" id="subheading" class="form-control input-sm h4 font-elegance" placeholder="Untertitel" maxlength="70">
+    <hr>
+    <div class="input-group">
+        <textarea id="description" class="form-control resize-none" placeholder="Kurzbeschreibung" rows="5" maxlength="500"></textarea>
+    </div>
+
+{% endblock %}
+
+{% block contentbody %}
+    <div id="content-body">
+        <div id="content-btn">
+            {% include 'upload/addcontent.html' %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block projectsocials %}
+    <div class="psocial col-xs-12 col-sm-4 col-md-4 col-lg-4 text-center">
+        <a id="link1">
+            <p class="btn btn-primary btn-lg"><i class="fa fa-plus"></i></p>
+            <br>
+            Link hinzufügen
+        </a>
+    </div>
+    <div class="psocial col-xs-12 col-sm-4 col-md-4 col-lg-4 text-center">
+        <a id="link2">
+            <p class="btn btn-primary btn-lg"><i class="fa fa-plus"></i></p>
+            <br>
+            Link hinzufügen
+        </a>
+    </div>
+    <div class="psocial col-xs-12 col-sm-4 col-md-4 col-lg-4 text-center">
+        <a id="link3">
+            <p class="btn btn-primary btn-lg"><i class="fa fa-plus"></i></p>
+            <br>
+            Link hinzufügen
+        </a>
+    </div>
+{% endblock %}
+
+{% block projectmember %}
+    {{ request.user.get_lib_user.get_public_name }}
+    <ul id="resp-bar-{{ request.user.get_lib_user.id }}" style="border: 1px solid #e6e6e6;">
+    </ul>
+    <hr>
+    <button class="btn btn-primary btn-block">Mitglied hinzufügen</button>
+    <hr>
+    <button class="btn btn-primary btn-block">Betreuer hinzufügen</button>
+{% endblock %}
+
+{% block projectinfo %}
+    <div class="form-group">
+        <label for="subject-select">Fach</label>
+        <select class="form-control" id="subject-select">{% for s in subjects %}
+            <option id="{{ s.id }}">{{ s.name }}</option>{% endfor %}</select>
+    </div>
+    <div class="form-group">
+        <label for="degreeprogram-select">Studiengang</label>
+        <select id="degreeprogram-select" class="form-control">{% for d_p in degree_programs %}
+            <option id="{{ d_p.id }}">{{ d_p.name }}</option>{% endfor %}</select>
+    </div>
+    <div class="form-group">
+        <label for="semesteryear-select">Semester</label>
+        <select id="semesteryear-select" class="form-control">{% for i in year_choices %}
+            <option id="S{{ i }}">SoSe {{ i|add:1 }}</option>
+            <option id="W{{ i }}">WiSe {{ i }}/{{ i|add:1 }}</option>{% endfor %}</select>
+    </div>
+{% endblock %}
+
+{% block tags %}
+    <ul id="add-tags-bar" style="border: 1px solid #e6e6e6;">
+    </ul>
+{% endblock %}
+
+{% block metadatabox %}
+    <div class="panel">
+        <div class="panel-body row">
+            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="padding-right:4px;">
+                <button class="btn btn-primary btn-block">Speichern</button>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="padding-left:4px;">
+                <button class="btn btn-secondary btn-block">Verwerfen</button>
+            </div>
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                <button class="btn btn-danger btn-block">Veröffentlichen</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="{% static 'search/js/tag-it.js' %}" type="text/javascript" charset="utf-8"></script>
+    <script src="{% static 'upload/js/upload.js' %}" type="text/javascript" charset="utf-8"></script>
+    <script>
+        var addcontentchoice = `{% include "upload/addcontentchoice.html" %}`;
+        var addcontent = `{% include "upload/addcontent.html" %}`;
+        $('#content-btn').hover(function () {
+            $('#addcontent-row').replaceWith(addcontentchoice);
+        }, function () {
+            $('#addcontentchoice-row').replaceWith(addcontent);
+        });
+
+        var charCount = function (text_max, input, span) {
+            $(span).html(0 + '/' + text_max);
+            $(input).keyup(function () {
+                var text_length = $(input).val().length;
+                $(span).html(text_length + '/' + text_max);
+            });
+        };
+
+        $(document).ready(function () {
+            $("#add-tags-bar").tagit({
+                placeholderText: 'Hinzufügen',
+                afterTagAdded: function (event, ui) {
+                    console.log("Added tag");
+                },
+                afterTagRemoved: function (event, ui) {
+                    console.log("Removed tag");
+                },
+                autocomplete: {
+                    source: [] //TODO: Get list of all tags from server
+                },
+                showAutocompleteOnFocus: true
+            });
+            $("#resp-bar-{{ request.user.get_lib_user.id }}").tagit({
+                placeholderText: 'Tätigkeit hinzufügen',
+                afterTagAdded: function (event, ui) {
+                    console.log("Added tag");
+                },
+                afterTagRemoved: function (event, ui) {
+                    console.log("Removed tag");
+                },
+                autocomplete: {
+                    source: [] //TODO: Get list of all tags from server
+                },
+                showAutocompleteOnFocus: true
+            });
+        });
+    </script>
+{% endblock %}

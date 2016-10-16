@@ -1,0 +1,40 @@
+{% extends 'settings/settings.html' %}
+{% load crispy_forms_tags %}
+{% block setting_header %}
+    <h3>Privatsphäre-Einstellung</h3>
+{% endblock %}
+
+{% block setting_content %}
+    <form method="post">
+        {% csrf_token %}
+        {% crispy userform %}
+        {{ formset.management_form }}
+        {% if empty_list %}
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Projekte</th>
+                    <th style="text-align: center">Als Mitglied anzeigen</th>
+                </tr>
+                </thead>
+                {% for subform, projectm in object_list %}
+                    <tr>
+                        <td>
+                            <h4><a href="{% url 'project' projectm.project.id %}"> {{ projectm.project.heading }}</a>
+                            </h4>
+                            <h5>{{ projectm.project.subheading }}</h5>
+                        </td>
+                        <td style="text-align:center; vertical-align:middle;">
+                            {{ subform.id }}
+                            {% crispy subform %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <p>Du hast noch keine Projekte zum Einstellen</p>
+        {% endif %}
+        <input type="submit" name="update" value="Update" class="btn btn-primary btn-success" id="submit-id-update">
+    </form>
+
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends 'projects.html' %}
+{% block title %}
+    {{ user.get_public_name }} | Profil
+{% endblock %}
+{% block aboveprojects %}
+    <div class="container-row" id="userprofile-area">
+        <div class="panel">
+            <div class="panel-body row">
+                <div class="col-lg-2 col-md-2 col-sm-3 col-xs-12" style="margin-bottom: 40px">
+                    {% load staticfiles %}
+
+                    <img class="img-responsive userpageuserimg" src="
+                    {% if user.profile_img %}
+                        {{ user.profile_img.url }}
+                    {% else %}
+                        {% static 'main/images/demoavatar.png' %}
+                    {% endif %}">
+
+                </div>
+                <div class="userpageuserbox col-lg-8 col-md-8 col-sm-6 col-xs-12">
+                    <div class="row userinfo" style="padding-bottom:18px">
+                        <div class="col-xs-12">
+                            <h2>
+                                {{ user.get_public_name }}
+                            </h2>
+                        </div>
+                    </div>
+                    <div class="row userskills">
+                        <div class="col-xs-12">
+                        {% if userskills %}<h5 style="margin-bottom: 5px">Projekttätigkeiten</h5> {% endif %}
+                            {% for userskill in userskills %}
+                                <span class="label btn-colorful-{{ forloop.counter }}">{{ userskill.responsibility__value }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-3 col-xs-12">
+                        {% for social in usersocials %}
+                            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 text-center" style="padding: 0; margin: 0px">
+                                  <a data-toggle="tooltip" title="{{ social.url }}" class="custom-social" href="{{ social.url }}" target="_blank">
+                                    <i class="fa fa-{{ social.social.icon }} social-text"></i>
+                                  </a>
+                            </div>
+                        {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block additionalScripts %}
+    <script src="{% static 'user/js/user.js' %}" type="text/javascript" charset="utf-8"></script>
+    <script>
+        var userSkills = [];
+        {% for userskill in userskills %}
+            userSkills.push("{{ userskill.responsibility__value }}");
+        {% endfor %}
+        /*
+         * Set the 4 listeners to be executed after the ajax request
+         */
+        var onActiveProjectsSet = function () {
+            projectLoader.setProjectColors(userSkills);
+            showActiveProjects(projectLoader, $grid);
+            $('#load-more-projects').show();
+        };
+
+        var onFailedSearch = function () {
+            userHasNoProjects();
+            $('#load-more-projects').hide();
+        };
+
+        var onLoadMoreProjectsSuccess = function () {
+            projectLoader.setProjectColors({{ skills }});
+            appendProjects(projectLoader, $grid);
+            $('#load-more-projects').show();
+        };
+
+        var onLoadMoreProjectsFailure = function () {
+            $('#load-more-projects').hide();
+        };
+
+        projectLoader.onAjaxSuccess(onActiveProjectsSet).onFailedSearch(onFailedSearch).onLoadMoreProjectsSuccess(onLoadMoreProjectsSuccess)
+                .onLoadMoreProjectsFailure(onLoadMoreProjectsFailure);
+
+        projectLoader.setUser({{ user.id }}).onAjaxSuccess(onActiveProjectsSet).getProjects();
+
+        $(function(){
+          $('[data-toggle=tooltip]').tooltip();
+        });
+    </script>
+{% endblock %}

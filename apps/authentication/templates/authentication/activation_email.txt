@@ -1,0 +1,7 @@
+Hallo neuer Nutzer, dies ist eine Email-Verfikation
+
+Aktiviere deinen Account bei {{ site }}:
+
+http://{{ domain }}{% url 'registration_activate' activation_key %}
+
+Der Link endet in {{ expiration_days }} Tagen.

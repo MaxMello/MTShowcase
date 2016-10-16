@@ -1,0 +1,54 @@
+{% extends 'settings/settings.html' %}
+{% load crispy_forms_tags %}
+
+{% block setting_header %}
+    <h3>Socials</h3>
+{% endblock %}
+
+{% block setting_content %}
+    <p>Aktuelle Socials</p>
+    <div id="social-items">
+        {% for social in usersocials %}
+            <a class="btn btn-primary btn" id="{{ social.id }}" href="{{ social.url }}">
+                <i class="fa fa-{{ social.social__icon }}"></i>
+            </a>
+        {% endfor %}
+    </div>
+    <div id="form-wrapper-socials">
+        {% crispy form %}
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    <script type="application/javascript" charset="UTF-8">
+        $('#social-items').find('a').click(function (e) {
+            e.preventDefault();
+
+            var id = $(this).attr('id');
+            var social_url = $(this).attr('href');
+            console.log(id);
+            console.log(social_url);
+            $.ajaxSetup({
+                beforeSend: function (xhr, settings) {
+                    if (!this.crossDomain) {
+                        xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+                    }
+                }
+            });
+            $.ajax({
+                url: "/settings/user-socials/",
+                type: "POST",
+                data: {'id': id, 'social_url': social_url},
+                success: function (data) {
+                    if (data['form_html'] != null) {
+                        console.log(data['form_html']);
+                        $('#social-form').replaceWith(data['form_html']);
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                },
+            });
+        });
+    </script>
+{% endblock %}

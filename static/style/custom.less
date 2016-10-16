@@ -1,0 +1,919 @@
+@import "bootstrap/less/bootstrap.less"; // Importing bootstrap 3
+@import "fonts.less"; // Loading fonts (incl. font awesome icons)
+@import "variables.less"; // Overriding bootstrap variables
+@import "rulesets.less"; // Defining rulesets for further use
+@import "mixins.less"; // Defining and overriding mixins
+@import "utilities.less"; // Defining utility classes with general purpose
+@import "theme.less"; // Apply general rules to html elements to complete the theme
+
+// region General elements
+
+p {
+  margin-bottom: 20px;
+}
+
+.btn {
+  margin-right: 8px;
+  margin-bottom: 8px;
+}
+
+
+.input-group {
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.modal-content {
+  -webkit-border-radius: 0px !important;
+  -moz-border-radius: 0px !important;
+  border-radius: 0px !important;
+}
+
+tr.spacer > td {
+  padding-bottom: 30px !important;
+}
+
+// endregion
+
+// region Colors
+
+.btn-colorful-1 {
+  .btn-colorful(@color-1);
+}
+
+.btn-colorful-2 {
+  .btn-colorful(@color-2);
+}
+
+.btn-colorful-3 {
+  .btn-colorful(@color-3);
+}
+
+.btn-colorful-4 {
+  .btn-colorful(@color-4);
+}
+
+.btn-colorful-5 {
+  .btn-colorful(@color-5);
+}
+
+.btn-colorful-6 {
+  .btn-colorful(@color-6);
+}
+
+.btn-colorful-7 {
+  .btn-colorful(@color-7);
+}
+
+.btn-colorful-8 {
+  .btn-colorful(@color-8);
+}
+
+.btn-colorful-9 {
+  .btn-colorful(@color-9);
+}
+
+.btn-colorful-10 {
+  .btn-colorful(@color-10);
+}
+
+.border-div(@color) {
+  border-bottom: 10px solid @color;
+  display: inline-block;
+  margin: 0px 10px 0px 10px;
+  padding: 7px 10px;
+  cursor: pointer;
+
+  @all-transition-fast();
+  &:hover {
+    @all-transition-fast();
+    background-color: @color;
+    border-color: @white;
+  }
+
+  a {
+    color: @black;
+    @all-transition-fast();
+  }
+
+  &:hover a {
+    color: @white;
+    @all-transition-fast();
+  }
+}
+
+.border-default {
+  .border-div(@gray);
+}
+
+.border-colorful-1 {
+  .border-div(@color-1);
+}
+
+.border-colorful-2 {
+  .border-div(@color-2);
+}
+
+.border-colorful-3 {
+  .border-div(@color-3);
+}
+
+.border-colorful-4 {
+  .border-div(@color-4);
+}
+
+.border-colorful-5 {
+  .border-div(@color-5);
+}
+
+.border-colorful-6 {
+  .border-div(@color-6);
+}
+
+.border-colorful-7 {
+  .border-div(@color-7);
+}
+
+.border-colorful-8 {
+  .border-div(@color-8);
+}
+
+.border-colorful-9 {
+  .border-div(@color-9);
+}
+
+.border-colorful-10 {
+  .border-div(@color-10);
+}
+
+// endregion
+
+// region Header
+
+.toplinks {
+  margin-top: 10px;
+  margin-bottom: 5px;
+  font-size: @font-size-tiny;
+  a {
+    color: @gray;
+    margin-left: 15px;
+  }
+}
+
+.logotext {
+  padding-left: 5px;
+  margin-top: 5px;
+  margin-left: 5px;
+  max-width: 250px;
+  float: left;
+}
+
+.logosvg {
+  margin-top: 4px;
+  max-width: 78px;
+  float: left;
+  margin-left: -1px;
+}
+
+ul.nav {
+  > li {
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    -ms-border-radius: 4px;
+    -o-border-radius: 4px;
+    border-radius: 4px;
+
+    > a {
+      padding: 0;
+      background: none;
+      margin-bottom: 10px;
+      @all-transition();
+      &:hover img, &:focus img, &:active img {
+        background: none;
+        @shadow();
+        @all-transition();
+      }
+
+      &:hover span, &:focus span, &:active span {
+        color: @brand-primary;
+        @all-transition();
+      }
+
+      strong {
+        margin-bottom: 10px;
+        margin-left: 5px;
+      }
+
+    }
+  }
+}
+
+//Override bootstrap a href hover = brand-secondary, else the wrong color will flash shortly
+.dropdown-toggle {
+  &:hover, &.hover, &:focus, &.focus, &.active, &:active {
+    color: @brand-primary;
+  }
+}
+
+.navbar-toggle {
+  background: #aaaaaa;
+  width: 50px;
+  margin-top: 20px;
+}
+
+.navbar-normal {
+  margin-top: 15px;
+
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.navbar-nav {
+  margin: 0;
+
+  /* Dropdown on Mobile Fix */
+  .open .dropdown-menu {
+    position: absolute !important;
+    left: auto !important;
+    right: 0 !important;
+    background-color: @white !important;
+    border-width: 0 !important;
+    border-radius: 0 !important;
+  }
+}
+
+.navbar-login {
+  width: 305px;
+  padding: 10px 10px 0;
+}
+
+.useravatar {
+  padding-top: 3px;
+  width: 36px;
+  border-radius: 20px;
+}
+
+.navbar-nav > li, .navbar-nav {
+  float: left !important;
+}
+
+.navbar-right {
+  float: right !important;
+}
+
+@media (max-width: @screen-sm-max) {
+  .logo {
+    width: 70%;
+  }
+}
+
+.nav .open > a,
+.nav .open > a:hover,
+.nav .open > a:focus {
+  background: none;
+  border: none;
+}
+
+.nav > li > a:hover,
+.nav > li > a:focus {
+  text-decoration: none;
+  background: none;
+}
+
+// endregion
+
+// region Overlay Header
+
+#overlaynav {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: none;
+  z-index: 999;
+}
+
+#overlaynavbar {
+  min-height: 54px;
+  width: 100%;
+  background-color: @body-bg;
+  padding-top: 10px;
+
+  div {
+    div.text-right, div.text-left {
+      padding-top: 2px;
+    }
+  }
+}
+
+.shadow-light {
+  @shadow-light();
+}
+
+.navbar-small {
+  background-color: @body-bg;
+}
+
+@media (min-width: @screen-sm-min) {
+  #toHide {
+    visibility: hidden;
+  }
+}
+
+.overlay-logo {
+  max-width: 82px;
+}
+
+.overlay-useravatar {
+  width: 36px;
+  border-radius: 20px;
+}
+
+.overlay-menu {
+  * {
+    transition: none;
+    &:hover, &.hover, &.active, &:active, &.focus, &:focus {
+      transition: none;
+    }
+  }
+
+  .btn {
+    transition: box-shadow 0.4s ease, -webkit-box-shadow 0.4s ease;
+    &:hover, &.hover, &.active, &:active, &.focus, &:focus {
+      transition: box-shadow 0.4s ease, -webkit-box-shadow 0.4s ease;
+    }
+  }
+  max-width: 340px;
+  .pull-right;
+}
+
+.overlay-dropdown {
+  border-top: 3px solid @white;
+  box-shadow: 0 5px 5px 0px lighten(@gray, 20%);
+  -webkit-box-shadow: 0 5px 5px 0px lighten(@gray, 20%);
+}
+
+.back-to-top {
+  cursor: pointer;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: none;
+  z-index: 100;
+}
+
+// endregion
+
+// region Search Area + Tagit
+/* source: https://github.com/aehlke/tag-it */
+
+ul.tagit {
+  padding: 1px 5px;
+  overflow: auto;
+  margin-left: inherit; /* usually we don't want the regular ul margins. */
+  margin-right: inherit;
+}
+
+ul.tagit li {
+  display: block;
+  float: left;
+  margin: 2px 5px 2px 0;
+}
+
+ul.tagit li.tagit-choice {
+  position: relative;
+  line-height: inherit;
+}
+
+input.tagit-hidden-field {
+  display: none;
+}
+
+ul.tagit li.tagit-choice-read-only {
+  padding: .2em .5em .2em .5em;
+}
+
+ul.tagit li.tagit-choice-editable {
+  padding: .2em 18px .2em .5em;
+}
+
+ul.tagit li.tagit-new {
+  padding: .2em 4px .2em 5px;
+}
+
+ul.tagit li.tagit-choice a.tagit-label {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+ul.tagit li.tagit-choice .tagit-close {
+  cursor: pointer;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  margin-top: -8px;
+  margin-left: 10px;
+  margin-right: 5px;
+  line-height: 17px;
+}
+
+/* used for some custom themes that don't need image icons */
+ul.tagit li.tagit-choice .tagit-close .text-icon {
+  display: none;
+}
+
+ul.tagit li.tagit-choice input {
+  display: block;
+  float: left;
+  margin: 2px 5px 2px 0;
+}
+
+ul.tagit input[type="text"] {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+
+  -moz-box-shadow: none;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+
+  border: none;
+  margin: 0;
+  padding: 0;
+  width: inherit;
+  background-color: inherit;
+  outline: none;
+}
+
+ul.tagit {
+  border-width: 0;
+  background: @white;
+  cursor: text;
+
+  @tagit-choice-properties: { -moz-border-radius: 0; border-radius: 0; -webkit-border-radius: 0; border: 0; background: none; background-color: @brand-primary; font-weight: normal; };
+
+  li.tagit-choice {
+    @tagit-choice-properties();
+    @all-transition();
+    &:hover, &.remove {
+      @tagit-choice-properties();
+      @all-transition-fast();
+    }
+    .tagit-label:not(a) {
+      color: @white;
+    }
+    a.tagit-close {
+      text-decoration: none;
+      padding-right: 7px;
+      .cross-icon {
+        color: @white;
+        @all-transition();
+        &:hover {
+          @all-transition();
+          color: @brand-secondary;
+        }
+      }
+    }
+
+    .ui-icon {
+      display: none;
+    }
+  }
+
+  li.tagit-choice-no-result {
+    background-color: @brand-danger;
+    &:hover, &.hover {
+      background-color: @brand-danger;
+    }
+    a.tagit-close {
+      .cross-icon {
+        &:hover {
+          color: darken(@brand-danger, 20%);
+        }
+      }
+    }
+  }
+
+  li.tagit-choice-editable {
+    padding-right: 36px !important;
+  }
+
+  input[type="text"] {
+    color: @gray-dark;
+    background: none;
+  }
+
+}
+
+#search-area {
+  margin-bottom: 40px;
+}
+
+/* Forked from a jQuery UI theme, so that we don't require the jQuery UI CSS as a dependency. */
+.tagit-autocomplete.ui-autocomplete {
+  position: absolute;
+  cursor: default;
+}
+
+* html .tagit-autocomplete.ui-autocomplete {
+  width: 1px;
+}
+
+/* without this, the menu expands to 100% in IE6 */
+.tagit-autocomplete.ui-menu {
+  list-style: none;
+  padding: 2px;
+  margin: 0;
+  display: block;
+  float: left;
+}
+
+.tagit-autocomplete.ui-menu .ui-menu {
+  margin-top: -3px;
+}
+
+.tagit-autocomplete.ui-menu .ui-menu-item {
+  margin: 0;
+  padding: 0;
+  zoom: 1;
+  float: left;
+  clear: left;
+  width: 100%;
+}
+
+.tagit-autocomplete.ui-menu .ui-menu-item a {
+  text-decoration: none;
+  display: block;
+  padding: .2em .4em;
+  line-height: 1.5;
+  zoom: 1;
+}
+
+.tagit-autocomplete .ui-menu .ui-menu-item a.ui-state-hover,
+.tagit-autocomplete .ui-menu .ui-menu-item a.ui-state-active {
+  font-weight: normal;
+  margin: -1px;
+}
+
+.tagit-autocomplete.ui-widget-content {
+  border: 1px solid #aaaaaa;
+  background: #ffffff 50% 50% repeat-x;
+  color: #222222;
+}
+
+.tagit-autocomplete.ui-corner-all, .tagit-autocomplete .ui-corner-all {
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  -khtml-border-radius: 4px;
+  border-radius: 4px;
+}
+
+.tagit-autocomplete .ui-state-hover, .tagit-autocomplete .ui-state-focus {
+  border: 1px solid #999999;
+  background: #dadada;
+  font-weight: normal;
+  color: #212121;
+}
+
+.tagit-autocomplete .ui-state-active {
+  border: 1px solid #aaaaaa;
+}
+
+.tagit-autocomplete .ui-widget-content {
+  border: 1px solid #aaaaaa;
+}
+
+.tagit .ui-helper-hidden-accessible {
+  position: absolute !important;
+  clip: rect(1px, 1px, 1px, 1px);
+}
+
+.btn-sort {
+  font-size: 18px;
+  color: @brand-primary;
+  background-color: @white;
+  border-left: 3px solid @body-bg;
+  height: 43.8px;
+  width: 100%;
+  padding-left: 0;
+  padding-right: 0;
+  transition: none;
+
+  #sorter {
+    padding-top: 8px;
+  }
+}
+
+.btn-sort:hover, .btn-sort:focus {
+  box-shadow: none;
+  webkit-box-shadow: none;
+}
+
+@media only screen and (min-width: @screen-sm-min) {
+  #tag-input {
+    padding-right: 0;
+  }
+}
+
+.sort-menu {
+
+  > li, > h6 {
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+
+  }
+
+  > h6 {
+    padding-left: 10px;
+  }
+}
+
+//Tags
+
+.tag-clear-all {
+  display: inline-block;
+  text-align: right;
+  font-size: 18px;
+  color: @brand-primary;
+  background-color: @white;
+  height: 43.8px;
+  width: 100%;
+  padding-left: 0;
+  padding-right: 0;
+  box-shadow: none;
+  &:hover, &.hover, &.active, &:active, &:focus, &.focus {
+    box-shadow: none;
+  }
+
+  img {
+    padding-top: 11px;
+    margin-right: 13px;
+  }
+}
+
+/* Shake Animation */
+
+.shake {
+  animation: shake 0.6s cubic-bezier(.36, .07, .19, .97) both;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+@keyframes shake {
+  10%, 90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+
+  20%, 80% {
+    transform: translate3d(2px, 0, 0);
+  }
+
+  30%, 50%, 70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+
+  40%, 60% {
+    transform: translate3d(4px, 0, 0);
+  }
+}
+
+// endregion
+
+// region User Profile
+
+.userpageuserimg {
+  width: 180px;
+  margin: 0 auto;
+}
+
+.userinfo {
+  padding-bottom: 30px;
+}
+
+.userskills {
+  margin-bottom: 30px;
+}
+
+#userprofile-area {
+  .panel-body {
+    padding-bottom: 0;
+  }
+}
+
+.socialmediaprofil {
+  margin-top: 12px;
+  text-align: right;
+  padding-right: 0;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+@media (max-width: @screen-xs-max) {
+
+  .userpageuserbox {
+    text-align: center;
+  }
+
+  .userpageuserbox h2 {
+    margin-top: 10px;
+  }
+
+  .socialmediaprofil {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+}
+
+.social-text {
+  color: @white;
+}
+
+.custom-social {
+  display: inline-block;
+  overflow: hidden;
+  width: 32px;
+  height: 32px;
+  text-align: center;
+  margin-bottom: 10px;
+  background-color: @brand-primary;
+  > .fa {
+    position: relative;
+    font-size: 20px;
+    line-height: 20px;
+    top: 2px;
+  }
+}
+
+// endregion
+
+// region Home Page
+@media (max-width: @screen-xs-max) {
+  #tag-suggestions {
+    text-align: center;
+  }
+}
+
+.project-box {
+  img {
+    @all-transition();
+    @grayscale-full();
+
+    &:hover {
+      @all-transition();
+      @grayscale-half();
+    }
+  }
+}
+
+// endregion
+
+// region Dropdown Menus
+
+.dropdown-menu {
+  font-size: @font-size-small;
+  border: none;
+}
+
+.dropdown-menu:after {
+  position: absolute;
+  top: -6px;
+  right: 20px;
+  display: inline-block;
+  border-right: 6px solid transparent;
+  border-bottom: 6px solid @white;
+  border-left: 6px solid transparent;
+  content: '';
+}
+
+#usernav-menu:after {
+  right: 27px;
+}
+
+#loginnav-menu:after {
+  right: 23px;
+}
+
+#searchsort-dropdown:after {
+  right: 33px;
+}
+
+// endregion
+
+// region Project Upload
+
+.char-count {
+  .pull-right;
+  color: @gray;
+  font-size: @font-size-tiny;
+}
+
+.upload-title-image-wrapper {
+  background-color: @gray-lighter;
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 */
+  height: 0;
+  a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+  }
+  @all-transition();
+  &:hover {
+    background-color: @gray-light;
+    @all-transition();
+  }
+}
+
+.content-upload-border {
+  border-right: 1px solid @white;
+  border-left: 1px solid @white;
+  &:hover, &.hover {
+    border-right: 1px solid @white;
+    border-left: 1px solid @white;
+  }
+}
+
+.content-upload-padding {
+  padding-left: 1px;
+  padding-right: 1px;
+}
+
+.content-upload-padding-left {
+  padding-right: 1px;
+}
+
+.content-upload-padding-right {
+  padding-left: 1px;
+}
+
+// endregion
+
+// region Project Detail Page
+
+.psocial {
+  padding-top: 20px;
+}
+
+.psocial .btn {
+  width: 60px;
+  height: 60px;
+  font-size: 30px;
+  margin-bottom: 10px;
+}
+
+.video-wrapper {
+  margin-bottom: 20px;
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 */
+  height: 0;
+}
+
+.video-wrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.image-wrapper {
+  margin-bottom: 20px;
+  img {
+    max-height: 400px;
+    margin: 0 auto;
+  }
+}
+
+.carousel-inner > .item > img {
+  margin: 0 auto;
+}
+
+.popover-content {
+  color: @white;
+}
+
+.carousel-arrow {
+  top: 50%;
+}
+
+.carousel-image-wrapper {
+  text-align: center;
+  img {
+    max-height: 350px;
+    width: auto;
+    height: 350px;
+  }
+}
+
+video, audio {
+  width: 100% !important;
+  height: auto !important;
+}
+
+// endregion

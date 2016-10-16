@@ -1,0 +1,191 @@
+//region Typography
+h1, .h1,
+h2, .h2,
+h3, .h3,
+h4, .h4 {
+  margin-top: 0;
+  margin-bottom: 20px;
+
+}
+
+h5, .h5,
+h6, .h6 {
+  margin-top: 0;
+  margin-bottom: 5px;
+
+}
+
+.font-elegance {
+  font-weight: @font-weight-elegance;
+  font-family: @font-family-elegance;
+}
+
+h1.font-elegance, .h1.font-elegance {
+  font-size: @font-size-h1-elegance;
+}
+
+h2.font-elegance, .h2.font-elegance {
+  font-size: @font-size-h2-elegance;
+}
+
+h3.font-elegance, .h3.font-elegance {
+  font-size: @font-size-h3-elegance;
+}
+
+h4.font-elegance, .h4.font-elegance {
+  font-size: @font-size-h4-elegance;
+}
+
+h5.font-elegance, .h5.font-elegance {
+  font-size: @font-size-h5-elegance;
+}
+
+h6.font-elegance, .h6.font-elegance {
+  font-size: @font-size-h6-elegance;
+}
+
+//endregion
+
+.btn {
+    border: none;
+    border-radius: 0;
+    font-size: @font-size-base;
+    @all-transition();
+
+    &.active, &:focus, &.focus, &:active, &:hover {
+        @shadow();
+        @all-transition();
+    }
+}
+
+.button-variant(@color; @background; @border) {
+  &:focus,
+  &.focus {
+    color: @color;
+    background-color: @background;
+        border-color: @border;
+  }
+  &:hover {
+    color: @color;
+    background-color: @background;
+        border-color: @border;
+  }
+  &:active,
+  &.active,
+  .open > .dropdown-toggle& {
+    color: @color;
+    background-color: @background;
+        border-color: @border;
+
+    &:hover,
+    &:focus,
+    &.focus {
+      color: @color;
+      background-color: @background;
+          border-color: @border;
+    }
+  }
+}
+
+.btn-secondary {
+    .button-variant(@btn-secondary-color; @btn-secondary-bg; @btn-secondary-border);
+}
+
+.btn-tertiary {
+    .button-variant(@btn-tertiary-color; @btn-tertiary-bg; @btn-tertiary-border);
+}
+
+.btn-colorful(@background) {
+    .button-variant(@white; @background; @background);
+}
+
+.table-small {
+    margin-bottom: 0;
+}
+
+.panel {
+    padding: 0;
+    margin-bottom: 40px;
+    background-color: @white;
+    color: @black;
+    @shadow();
+    border-radius: 0;
+    border: 0;
+}
+
+.panel-body {
+    .panel-image {
+        margin-top: -@panel-body-padding-top;
+        margin-right: -@panel-body-padding-sides;
+        margin-left: -@panel-body-padding-sides;
+        margin-bottom: 30px;
+        img {
+             width: 100%;
+        }
+    }
+
+    .panel-title {
+        text-align: center;
+    }
+}
+
+.container {
+    .container-row:last-child {
+      margin-bottom: 0;
+    }
+}
+
+.container-row {
+  margin-bottom: 40px;
+}
+
+.carousel-control {
+   &.left {
+    .no-gradient;
+  }
+  &.right {
+    .no-gradient;
+  }
+
+  .carousel-prev, .carousel-next{
+      position: absolute;
+      top: 50%;
+      margin-top: -40px;
+      z-index: 5;
+      display: inline-block;
+  }
+
+  .carousel-prev {
+    left: 50%;
+    margin-left: -20px;
+  }
+
+  .carousel-next {
+    right: 50%;
+    margin-right: -20px;
+  }
+}
+
+.no-gradient() {
+  background-image: none;
+  filter: none;
+}
+
+.carousel-indicators li {
+
+  &:active, &.active {
+    width: 10px;
+    height: 10px;
+    margin: 1px;
+  }
+
+  &:first-child{
+    margin-right: -2px;
+  }
+}
+
+.label {
+  border: none;
+  border-radius: 0;
+  padding: .3em .6em .3em;
+}

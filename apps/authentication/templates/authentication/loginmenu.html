@@ -1,0 +1,19 @@
+{% load staticfiles %}
+{% load crispy_forms_tags %}
+<div id="loginnav-menu" class="dropdown-menu" style="width: 350px; padding: 15px; padding-bottom: 0px;">
+    <form action='' method="POST" id="login_submit">
+        {% csrf_token %}
+
+        {{ login_form | crispy }}
+
+        <p><a href="{% url 'home' %}">Passwort vergessen?</a></p>
+        <div class="form-group">
+            <input type="submit" value="Login" class="btn btn-primary">
+
+            <button type="button" class="btn btn-primary" data-toggle="modal"
+                    data-target="#registerModal">Registrieren
+            </button>
+
+        </div>
+    </form>
+</div>

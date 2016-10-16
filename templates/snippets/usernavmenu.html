@@ -1,0 +1,41 @@
+{% load staticfiles %}
+{% load crispy_forms_tags %}
+<ul id="usernav-menu" class="{% block class %}{% endblock %}" style="padding: 15px; padding-bottom: 0px;">
+    <li>
+        <div class="navbar-login">
+            <div class="row">
+                <div class="col-xs-4">
+                    <img class="img-responsive"
+                         src="{{ request.user.get_lib_user.profile_img.url }}"/>
+                </div>
+                <div class="col-xs-8">
+                    <h6 style="margin:0">{{ request.user.get_lib_user.get_public_name }}</h6>
+                    <a href="/user/{{ request.user.get_lib_user.id }}"
+                       class="btn btn-primary btn-block btn-sm"
+                       style="margin-top: 10px;">Mein Profil</a>
+                </div>
+            </div>
+        </div>
+    </li>
+    <li class="divider"></li>
+    <li><a href="/upload/"><span class="fa fa-upload fa-fw" aria-hidden="true"></span>&nbsp; <span style="margin-left:5px">Projekt hochladen</span></a></li>
+    <li class="divider"></li>
+    <li><a href="/settings/"><span class="fa fa-cog fa-fw" aria-hidden="true"></span>&nbsp; <span style="margin-left:5px">Einstellungen</span></a></li>
+    <li class="divider"></li>
+    {% if request.user.is_superuser %}
+        <li><a href="/admin/"><span class="fa fa-database fa-fw" aria-hidden="true"></span>&nbsp; <span style="margin-left:5px">Admin-Bereich</span></a></li>
+        <li class="divider"></li>
+    {% elif request.user.get_lib_user.type == 'professor'%}
+        <li><a href="/admin/"><span class="fa fa-university fa-fw" aria-hidden="true"></span>&nbsp; <span style="margin-left:5px">Professoren-Bereich</span></a></li>
+        <li class="divider"></li>
+    {% endif %}
+
+    <li>
+        <form style="margin:0;" action='/logout/' method="POST">
+            {% csrf_token %}
+            <input type="submit" value="Logout" class="btn btn-default btn-block"
+                   style="margin-bottom:15px;"/>
+            <input type="hidden" name="next" value="{{ current_path }}"/>
+        </form>
+    </li>
+</ul>

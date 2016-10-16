@@ -1,0 +1,16 @@
+{% extends 'modal.html' %}
+{% load crispy_forms_tags %}
+{% block id %}registerModal{% endblock %}
+{% block title %}Registrieren{% endblock %}
+{% block modal-body %}
+    <div class="modal-body" id="modal_register">
+        <form action='' method="POST" id="register_form">
+            {% csrf_token %}
+            {{ register_form | crispy }}
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" style="margin:0" data-dismiss="modal">Abbrechen</button>
+                <button type="submit" class="btn btn-primary">Registrieren</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}
