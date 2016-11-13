@@ -1,7 +1,11 @@
 {% extends 'project.html' %}
 {% load staticfiles %}
 {% block title %}
-    Neues Projekt hochladen
+    {% if project %}
+        {{ project.heading }} - Bearbeiten
+    {% else %}
+    Neues Projekt erstellen
+    {% endif %}
 {% endblock %}
 {% block id %}
     projectupload-area
@@ -18,13 +22,14 @@
 {% endblock %}
 
 {% block maininfo %}
-    <input type="text" id="heading" class="form-control input-lg h1 font-elegance" placeholder="Titel" maxlength="40">
-    <input type="text" id="subheading" class="form-control input-sm h4 font-elegance" placeholder="Untertitel" maxlength="70">
+    <input type="text" id="heading" class="form-control input-lg h1 font-elegance" placeholder="Titel" maxlength="40"
+           {% if project %} value="{{project.heading}}" {% endif %}>
+    <input type="text" id="subheading" class="form-control input-sm h4 font-elegance" placeholder="Untertitel" maxlength="70"
+           {% if project %} value="{{project.subheading}}" {% endif %}>
     <hr>
     <div class="input-group">
-        <textarea id="description" class="form-control resize-none" placeholder="Kurzbeschreibung" rows="5" maxlength="500"></textarea>
+        <textarea id="description" class="form-control resize-none" placeholder="Kurzbeschreibung" rows="5" maxlength="500">{% if project %}{{project.description}}{%endif%}</textarea>
     </div>
-
 {% endblock %}
 
 {% block contentbody %}

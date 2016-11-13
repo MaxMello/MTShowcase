@@ -1,5 +1,6 @@
 from django.apps import AppConfig
 
 
-class AdminpageConfig(AppConfig):
+class AdministrationConfig(AppConfig):
     name = 'apps.administration'
+

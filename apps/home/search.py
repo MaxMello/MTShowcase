@@ -37,7 +37,7 @@ class Search:
         for m in project.members.all():
             search_string += ' ' + m.get_public_name()
             for pm in ProjectMember.objects.filter(member=m):
-                for r in pm.responsabilities.all():
+                for r in pm.responsibilities.all():
                     search_string += ' ' + r.value
 
         for m in project.supervisors.all():
@@ -65,19 +65,26 @@ class Search:
     def get_projects(self):
 
         qset = Project.objects.all()
+        print(qset)
+        if not qset:
+            return []
 
         if self.user_id:
             qset = qset.filter(members__id=self.user_id)
+            if not qset:
+                return []
 
         if self.except_projects:
             qset = qset.exclude(id__in=self.except_projects)
-            # TODO: Maybe evaluate the length of projects at this point, if 0 return []
-            # because the query with searches might take very long (check that)
+            if not qset:
+                return []
 
         if self.tags:
             # TODO: FILTER BY FIRSTNAME + LASTNAME IF SHOW_CLEAR_NAME = TRUE
             #qset = qset.extra(select={'full_name':'select CONCAT(CONCAT(first_name, " "), last_name) from registration.AuthEmailUser where registration.AuthEmailUser.id = lib.user.auth_user'})
             qset = qset.filter(self.filter_for_tags(self.tags))
+            if not qset:
+                return []
 
         if self.order == 'newest':
             qset = qset.order_by('-upload_date', '-views')
@@ -86,7 +93,7 @@ class Search:
         else:
             most = Project.objects.order_by('-views')[:1].get().views
             newest = Project.objects.order_by('-id')[:1].get().id
-            qset = qset.extra(select={'default_order': "(lib_project.id/%s)*(views/%s)"}, select_params=(newest, most)).order_by('-default_order')
+            qset = qset.extra(select={'default_order': "(project_project.id/%s)*(views/%s)"}, select_params=(newest, most)).order_by('-default_order')
             # TODO: Rework default sorting algorithm
             # Problems: Uses IDs, not date. Also should be based of publish_date, not upload_date. Should be normalized values,
             # so the 50% oldest and most viewed post = 70% oldest and 30% most viewed

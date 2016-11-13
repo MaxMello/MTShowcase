@@ -22,13 +22,9 @@ class UserProfileView(TemplateView):
     template_name = 'user/user.html'
 
     def get(self, request, *args, **kwargs):
-        user_projects = ProjectMember.objects.filter(member_id=int(self.kwargs['member_id'])).values_list('project__pk', flat=True)
-        user = User.objects.filter(id=self.kwargs['member_id']).get()
-        print(user_projects)
+        user = User.objects.filter(unique_name=self.kwargs['unique_name']).get()
+        user_projects = ProjectMember.objects.filter(member=user).values_list('project__pk', flat=True)
         projects = Project.objects.filter(id__in=user_projects)
-        print(projects)
-        print("###--##------USER SOCIALS------#-###")
-        print(UserSocial.objects.filter(user=user).values('social__name', 'url'))
         socials = UserSocial.objects.filter(user=user)
         user_skills = ProjectMemberResponsibility.get_skills_for_user(user)
         for social in user.socials.all():
@@ -202,3 +198,8 @@ class SettingPasswordChangeView(FormView):
 
 class PasswordChangeDoneView(TemplateView):
     template_name = 'settings/password_change_done.html'
+
+
+class ProjectListView(TemplateView):
+    template_name = 'user/projectlist.html'
+    names = ns

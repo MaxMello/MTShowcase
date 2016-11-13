@@ -8,10 +8,10 @@ from .secrets import production
 urlpatterns = [
     url(r'^', include('apps.authentication.urls')),
     url(r'^', include('apps.home.urls')),
-    url(r'^project/', include('apps.project.urls')),
-    url(r'^user/', include('apps.user.urls')),
+    url(r'^', include('apps.project.urls')),
+    url(r'^', include('apps.user.urls')),
     url(r'^admin/', include('apps.administration.urls')),
-    url(r'^backoffice/', admin.site.urls),
+
 ]
 
 

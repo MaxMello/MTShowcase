@@ -74,7 +74,7 @@ function createProjectDiv(project) {
         'class': 'panel-image'
     });
     var a = $('<a />', {
-        'href': '/project/' + project.id
+        'href': '/p/' + project.id
     });
     var img = $('<img />', {
         'class': 'img-responsive',
@@ -87,7 +87,7 @@ function createProjectDiv(project) {
         "onclick": "goToProject(" + project.id + ");"
     });
     var a2 = $('<a />', {
-        'href': '/project/' + project.id,
+        'href': '/p/' + project.id,
     });
     var heading = $('<span />', {
         'class': 'h2 font-elegance'

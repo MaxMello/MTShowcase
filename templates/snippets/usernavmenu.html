@@ -10,7 +10,7 @@
                 </div>
                 <div class="col-xs-8">
                     <h6 style="margin:0">{{ request.user.get_lib_user.get_public_name }}</h6>
-                    <a href="/user/{{ request.user.get_lib_user.id }}"
+                    <a href="/u/{{ request.user.get_lib_user.unique_name }}"
                        class="btn btn-primary btn-block btn-sm"
                        style="margin-top: 10px;">Mein Profil</a>
                 </div>
@@ -18,9 +18,9 @@
         </div>
     </li>
     <li class="divider"></li>
-    <li><a href="/upload/"><span class="fa fa-upload fa-fw" aria-hidden="true"></span>&nbsp; <span style="margin-left:5px">Projekt hochladen</span></a></li>
+    <li><a href="/me/project/new/"><span class="fa fa-upload fa-fw" aria-hidden="true"></span>&nbsp; <span style="margin-left:5px">Projekt hochladen</span></a></li>
     <li class="divider"></li>
-    <li><a href="/settings/"><span class="fa fa-cog fa-fw" aria-hidden="true"></span>&nbsp; <span style="margin-left:5px">Einstellungen</span></a></li>
+    <li><a href="/me/settings/"><span class="fa fa-cog fa-fw" aria-hidden="true"></span>&nbsp; <span style="margin-left:5px">Einstellungen</span></a></li>
     <li class="divider"></li>
     {% if request.user.is_superuser %}
         <li><a href="/admin/"><span class="fa fa-database fa-fw" aria-hidden="true"></span>&nbsp; <span style="margin-left:5px">Admin-Bereich</span></a></li>

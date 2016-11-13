@@ -10,7 +10,7 @@ from MTShowcase import settings
 
 
 class AdminView(TemplateView):
-    template_name = 'adminpage/admin.html'
+    template_name = 'administration/admin.html'
     names = _names  # available through view.names in template
     enter_allowed = False
 

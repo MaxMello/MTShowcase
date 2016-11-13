@@ -9,6 +9,7 @@ from django.db import models
 from MTShowcase.settings import STATIC_URL, MEDIA_URL
 from apps.user.models import User
 from django.db.models import Count
+from jsonfield import JSONField
 
 
 def can_be_supversivor(value):
@@ -24,6 +25,7 @@ def project_directory_path(instance, filename):
 
 
 class Project(models.Model):
+
     SUMMER = 'SS'
     WINTER = 'WS'
 
@@ -52,8 +54,46 @@ class Project(models.Model):
     heading = models.CharField(max_length=100)
     subheading = models.CharField(max_length=255)
     description = models.TextField(max_length=2000)
-    tags = models.ManyToManyField('Tag', through='ProjectTag', through_fields=('project', 'tag'),
-                                  related_name='project_tag')
+    """
+        Content Documentation:
+         - Content is a JSON
+         - content_type = TEXT:
+            - subheading: Überschrift für den Abschnitt
+            - text: Text inkl. einiger Styling-Elemente (Fett) #TODO: Vielleicht markup/nicht html?
+         - content_type = IMAGE:
+            - text: Text unter dem Bild
+            - ref_type = INTERNAL | EXTERNAL
+                - ref_type = INTERNAL:
+                    - filename: Name der Datei
+                - ref_type = EXTERNAL:
+                    - url: Link zum Bild
+         - content_type = SLIDESHOW:
+            - images: ordered list of IMAGE-Jsons (see above)
+         - content_type = VIDEO:
+            - text: Text unter dem Video
+            - ref_type: (see above)
+                - ref_type = EXTERNAL:
+                    + media_host: Website/Source des Videos (YouTube, Vimeo, ...)
+         - content_type = AUDIO:
+            - text: Text unter dem Audioplayer
+            - ref_type: (see above, video)
+        """
+    # CHOICES
+    TEXT = 'TEXT'
+    IMAGE = 'IMAGE'
+    SLIDESHOW = 'SLIDESHOW'
+    VIDEO = 'VIDEO'
+    AUDIO = 'AUDIO'
+
+    CONTENT_TYPE = (
+        (TEXT, 'Text'),
+        (IMAGE, 'Image'),
+        (SLIDESHOW, 'Slideshow'),
+        (VIDEO, 'Video'),
+        (AUDIO, 'Audio')
+    )
+    # Contents is an ordered list of JSONs, while each json can have a content_type and different fields as seen in above comment
+    contents = JSONField(default='[]')
 
     # PROJECT INFO
     semester = models.CharField(max_length=2, choices=SEMESTER, default=SUMMER)
@@ -63,6 +103,8 @@ class Project(models.Model):
     subject = models.ForeignKey('Subject', on_delete=models.PROTECT)
     socials = models.ManyToManyField('user.Social', through='ProjectSocial', through_fields=('project', 'social'),
                                      related_name='project_social')
+    tags = models.ManyToManyField('Tag', through='ProjectTag', through_fields=('project', 'tag'),
+                                  related_name='project_tag')
 
     # ASSOCIATED USERS
     members = models.ManyToManyField('user.User', through='ProjectMember', through_fields=('project', 'member'),
@@ -83,16 +125,6 @@ class Project(models.Model):
     def get_title_image_path(self):
         return "{0}{1}{2}".format(STATIC_URL, "project/images/", self.title_image)
 
-    def get_all_content(self):
-        return ProjectContent.objects.filter(project=self).order_by('position')
-
-    def get_all_content_json(self):
-        jsons = [dict(json.loads(content.content), **{'content_type': content.content_type, 'content_path': content.project_content_directory_path()})
-                 for content
-                 in ProjectContent.objects.filter(project=self).order_by('position')]
-        print(jsons)
-        return jsons
-
     def get_semester_year_string(self):
         if self.semester == self.SUMMER:
             return "SoSe" + " " + str(self.year_from)
@@ -110,8 +142,7 @@ class Project(models.Model):
         search_string += ' ' + pattern.sub(' ', str(self.heading))
         search_string += ' ' + pattern.sub(' ', str(self.subheading))
         search_string += ' ' + stopwords.remove_stoppwords(self.description)
-        for content in self.get_all_content():
-            content_json = json.loads(content.content)
+        for content_json in self.contents:
             if content_json is not None:
                 if 'subheading' in content_json:
                     search_string += ' ' + stopwords.remove_stoppwords(content_json['subheading'])
@@ -145,61 +176,21 @@ class Project(models.Model):
         super(Project, self).save()
 
 
-class ProjectContent(models.Model):
-    # CHOICES
-    TEXT = 'TEXT'
-    IMAGE = 'IMAGE'
-    SLIDESHOW = 'SLIDESHOW'
-    VIDEO = 'VIDEO'
-    AUDIO = 'AUDIO'
-
-    CONTENT_TYPE = (
-        (TEXT, 'Text'),
-        (IMAGE, 'Image'),
-        (SLIDESHOW, 'Slideshow'),
-        (VIDEO, 'Video'),
-        (AUDIO, 'Audio')
-    )
-
+class ProjectContentRevision(models.Model):
+    """
+    ProjectContentRevision displays a revision of the content of a project on a specific time and from a specific user
+    These can be loaded again in the project upload field. Each revision can have a comment from a supervisor
+    """
     project = models.ForeignKey('Project', on_delete=models.CASCADE)
-    position = models.IntegerField(default=0)
-    content_type = models.CharField(max_length=10, choices=CONTENT_TYPE, default=TEXT)
-    content = models.TextField(max_length=2000, default='{"subheading": "", "text": ""}')
-    """
-    Content Documentation:
-     - Content is a JSON
-     - content_type = TEXT:
-        - subheading: Überschrift für den Abschnitt
-        - text: Text inkl. einiger Styling-Elemente (Fett) #TODO: Vielleicht markup/nicht html?
-     - content_type = IMAGE:
-        - text: Text unter dem Bild
-        - ref_type = INTERNAL | EXTERNAL
-            - ref_type = INTERNAL:
-                - filename: Name der Datei
-            - ref_type = EXTERNAL:
-                - url: Link zum Bild
-     - content_type = SLIDESHOW:
-        - images: ordered list of IMAGE-Jsons (see above)
-     - content_type = VIDEO:
-        - text: Text unter dem Video
-        - ref_type: (see above)
-            - ref_type = EXTERNAL:
-                + media_host: Website/Source des Videos (YouTube, Vimeo, ...)
-     - content_type = AUDIO:
-        - text: Text unter dem Audioplayer
-        - ref_type: (see above, video)
-    """
-
-    def __str__(self):
-        return 'ID: {} - {} (ID: {}) - Typ {} - an Position {}:  {}'.format(self.id, self.project.heading, self.project.id, self.content_type,
-                                                                            self.position, self.content)
-
-    def project_content_directory_path(self):
-        return MEDIA_URL + 'project_{0}/content_{1}/'.format(self.project.id, self.id)  # + Filename
-
-    def save(self, *args, **kwargs):
-        super(ProjectContent, self).save(*args, **kwargs)
-        self.project.update_search_string()
+    editor = models.ForeignKey('user.User', on_delete=models.PROTECT)
+    revision_date = models.DateTimeField(auto_now_add=True)
+    project_image = models.ImageField(upload_to=project_directory_path, default=STATIC_URL + 'images/default_project_image.jpg')
+    project_image_cropped = models.ImageField(upload_to=project_directory_path, default=STATIC_URL + 'images/default_project_image.jpg')
+    heading = models.CharField(max_length=100)
+    subheading = models.CharField(max_length=255)
+    description = models.TextField(max_length=2000)
+    contents = JSONField(default='[]')
+    supervisor_comment = models.TextField(max_length=2000, null=True, blank=True)
 
 
 class Tag(models.Model):
@@ -229,7 +220,7 @@ class DegreeProgram(models.Model):
     academic_degree = models.CharField(max_length=10, choices=ACADEMIC_DEGREE, default=BACHELOR)  # TODO: Add to search
 
     def __str__(self):
-        return "ID: {} - {} ({}) - {} - {}".format(self.id, self.name, self.abbreviation, self.academic_degree, self.department.name)
+        return "ID: {} - {} ({}) - {}".format(self.id, self.name, self.abbreviation, self.academic_degree)
 
 
 class Subject(models.Model):

@@ -160,7 +160,7 @@
                 <tr>
             {% endif %}
         {% if should_display %}
-            <td><a href="/apps/user/{{ member.id }}">
+            <td><a href="/u/{{ member.unique_name }}">
                 {% if  member.show_clear_name %}
                     {{ member.auth_user.first_name }} {{ member.auth_user.last_name }}
                 {% elif member.alias %}
@@ -176,7 +176,7 @@
 
         {% for member in project.supervisors.all %}
             <tr>
-                <td><strong><a href="/apps/user/{{ member.id }}">{{ member.auth_user.first_name }} {{ member.auth_user.last_name }}</a></strong></td>
+                <td><strong><a href="/u/{{ member.unique_name }}">{{ member.auth_user.first_name }} {{ member.auth_user.last_name }}</a></strong></td>
                 <td><strong>Betreuer</strong></td>
             </tr>
         {% endfor %}

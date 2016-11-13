@@ -38,4 +38,9 @@ class UploadView(LoginRequiredMixin, TemplateView):
         subjects = Subject.objects.all()
         year_choices = reversed([r for r in range(1980, datetime.date.today().year + 1)])
         context = {'names': names, 'degree_programs': degree_programs, 'subjects': subjects, 'year_choices': year_choices}
+
+        project_id = self.kwargs.get('project_id')
+        if project_id:
+            project = Project.objects.filter(id=int(project_id)).first()
+            context['project'] = project
         return render(request, template_name=self.template_name, context=context)
