@@ -21,7 +21,7 @@
 {% endblock %}
 {% block contentbody %}
     <div class="project-content">
-        {% for content in project.get_all_content_json %}
+        {% for content in project.contents %}
             {% if not content.visibility == "hidden" or request.user.is_authenticated %}
                 {% if content.subheading %}
                     <h4>{{ content.subheading }}</h4>
@@ -60,6 +60,7 @@
                             {% else %}
                                 <div class="alert alert-warning">Fehler beim laden des Videos.</div>
                             {% endif %}
+                            </video>
                         {% else %}
                             <div class="alert alert-warning">Fehler beim laden des Videos.</div>
                         {% endif %}
@@ -126,7 +127,7 @@
                         </div>
                         {{ content.text }}
                     {% else %}
-                        <div class="alert alert-warning">Fehler beim laden des Inhalts.</div>
+                        <!--<div class="alert alert-warning">Fehler beim laden des Inhalts.</div>-->
                     {% endif %}
                 </p>
             {% endif %}

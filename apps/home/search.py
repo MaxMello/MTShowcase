@@ -22,7 +22,7 @@ class Search:
     def build_projects_jsons(self, maximum):
         projects_jsons = []
         for index, proj in enumerate(self.projects):
-            project_dict = {'id': proj.id, 'img': proj.project_image.url, 'heading': proj.heading, 'order': index,
+            project_dict = {'id': proj.unique_id_base64(), 'img': proj.project_image.url, 'heading': proj.heading, 'order': index,
                        'search_string': self.build_frontend_search_string(proj),
                        'tags': {'prio1': self.tags_prio1(proj), 'prio2': self.tags_prio2(proj), 'prio3': self.tags_prio3(proj)}}
             projects_jsons.append(project_dict)

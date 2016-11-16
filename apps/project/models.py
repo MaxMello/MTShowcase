@@ -1,6 +1,7 @@
 import datetime
 import json
-
+import uuid
+import base64
 import re
 from apps.project import stopwords
 from django.contrib import admin
@@ -113,6 +114,7 @@ class Project(models.Model):
                                          related_name='project_supervisor')
 
     # META DATA
+    unique_id = models.UUIDField(primary_key=False, default=uuid.uuid4, editable=False, unique=True)
     views = models.IntegerField(default=0)
     upload_date = models.DateTimeField(auto_now_add=True)
     approval_state = models.CharField(max_length=20, choices=APPROVAL_STATES, default=EDIT_STATE)
@@ -121,6 +123,16 @@ class Project(models.Model):
     def __str__(self):
         return 'ID: {} - {} - {} - Status: {} - {} views (Hochgeladen {})'.format(self.id, self.heading, self.get_semester_year_string(),
                                                                                   self.approval_state, self.views, self.upload_date)
+
+    def unique_id_base64(self):
+        return base64.urlsafe_b64encode(self.unique_id.bytes).decode('utf-8').rstrip('=\n')
+
+    @staticmethod
+    def base64_to_uuid(base64_id):
+        if isinstance(base64_id, str) and len(base64_id) == 22:
+            return uuid.UUID(bytes=base64.urlsafe_b64decode((base64_id + '==')))
+        else:
+            return None
 
     def get_title_image_path(self):
         return "{0}{1}{2}".format(STATIC_URL, "project/images/", self.title_image)
