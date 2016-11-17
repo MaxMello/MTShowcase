@@ -1,5 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.urlresolvers import reverse_lazy
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 from django.views.generic.base import TemplateView
@@ -46,3 +47,14 @@ class UploadView(LoginRequiredMixin, TemplateView):
             project = get_object_or_404(Project, unique_id=unique_project_id)
             context['project'] = project
         return render(request, template_name=self.template_name, context=context)
+
+
+def get_subjects_by_degree_program(request, degree_program_id):
+    degree_program = DegreeProgram.objects.filter(id=degree_program_id).first()
+    if degree_program:
+        print(degree_program.subjects())
+        response = [{"id": subject.id, "name": subject.name} for subject in degree_program.subjects()]
+
+        return HttpResponse(json.dumps(response), content_type='application/json')
+    else:
+        return HttpResponse(json.dumps([]), content_type='application/json')

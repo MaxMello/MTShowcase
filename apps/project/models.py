@@ -231,6 +231,16 @@ class DegreeProgram(models.Model):
     abbreviation = models.CharField(max_length=10)
     academic_degree = models.CharField(max_length=10, choices=ACADEMIC_DEGREE, default=BACHELOR)  # TODO: Add to search
 
+    def subjects(self):
+        subjects = Subject.objects.all()
+        return_subjects = []
+        for s in subjects:
+            for d in s.degree_programs.all():
+                if d.id == self.id:
+                    return_subjects.append(s)
+                    break
+        return return_subjects
+
     def __str__(self):
         return "ID: {} - {} ({}) - {}".format(self.id, self.name, self.abbreviation, self.academic_degree)
 

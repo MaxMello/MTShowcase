@@ -76,20 +76,19 @@
 
 {% block projectinfo %}
     <div class="form-group">
-        <label for="subject-select">Fach</label>
-        <select class="form-control" id="subject-select">{% for s in subjects %}
-            <option id="{{ s.id }}">{{ s.name }}</option>{% endfor %}</select>
-    </div>
-    <div class="form-group">
         <label for="degreeprogram-select">Studiengang</label>
         <select id="degreeprogram-select" class="form-control">{% for d_p in degree_programs %}
-            <option id="{{ d_p.id }}">{{ d_p.name }}</option>{% endfor %}</select>
+            <option value="{{ d_p.id }}">{{ d_p.name }}</option>{% endfor %}</select>
+    </div>
+    <div class="form-group">
+        <label for="subject-select">Fach</label>
+        <select class="form-control" id="subject-select"></select>
     </div>
     <div class="form-group">
         <label for="semesteryear-select">Semester</label>
         <select id="semesteryear-select" class="form-control">{% for i in year_choices %}
             <option id="S{{ i }}">SoSe {{ i|add:1 }}</option>
-            <option id="W{{ i }}">WiSe {{ i }}/{{ i|add:1 }}</option>{% endfor %}</select>
+            <option id="W{{ i }}" {% if  forloop.counter0 == 0 %}selected{% endif %}>WiSe {{ i }}/{{ i|add:1 }}</option>{% endfor %}</select>
     </div>
 {% endblock %}
 
@@ -124,6 +123,28 @@
             $('#addcontent-row').replaceWith(addcontentchoice);
         }, function () {
             $('#addcontentchoice-row').replaceWith(addcontent);
+        });
+
+        $('#degreeprogram-select').change(function(){
+            var id = $(this).val();
+            $.ajax({
+                url: "/subjects_by_degree_program/" + id,
+                dataType: 'json',
+                type: 'POST',
+                data: {csrfmiddlewaretoken: window.CSRF_TOKEN},
+                success: function (data) {
+                    $('#subject-select').find('option').remove().end();
+                    $.each(data, function(i, item) {
+                        $('#subject-select').append($('<option>', {
+                            value: item.id,
+                            text: item.name
+                        }));
+                    });
+                },
+                error: function (request, status, error) {
+                console.log("Ajax Request Error - Status: " + status, " - Error: " + error);
+            }
+            });
         });
 
         var charCount = function (text_max, input, span) {
@@ -161,6 +182,7 @@
                 },
                 showAutocompleteOnFocus: true
             });
+            $('#degreeprogram-select').trigger('change');
         });
     </script>
 {% endblock %}
