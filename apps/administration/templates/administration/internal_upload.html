@@ -1,66 +1,78 @@
 {% extends 'base.html' %}
-{% block title %}Projektupload Intern{% endblock %}
+{% block title %}Intern - Projekt erstellen{% endblock %}
 
 {% block content %}
     <div class="container-row" id="admin-area">
         <div class="row">
-            {% if view.enter_allowed %}
-                <div class="col-xs-12">
-                    <div class="panel">
-                        <div class="panel-body">
-                            <div id="editor_holder"></div>
-                            <button id="submitProject" class="btn btn-primary btn-lg"><i class="fa fa-save"></i>
-                                Speichern
-                            </button>
-                        </div>
-
+            <div class="col-xs-12">
+                <div class="panel">
+                    <div class="panel-body">
+                        <div id="editor_holder"></div>
+                        <button id="submit-project" class="btn btn-primary btn-lg"><i class="fa fa-save"></i>
+                            Download
+                        </button>
+                        <p id="form-error-msg" class="help-block errormsg" style="display:none">Mindestens ein Feld
+                            wurde nicht korrekt ausgefüllt. Bitte prüfe deine Eingaben.</p>
+                        <a id="downloadAnchorElem" style="display:none"></a>
                     </div>
+
                 </div>
-            {% else %}
-                <p>Du musst eingeloggt sein, um diesen Bereich zu betreten</p>
-            {% endif %}
+            </div>
         </div>
     </div>
 {% endblock %}
 {% load staticfiles %}
+{% block css %}
+    <style>
+
+        #editor_holder p {
+            font-size: 0.9em;
+        }
+    </style>
+{% endblock %}
 {% block scripts %}
     <script src="{% static 'js/libs/jsonEditor.js' %}" type="text/javascript" charset="utf-8"></script>
     <script>
         var element = document.getElementById('editor_holder');
         var schema = {
-            "title": "Projekt hinzufügen",
-            "description": "Dies ist der interne Projektupload. Er kann genutzt werden, um bereits Daten für den Launch der Seite einzuspeisen. Nach dem Ausfüllen dieses Dokumentes wird es auf Validität geprüft und durch den SPEICHERN-Button am Ende der Seite wird das Projekt auf dem Server gespeichert. Bei Fragen bitte eine Email an max.wiechmann@haw-hamburg.de.",
+            "title": "Projekt erstellen",
+            "description": "Nach Ausfüllen des Formulars kann eine Datei heruntergeladen werden, die später in das System eingespeist werden kann. Alle Medien (Bilder, Videos, Audiodateien) bitte eindeutig bennen. Die heruntergeladenen Dateien am Ende zusammen mit den Medien-Dateien über Drive/Dropbox etc. zukommen lassen. Die Dateinamen sollen dann mit den hier angegebenen Dateinamen übereinstimmen. Bei Fragen oder Problemen bitte eine Email an max.wiechmann@haw-hamburg.de.",
             "type": "object",
+            "minItems": 1,
             "properties": {
+                "project_image": {
+                    "type": "string",
+                    "title": "Dateiname Titelbild",
+                    "description": "Der Dateiname des Titelbilds. Das Titelbild sollte eine angemessene Auflösung haben, und unterschiedliche Projekte sollten Titelbilder in unterschiedlichen Seitenverhältnissen haben, damit das Projekt-Grid nicht zu langweilig aussieht.",
+                    "minLength": 1
+                },
                 "heading": {
                     "type": "string",
                     "title": "Projekttitel",
-                    "description": "Name des Projektes (z.B. Taking Down Hollywood)",
+                    "description": "Name des Projektes (z.B. Taking Down Hollywood) [2-50 Zeichen, am besten < 25]",
                     "minLength": 2,
-                    "maxLength": 100,
-                    "default": ""
+                    "maxLength": 50
                 },
                 "subheading": {
                     "type": "string",
                     "title": "Untertitel",
-                    "description": "Untertitel / Tagline / Beschreibender Titel (z.B. Das Zeitreise-Theaterstück)",
-                    "minLength": 5,
-                    "maxLength": 255,
-                    "default": ""
+                    "description": "Untertitel / Tagline / Beschreibender Titel (z.B. Eine Weltenreise In Fünf Akten) [2-100 Zeichen, am besten < 50]",
+                    "minLength": 2,
+                    "maxLength": 100
                 },
                 "description": {
                     "type": "string",
                     "title": "Kurzbeschreibung",
                     "format": "textarea",
-                    "description": "Knackige Kurzbeschreibung des Projektes, 3-6 Sätze die aussagen, was das Projekt ausmacht",
-                    "minLength": 10,
-                    "maxLength": 2000,
-                    "default": ""
+                    "description": "Knackige Kurzbeschreibung des Projektes. [100-1000 Zeichen, am besten ca. 500]",
+                    "minLength": 100,
+                    "maxLength": 1000
                 },
                 "semester": {
                     "type": "string",
                     "title": "Semester",
-                    "description": "Abgabe des Projektes im WS oder SS",
+                    "description": "Wurde das Projekt in einem WS oder SS abgegeben?",
+                    "default": "SS",
                     "enum": [
                         "WS",
                         "SS"
@@ -68,40 +80,45 @@
                 },
                 "yearFrom": {
                     "type": "integer",
-                    "title": "Jahr",
-                    "description": "Jahr (Start Semester)",
+                    "title": "Jahr #1",
+                    "description": "Jahr, in dem das Semester gestartet ist. (Bsp: WS 15/16 -> Jahr #1 = 2015)",
                     "default": 2015,
-                    "minimum": 1900,
+                    "minimum": 1950,
                     "maximum": 2020
                 },
                 "yearTo": {
                     "type": "integer",
                     "title": "Jahr #2",
-                    "description": "Jahr (Ende Semester, kann identisch mit Start-Jahr sein)",
+                    "description": "Jahr, in dem das Semester geendet ist. (Bsp: SS 14 -> Jahr #1 und #2 = 2014)",
                     "default": 2015,
-                    "minimum": 1900,
+                    "minimum": 1950,
                     "maximum": 2020
                 },
-                "degree_program": {
-                    "type": "string",
-                    "title": "Studiengang",
-                    "description": "MT oder MS als primärer Studiengang",
-                    "enum": [
-                        "MT",
-                        "MS"
-                    ]
+                "degree_programs": {
+                    "type": "array",
+                    "title": "Studiengänge",
+                    "description": "Welche Studiengänge sind am Projekt beteiligt (MT, MS oder beide)",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string",
+                        "title": "Studiengang",
+                        "enum": [
+                            "MT",
+                            "MS"
+                        ]
+                    }
                 },
                 "subject": {
                     "type": "string",
                     "title": "Unterrichtsfach",
-                    "description": "Fach (Einheitliche Namen!)",
+                    "description": "Eindeutiger Name des Unterrichtsfaches. Abkürzungen sind auch ok, solange sie einheitlich für alle Projekte verwendet werden.",
                     "minLength": 1
                 },
                 "tags": {
                     "type": "array",
                     "format": "grid",
                     "title": "Tags",
-                    "description": "Liste an eindeutigen Tags, zB Genre etc.",
+                    "description": "Liste an über allen Projekten einheitlichen Tags. Das heißt, zwei Theater-Projekte sollten beide den Tag 'Theater' haben. Am besten mindestens 5 Stück, gerne auch deutlich mehr, solange die Tags Sinn machen.",
                     "uniqueItems": true,
                     "items": {
                         "type": "string",
@@ -113,7 +130,7 @@
                     "type": "array",
                     "format": "table",
                     "title": "Betreuer",
-                    "description": "Betreuende Professoren/Lehrbeauftragte/...",
+                    "description": "Betreuende Professoren oder Lehrbeauftragte. Bitte als eindeutige Identifikation die HAW-Mail der Person angeben.",
                     "uniqueItems": true,
                     "items": {
                         "type": "object",
@@ -121,8 +138,7 @@
                         "properties": {
                             "email": {
                                 "type": "string",
-                                "format": "email",
-                                "default": "max.mustermann@haw-hamburg.de"
+                                "format": "email"
                             }
                         }
                     }
@@ -131,7 +147,7 @@
                     "type": "array",
                     "format": "table",
                     "title": "Mitglieder",
-                    "description": "Noch aktive (HAW) Mitglieder, die auftreten wollen. Andere Mitglieder nicht aufführen",
+                    "description": "Noch aktive (HAW) Mitglieder, die auftreten wollen. Andere Mitglieder nicht aufführen. HAW-Mail angeben.",
                     "uniqueItems": true,
                     "items": {
                         "type": "object",
@@ -139,8 +155,7 @@
                         "properties": {
                             "email": {
                                 "type": "string",
-                                "format": "email",
-                                "default": "max.mustermann@haw-hamburg.de"
+                                "format": "email"
                             }
                         }
                     }
@@ -154,18 +169,6 @@
                         "type": "object",
                         "title": "Inhalt",
                         "properties": {
-                            "subheading": {
-                                "type": "string",
-                                "title": "Abschnittsüberschrift",
-                                "description": "Optional - Überschrift für Inhaltsabschnitt",
-                                "maxLength":50
-                            },
-                            "text": {
-                                "type": "string",
-                                "format": "textarea",
-                                "title": "Beschreibungstext",
-                                "description": "Text, z.B. aus einer Doku etc. - kann alleine stehen oder unter einem Bild/Video/..."
-                            },
                             "contentType": {
                                 "type": "string",
                                 "title": "Art",
@@ -177,14 +180,72 @@
                                     "AUDIO"
                                 ]
                             },
+                            "subheading": {
+                                "type": "string",
+                                "title": "Abschnittsüberschrift",
+                                "description": "Optional - Überschrift für Inhaltsabschnitt",
+                                "maxLength": 50
+                            },
+                            "text": {
+                                "type": "string",
+                                "format": "textarea",
+                                "title": "Beschreibungstext",
+                                "description": "Einen Beschreibungstext kann alleine stehen (Art: TEXT) oder unter einem Medium (IMAGE/VIDEO/AUDIO) - Dann ist er optional."
+                            },
+                            "ref_type": {
+                                "type": "string",
+                                "title": "Art der Referenz",
+                                "description": "Wenn ein Medium vorhanden ist, wie wird es referenziert? Bei Dateien, die später direkt auf dem Server landen, wähle INTERNAL, bei URLs EXTERNAL.",
+                                "default": "INTERNAL",
+                                "enum": [
+                                    "INTERNAL",
+                                    "EXTERNAL"
+                                ]
+                            },
                             "url": {
                                 "type": "string",
-                                "title": "Link zum Medium (Falls vorhanden)",
-                                "description": "Wenn es sich um eine Inhaltsart außer TEXT handelt, kann hier eine URL angegeben werden: Bild-URLs, YouTube, Soundcloud. Wenn Datei später direkt hochgeladen werden soll, stattdessen Dateinamen angeben und Datei über Drive/Dropbox/... zukommen lassen."
+                                "title": "URL/Dateiname",
+                                "description": "Nur bei IMAGE/VIDEO/AUDIO. Entweder die URL (bei EXTERNAL: Bild-Link oder YouTube/Vimeo/Soundcloud-Link) oder der Dateiname (bei INTERNAL)"
                             }
                         }
                     }
-                }
+                },
+                "socials": {
+                    "type": "array",
+                    "format": "table",
+                    "title": "Externe Links",
+                    "description": "Liste an externen Links, z.B. Facebook-Seiten, Youtube-Channels etc.",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "object",
+                        "title": "Extener Link",
+                        "properties": {
+                            "social": {
+                                "type": "string",
+                                "title": "Link Art",
+                                "enum": [
+                                    "link",
+                                    "vimeo",
+                                    "soundcloud",
+                                    "mixcloud",
+                                    "instagram",
+                                    "google plus",
+                                    "github",
+                                    "flickr",
+                                    "dropbox",
+                                    "youtube",
+                                    "facebook",
+                                    "twitter"
+                                ]
+                            },
+                            "url": {
+                                "type": "string",
+                                "format": "url",
+                                "title": "Link URL"
+                            }
+                        }
+                    }
+                },
             }
         };
         var editor = new JSONEditor(element, {
@@ -194,12 +255,38 @@
             disable_properties: true,
             disable_collapse: true,
             disable_edit_json: true,
-            no_additional_properties: true
+            no_additional_properties: true,
+            show_errors: "change",
+            required_by_default: true
         });
 
         $('#submit-project').click(function () {
-            var projectJson = editor.getValue();
-            console.log(projectJson);
+            var errors = editor.validate();
+            console.log(errors);
+            if (errors.length) {
+                errors.forEach(function (item) {
+                    console.log(item);
+                    var schemapathDiv = $('#editor_holder').find("div[data-schemapath='" + item.path + "']");
+                    console.log(schemapathDiv);
+                    schemapathDiv.find(".form-group").addClass("has-error");
+                    schemapathDiv.find(".form-group").append("<p class='help-block errormsg'>" + item.message + "</p>");
+                }, this);
+                $('#form-error-msg').css("display", "inline");
+            }
+            else {
+                // It's valid!
+                $('.errormsg').each(function () {
+                    $(this).hide();
+                })
+                var projectJson = editor.getValue();
+                console.log(projectJson);
+                var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(projectJson));
+                var dlAnchorElem = document.getElementById('downloadAnchorElem');
+                dlAnchorElem.setAttribute("href", dataStr);
+                dlAnchorElem.setAttribute("download", "project.json");
+                dlAnchorElem.click();
+            }
+
         });
     </script>
 {% endblock %}
