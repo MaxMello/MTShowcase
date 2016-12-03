@@ -22,6 +22,19 @@ class AdminView(TemplateView):
         return super(AdminView, self).dispatch(request, *args, **kwargs)
 
 
+class InternalUploadView(TemplateView):
+    template_name = 'administration/internal_upload.html'
+    names = _names  # available through view.names in template
+    enter_allowed = False
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated():
+            user = get_object_or_404(User, pk=request.user.id)
+            if user.type == User.PROF or user.type == User.ADMIN:
+                self.enter_allowed = True
+        return super(InternalUploadView, self).dispatch(request, *args, **kwargs)
+
+
 class InviteUserView(View):
     def post(self, request, *args, **kwargs):
         # Username

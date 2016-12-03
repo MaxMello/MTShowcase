@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+{% block title %}Projektupload Intern{% endblock %}
+
+{% block content %}
+    <div class="container-row" id="admin-area">
+        <div class="row">
+            {% if view.enter_allowed %}
+                <div class="col-xs-12">
+                    <div class="panel">
+                        <div class="panel-body">
+                            <div id="editor_holder"></div>
+                            <button id="submitProject" class="btn btn-primary btn-lg"><i class="fa fa-save"></i>
+                                Speichern
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            {% else %}
+                <p>Du musst eingeloggt sein, um diesen Bereich zu betreten</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+{% load staticfiles %}
+{% block scripts %}
+    <script src="{% static 'js/libs/jsonEditor.js' %}" type="text/javascript" charset="utf-8"></script>
+    <script>
+        var element = document.getElementById('editor_holder');
+        var schema = {
+            "title": "Projekt hinzufügen",
+            "description": "Dies ist der interne Projektupload. Er kann genutzt werden, um bereits Daten für den Launch der Seite einzuspeisen. Nach dem Ausfüllen dieses Dokumentes wird es auf Validität geprüft und durch den SPEICHERN-Button am Ende der Seite wird das Projekt auf dem Server gespeichert. Bei Fragen bitte eine Email an max.wiechmann@haw-hamburg.de.",
+            "type": "object",
+            "properties": {
+                "heading": {
+                    "type": "string",
+                    "title": "Projekttitel",
+                    "description": "Name des Projektes (z.B. Taking Down Hollywood)",
+                    "minLength": 2,
+                    "maxLength": 100,
+                    "default": ""
+                },
+                "subheading": {
+                    "type": "string",
+                    "title": "Untertitel",
+                    "description": "Untertitel / Tagline / Beschreibender Titel (z.B. Das Zeitreise-Theaterstück)",
+                    "minLength": 5,
+                    "maxLength": 255,
+                    "default": ""
+                },
+                "description": {
+                    "type": "string",
+                    "title": "Kurzbeschreibung",
+                    "format": "textarea",
+                    "description": "Knackige Kurzbeschreibung des Projektes, 3-6 Sätze die aussagen, was das Projekt ausmacht",
+                    "minLength": 10,
+                    "maxLength": 2000,
+                    "default": ""
+                },
+                "semester": {
+                    "type": "string",
+                    "title": "Semester",
+                    "description": "Abgabe des Projektes im WS oder SS",
+                    "enum": [
+                        "WS",
+                        "SS"
+                    ]
+                },
+                "yearFrom": {
+                    "type": "integer",
+                    "title": "Jahr",
+                    "description": "Jahr (Start Semester)",
+                    "default": 2015,
+                    "minimum": 1900,
+                    "maximum": 2020
+                },
+                "yearTo": {
+                    "type": "integer",
+                    "title": "Jahr #2",
+                    "description": "Jahr (Ende Semester, kann identisch mit Start-Jahr sein)",
+                    "default": 2015,
+                    "minimum": 1900,
+                    "maximum": 2020
+                },
+                "degree_program": {
+                    "type": "string",
+                    "title": "Studiengang",
+                    "description": "MT oder MS als primärer Studiengang",
+                    "enum": [
+                        "MT",
+                        "MS"
+                    ]
+                },
+                "subject": {
+                    "type": "string",
+                    "title": "Unterrichtsfach",
+                    "description": "Fach (Einheitliche Namen!)",
+                    "minLength": 1
+                },
+                "tags": {
+                    "type": "array",
+                    "format": "grid",
+                    "title": "Tags",
+                    "description": "Liste an eindeutigen Tags, zB Genre etc.",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string",
+                        "title": "Tag",
+                        "minLength": 2
+                    }
+                },
+                "supervisor": {
+                    "type": "array",
+                    "format": "table",
+                    "title": "Betreuer",
+                    "description": "Betreuende Professoren/Lehrbeauftragte/...",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "object",
+                        "title": "Betreuer",
+                        "properties": {
+                            "email": {
+                                "type": "string",
+                                "format": "email",
+                                "default": "max.mustermann@haw-hamburg.de"
+                            }
+                        }
+                    }
+                },
+                "member": {
+                    "type": "array",
+                    "format": "table",
+                    "title": "Mitglieder",
+                    "description": "Noch aktive (HAW) Mitglieder, die auftreten wollen. Andere Mitglieder nicht aufführen",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "object",
+                        "title": "Mitglied",
+                        "properties": {
+                            "email": {
+                                "type": "string",
+                                "format": "email",
+                                "default": "max.mustermann@haw-hamburg.de"
+                            }
+                        }
+                    }
+                },
+                "contents": {
+                    "type": "array",
+                    "title": "Projektinhalt",
+                    "description": "Liste an diversen Inhalten wie Texte, Bilder, Videos, Audio. Inhalte sind optional, es können beliebig viele Inhalte erstellt werden. Die Reihenfolge hier definiert die Reihenfolge später auf der Seite. Es können Texte, Bilder etc. beliebig kombiniert werden.",
+                    "uniqueItems": false,
+                    "items": {
+                        "type": "object",
+                        "title": "Inhalt",
+                        "properties": {
+                            "subheading": {
+                                "type": "string",
+                                "title": "Abschnittsüberschrift",
+                                "description": "Optional - Überschrift für Inhaltsabschnitt",
+                                "maxLength":50
+                            },
+                            "text": {
+                                "type": "string",
+                                "format": "textarea",
+                                "title": "Beschreibungstext",
+                                "description": "Text, z.B. aus einer Doku etc. - kann alleine stehen oder unter einem Bild/Video/..."
+                            },
+                            "contentType": {
+                                "type": "string",
+                                "title": "Art",
+                                "description": "Art des Inhalts.",
+                                "enum": [
+                                    "TEXT",
+                                    "IMAGE",
+                                    "VIDEO",
+                                    "AUDIO"
+                                ]
+                            },
+                            "url": {
+                                "type": "string",
+                                "title": "Link zum Medium (Falls vorhanden)",
+                                "description": "Wenn es sich um eine Inhaltsart außer TEXT handelt, kann hier eine URL angegeben werden: Bild-URLs, YouTube, Soundcloud. Wenn Datei später direkt hochgeladen werden soll, stattdessen Dateinamen angeben und Datei über Drive/Dropbox/... zukommen lassen."
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        var editor = new JSONEditor(element, {
+            theme: "bootstrap3",
+            iconlib: "fontawesome4",
+            schema: schema,
+            disable_properties: true,
+            disable_collapse: true,
+            disable_edit_json: true,
+            no_additional_properties: true
+        });
+
+        $('#submit-project').click(function () {
+            var projectJson = editor.getValue();
+            console.log(projectJson);
+        });
+    </script>
+{% endblock %}
