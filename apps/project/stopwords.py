@@ -166,5 +166,5 @@ punctuation_regex = r"[ !\"„“/()?'`{}\[\],.;:'_-]+"
 
 def remove_stoppwords(text):
     s = ' '.join([word.lower() for word in re.split(punctuation_regex, str(text)) if word.lower() not in stopwords])
-    print(s)
+    # print(s)
     return s

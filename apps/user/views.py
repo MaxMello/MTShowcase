@@ -27,10 +27,18 @@ class UserProfileView(TemplateView):
         projects = Project.objects.filter(id__in=user_projects)
         socials = UserSocial.objects.filter(user=user)
         user_skills = ProjectMemberResponsibility.get_skills_for_user(user)
-        for social in user.socials.all():
-            print(social)
-        context = {'user': user, 'projects': projects, 'names': names, 'usersocials': socials, 'userskills': user_skills}
-        http_response = render(request, template_name=self.template_name, context=context)
+
+        http_response = render(
+            request,
+            template_name=self.template_name,
+            context={
+                'user': user,
+                'projects': projects,
+                'names': names,
+                'usersocials': socials,
+                'userskills': user_skills
+            }
+        )
         return http_response
 
 
@@ -53,9 +61,9 @@ class SettingAccountView(UpdateView):
         context = super(SettingAccountView, self).get_context_data(**kwargs)
 
         user = User.objects.get(auth_user=self.request.user)
-        if not 'form' in context:
+        if not ('form' in context):
             context['form'] = self.form_class(instance=self.request.user)
-        if not 'form2' in context:
+        if not ('form2' in context):
             context['form2'] = self.second_form_class({'unique_name': user.unique_name}, instance=user)
         context['user_profile'] = user
 
@@ -64,8 +72,11 @@ class SettingAccountView(UpdateView):
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         form = self.form_class(request.POST, instance=self.request.user)
-        form2 = self.second_form_class(request.POST, request.FILES,
-                                       instance=User.objects.get(auth_user=self.request.user))
+        form2 = self.second_form_class(
+            request.POST,
+            request.FILES,
+            instance=User.objects.get(auth_user=self.request.user)
+        )
 
         if form.is_valid() and form2.is_valid():
             form.save(commit=True)
@@ -83,34 +94,33 @@ class UserSocialView(TemplateView):
     success_url = reverse_lazy('settings-user-socials')
 
     def get(self, request, *args, **kwargs):
-        user = user = User.objects.get(auth_user=self.request.user)
+        user = User.objects.get(auth_user=self.request.user)
         socials = UserSocial.objects.filter(user=user).values('id', 'social__icon', 'url')
-        print(UserSocial.objects.filter(user=user))
 
-        return render(request, self.template_name,
-                      {'usersocials': socials, 'form': self.form(user)})
+        return render(request, self.template_name, {'usersocials': socials, 'form': self.form(user)})
 
     def post(self, request, *args, **kwargs):
-        user = user = User.objects.get(auth_user=self.request.user)
+        user = User.objects.get(auth_user=self.request.user)
         socials = UserSocial.objects.filter(user=user).values('id', 'social__icon', 'url')
+
         if request.is_ajax():
             params = request.POST
-            context = {'usersocials': socials}
             us = UserSocial.objects.get(id=params['id'])
+
+            context = {'usersocials': socials}
             context.update({'form': self.second_form(instance=us)})
             context.update({'socialname': us.social.name, 'id': params['id']})
-            form_html = render_to_string('settings/socials_edit_form.html', context=context, request=request)
-            result = {'form_html': form_html}
-            return HttpResponse(json.dumps(result), content_type="application/json")
-        else:
 
+            form_html = render_to_string('settings/socials_edit_form.html', context=context, request=request)
+            return HttpResponse(json.dumps({'form_html': form_html}), content_type="application/json")
+
+        else:
             if 'add' in request.POST:
                 form = self.form(user, request.POST)
                 if form.is_valid():
                     url = form.cleaned_data['url']
                     selection = form.cleaned_data['social_list']
 
-                    # create and save the new usersocial record
                     new_user_social = UserSocial()
                     new_user_social.user = user
                     new_user_social.social = selection
@@ -118,16 +128,18 @@ class UserSocialView(TemplateView):
                     new_user_social.save()
 
             elif 'update' in request.POST:
-                id = request.POST['id-user-social']
-                obj = UserSocial.objects.get(id=id)
-                form = self.second_form(request.POST, instance=obj)
+                user_social_id = request.POST['id-user-social']
+                user_social_entry = UserSocial.objects.get(id=user_social_id)
+                form = self.second_form(request.POST, instance=user_social_entry)
                 if form.is_valid():
-                    obj.url = form.cleaned_data['url']
-                    obj.save()
+                    user_social_entry.url = form.cleaned_data['url']
+                    user_social_entry.save()
+
             elif 'delete' in request.POST:
-                id = request.POST['id-user-social']
-                obj = UserSocial.objects.get(id=id)
-                obj.delete()
+                user_social_id = request.POST['id-user-social']
+                user_social_entry = UserSocial.objects.get(id=user_social_id)
+                user_social_entry.delete()
+
             else:
                 return HttpResponseBadRequest(request)
 
@@ -138,43 +150,51 @@ class PrivacyView(TemplateView):
     template_name = 'settings/privacy_settings.html'
     user_clearnameform = ShowClearNameForm
     user = None
-    obj_list = None
+    user_projects = None
 
     def dispatch(self, request, *args, **kwargs):
         self.user = User.objects.filter(auth_user=request.user)
-        self.obj_list = ProjectMember.objects.filter(member=User.objects.get(auth_user=self.request.user))
+        self.user_projects = ProjectMember.objects.filter(member=User.objects.get(auth_user=self.request.user))
 
         return super(PrivacyView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        print("#----------# GET FORMSET#-----------#")
-        print("Anzahl Privacy Projekte " + str(ProjectMember.objects.filter(member=self.user).count()))
+        # print("Anzahl Privacy Projekte " + str(ProjectMember.objects.filter(member=self.user).count()))
 
         ProjectMemberFormset = modelformset_factory(ProjectMember, form=ProjectPrivacyForm, extra=0)
         formset = ProjectMemberFormset(queryset=ProjectMember.objects.filter(member=self.user))
 
-        # user clear name form
-        userform = self.user_clearnameform(instance=self.user.first())
-        return render(request, self.template_name,
-                      {'object_list': zip(formset, self.obj_list),
-                       'empty_list': len(list(zip(formset, self.obj_list))) > 0,
-                       'formset': formset,
-                       'userform': userform})
+        user_show_clearname_form = self.user_clearnameform(instance=self.user.first())
+        return render(
+            request,
+            self.template_name,
+            context={
+                'object_list': zip(formset, self.user_projects),
+                'empty_list': len(list(zip(formset, self.user_projects))) > 0,
+                'formset': formset,
+                'userform': user_show_clearname_form
+            }
+        )
 
     def post(self, request, *args, **kwargs):
-        print("#----------# POST FORMSET#-----------#")
         ProjectMemberFormset = modelformset_factory(ProjectMember, form=ProjectPrivacyForm, extra=0)
         formset = ProjectMemberFormset(request.POST, queryset=ProjectMember.objects.filter(member=self.user))
-        userform = self.user_clearnameform(request.POST, instance=self.user.first())
-        if formset.is_valid() and userform.is_valid():
-            formset.save()
-            userform.save()
+        user_show_clearname_form = self.user_clearnameform(request.POST, instance=self.user.first())
 
-        return render(request, self.template_name,
-                      {'object_list': zip(formset, self.obj_list),
-                       'formset': formset,
-                       'userform': userform,
-                       'empty_list': len(list(zip(formset, self.obj_list))) > 0})
+        if formset.is_valid() and user_show_clearname_form.is_valid():
+            formset.save()
+            user_show_clearname_form.save()
+
+        return render(
+            request,
+            self.template_name,
+            context={
+                'object_list': zip(formset, self.user_projects),
+                'formset': formset,
+                'userform': user_show_clearname_form,
+                'empty_list': len(list(zip(formset, self.user_projects))) > 0
+            }
+        )
 
 
 class SettingPasswordChangeView(FormView):
@@ -190,10 +210,12 @@ class SettingPasswordChangeView(FormView):
     success_url = reverse_lazy('password-change-done')
 
     def dispatch(self, request, *args, **kwargs):
-        return password_change(request,
-                               password_change_form=self.form_class,
-                               template_name=self.template_name,
-                               post_change_redirect=self.success_url)
+        return password_change(
+            request,
+            password_change_form=self.form_class,
+            template_name=self.template_name,
+            post_change_redirect=self.success_url
+        )
 
 
 class PasswordChangeDoneView(TemplateView):

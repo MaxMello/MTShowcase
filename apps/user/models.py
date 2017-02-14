@@ -4,7 +4,10 @@ from MTShowcase.settings import STATIC_URL
 
 def user_directory_path(instance, filename):
     # MEDIA_ROOT/user_<id>/<filename>
-    return 'user_{0}/avatar/{1}'.format(instance.id, filename)
+    return 'user_{0}/avatar/{1}'.format(
+        instance.id,
+        filename
+    )
 
 
 class User(models.Model):
@@ -36,11 +39,22 @@ class User(models.Model):
     type = models.CharField(choices=USER_TYPE, default=STUDENT, max_length=25)
 
     def __str__(self):
-        return "ID: {} (Auth User: {} ({})) - {} ({}) - Type: {}".format(self.id, self.auth_user.id, self.auth_user.email, self.unique_name, "Name sichtbar" if self.show_clear_name else "Name versteckt", self.type)
+        return "ID: {} (Auth User: {} ({})) - {} ({}) - Type: {}".format(
+            self.id,
+            self.auth_user.id,
+            self.auth_user.email,
+            self.unique_name,
+            "Name sichtbar" if self.show_clear_name else "Name versteckt",
+            self.type
+        )
 
     def get_public_name(self):
         if self.show_clear_name:
-            return "{0} {1}".format(self.auth_user.first_name, self.auth_user.last_name)
+            return "{0} {1}".format(
+                self.auth_user.first_name,
+                self.auth_user.last_name
+            )
+
         else:
             return self.unique_name
 
@@ -50,6 +64,7 @@ class User(models.Model):
             this = User.objects.get(id=self.id)
             if this.profile_img != self.profile_img:
                 this.profile_img.delete(save=False)
+
         except:
             pass
         super(User, self).save(*args, **kwargs)
@@ -61,10 +76,17 @@ class Social(models.Model):
     icon = models.TextField(max_length=255, default='circle-o')
 
     def __str__(self):
-        return "ID: {} - {}".format(self.id, self.name.capitalize())
+        return "ID: {} - {}".format(
+            self.id,
+            self.name.capitalize()
+        )
 
     def get_icon_path(self):
-        return "{0}{1}{2}".format(STATIC_URL, "project/images/icons/", self.icon)
+        return "{0}{1}{2}".format(
+            STATIC_URL,
+            "project/images/icons/",
+            self.icon
+        )
 
 
 class UserSocial(models.Model):
@@ -73,5 +95,10 @@ class UserSocial(models.Model):
     url = models.URLField()
 
     def __str__(self):
-        return "{} (ID: {}) - {} (ID: {}): {}".format(self.user.unique_name, self.user.id, self.social.display_name, self.social.id, self.url)
+        return "{} (ID: {}) - {} (ID: {}): {}".format(
+            self.user.unique_name,
+            self.user.id,
+            self.social.display_name,
+            self.social.id, self.url
+        )
 

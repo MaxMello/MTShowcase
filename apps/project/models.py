@@ -14,10 +14,10 @@ from jsonfield import JSONField
 
 
 def can_be_supversivor(value):
-    print(value)
+    #print(value)
     user = User.objects.filter(id=value).first()
-    print(user)
-    if not (user.type == User.ADMIN or user == User.PROF):
+    #print(user)
+    if not (user.type == User.ADMIN or user.type == User.PROF):
         raise ValidationError(message="{} is not a user applicable for being a supervisor".format(value))
 
 
@@ -41,10 +41,10 @@ class Project(models.Model):
     APPROVED_STATE = 'APPROVED'
 
     APPROVAL_STATES = (
-        (EDIT_STATE, 'For users to edit'),
-        (REVIEW_STATE, 'For supervisors to review'),
-        (REVISION_STATE, 'For users to improve'),
-        (APPROVED_STATE, 'Publicly viewable')
+        (EDIT_STATE, 'Bearbeitbar durch Nutzer'),
+        (REVIEW_STATE, 'Abnahme durch Verantwortlichen'),
+        (REVISION_STATE, 'Korrekturphase'),
+        (APPROVED_STATE, 'Freigegeben - öffentlich einsehbar')
     )
 
     YEAR_CHOICES = [(r, r) for r in range(1980, datetime.date.today().year + 1)]
@@ -147,7 +147,7 @@ class Project(models.Model):
         return self.upload_date.date().strftime("%d.%m.%Y")
 
     def build_search_string(self):
-        print("BUILD SEARCH STRING")
+        #print("BUILD SEARCH STRING")
         pattern = re.compile(stopwords.punctuation_regex)
 
         search_string = ''
@@ -174,7 +174,7 @@ class Project(models.Model):
     def save(self, *args, **kwargs):
         if self.id is not None:
             orig = Project.objects.get(id=self.id)
-            print(orig)
+            #print(orig)
             if orig.tags != self.tags or orig.heading != self.heading or orig.subheading != self.subheading or orig.description != self.description \
                     or orig.semester != self.semester or orig.year_from != self.year_from or orig.year_to != self.year_to \
                     or orig.search_string != self.search_string:
@@ -186,6 +186,9 @@ class Project(models.Model):
     def update_search_string(self):
         self.search_string = self.build_search_string()
         super(Project, self).save()
+
+    def get_approval_string(self):
+        return dict(self.APPROVAL_STATES)[self.approval_state]
 
 
 class ProjectContentRevision(models.Model):
@@ -301,7 +304,7 @@ class ProjectMemberResponsibility(models.Model):
     def get_skills_for_user(user):
         a = ProjectMemberResponsibility.objects.filter(project_member__member=user).values('responsibility__value').annotate(
             c=Count('responsibility__value')).order_by('-c')[:10]
-        print(str(a))
+        #print(str(a))
         return a
 
 

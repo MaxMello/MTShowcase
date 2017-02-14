@@ -2,7 +2,7 @@ import datetime
 
 import hashlib
 import re
-from apps.administration.utils import mail
+from apps.administration.mail_utils import mail
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.core import serializers
 from django.core.exceptions import ValidationError
@@ -37,8 +37,6 @@ class AuthEmailUserManager(BaseUserManager):
          Create a new user using email and password and
          return the new user.
         """
-        if settings.AUTH_DEBUG:
-            print("#--#--------" + "CREATE NEW USER" + "--------#--#")
         if not email:
             raise ValueError("The given email must be set")
 
@@ -109,8 +107,6 @@ class AuthEmailUser(AbstractBaseUser, PermissionsMixin):
         """
         Sends an email to this User.
         """
-        if settings.AUTH_DEBUG:
-            print("#--#--------" + "ACTIVATION MAIL SEND" + "--------#--#")
         send_mail(subject, message, from_email, [self.email], **kwargs)
 
     def get_lib_user(self):
@@ -119,8 +115,6 @@ class AuthEmailUser(AbstractBaseUser, PermissionsMixin):
 
 class RegistrationManager(models.Manager):
     def activate_user(self, activation_key):
-        if settings.AUTH_DEBUG:
-            print("#--#--------" + "ACTIONVATION START" + "--------#--#")
         # check if valid sha1 hash
         if SHA1_RE.search(activation_key.lower()):
             try:
@@ -134,8 +128,6 @@ class RegistrationManager(models.Manager):
                 profile.activation_key = self.model.ACTIVATED
                 profile.save()
 
-                if settings.AUTH_DEBUG:
-                    print("#--#--------" + "CREATE SHOWCASE USER" + "--------#--#")
                 # create showcase user
                 new_user = User(alias=user.first_name.capitalize())
                 new_user.auth_user = user
@@ -151,8 +143,6 @@ class RegistrationManager(models.Manager):
         """
         Create inactive user and email confirmation key
         """
-        if settings.AUTH_DEBUG:
-            print("#--#--------" + "CREATE INACTIVE USER" + "--------#--#")
         new_user = form.save(commit=False)
         new_user.is_active = False
         self.set_first_last_name(new_user, form.cleaned_data['email'])
@@ -164,23 +154,19 @@ class RegistrationManager(models.Manager):
         return new_user
 
     def create_profile(self, user):
-        if settings.AUTH_DEBUG:
-            print("#--#--------" + "GENERATE KEY" + "--------#--#")
-            print("#--#--------" + "ABOUT TO CREATE USER" + "--------#--#")
-
         User = AuthEmailUser
         email = str(getattr(user, User.USERNAME_FIELD))
         hash_input = (get_random_string(5) + email).encode('utf-8')
         activation_key = hashlib.sha1(hash_input).hexdigest()
         key_expires = timezone.now() + timezone.timedelta(days=settings.ACCOUNT_ACTIVATION_DAYS)
-        print("user activation key endet in :")
-        print(key_expires)
 
-        return self.create(user=user, activation_key=activation_key, key_expires=key_expires)
+        return self.create(
+            user=user,
+            activation_key=activation_key,
+            key_expires=key_expires
+        )
 
     def set_first_last_name(self, user, data):
-        if settings.AUTH_DEBUG:
-            print("#--#--------" + "SET USER NAMES" + "--------#--#")
         email = user.email
         names = (str(email).split("@")[0]).split(".")
         user.first_name = names[0].capitalize()
@@ -190,8 +176,6 @@ class RegistrationManager(models.Manager):
         """
         Query for all profiles whose activation key has expired.
         """
-        if settings.AUTH_DEBUG:
-            print("#--#--------" + "CHECK PROFILE KEYEXPIRE" + "--------#--#")
         now = datetime.datetime.now()
         return self.filter(
             models.Q(activation_key=self.model.ACTIVATED) |
@@ -219,14 +203,9 @@ class RegistrationProfile(models.Model):
     objects = RegistrationManager()
 
     def activation_key_expired(self):
-        if settings.AUTH_DEBUG:
-            print("#--#--------" + "CHECK KEY EXPIRE" + "--------#--#")
-        return self.activation_key == self.ACTIVATED or \
-               (self.key_expires <= timezone.now())
+        return self.activation_key == self.ACTIVATED or (self.key_expires <= timezone.now())
 
     def send_activation_email(self):
-        if settings.AUTH_DEBUG:
-            print("#--#--------" + "ABOUT TO SEND ACTIVATION MAIL" + "--------#--#")
         ctx_dict = {'activation_key': self.activation_key,
                     'expiration_days': settings.ACCOUNT_ACTIVATION_DAYS,
                     'user': self.user,

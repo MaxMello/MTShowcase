@@ -1,6 +1,6 @@
 from MTShowcase import names as _names
 
-from apps.administration.utils import mail
+from apps.administration.mail_utils import mail
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView
 from django.views.generic.base import TemplateView, View
@@ -35,32 +35,11 @@ class InternalUploadView(TemplateView):
         return super(InternalUploadView, self).dispatch(request, *args, **kwargs)
 
 
-class InviteUserView(View):
-    def post(self, request, *args, **kwargs):
-        # Username
-        # User´s Email (vorgeprueft)
-        # Projekt Name
-        # Person, die invited hat
-        username = 'Max Mustermann'
-        inviter = 'Dirk Mustermann'
-        email = ''
-        project_name = ''
-        context = {'name': username,
-                   'inviter': inviter,
-                   'site': settings.SITE,
-                   'project_name': project_name,
-                   'domain': settings.DOMAIN}
-
-        mail('administration/email/user_invite_subject.txt',
-             'administration/email/user_invite_mail.txt',
-             context, email)
-
-
 class ProjectListView(ListView):
     model = ProjectSupervisor
 
     def get_queryset(self):
         pids = ProjectSupervisor.objects.filter(supervisor=self.request.user).values_list('project__pk', flat=True)
-        print(ProjectSupervisor.objects.filter(project__projectsupervisor__supervisor_id=1).select_related('project').query)
+        # print(ProjectSupervisor.objects.filter(project__projectsupervisor__supervisor_id=1).select_related('project').query)
 
         return Project.objects.filter(pk__in=pids).order_by('upload_date')

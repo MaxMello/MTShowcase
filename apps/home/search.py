@@ -65,7 +65,7 @@ class Search:
     def get_projects(self):
 
         qset = Project.objects.all()
-        print(qset)
+        #print(qset)
         if not qset:
             return []
 
@@ -105,7 +105,7 @@ class Search:
 
         qset = qset.distinct()
         qset = qset[:self.maximum]
-        print(qset.query)
+        #print(qset.query)
         return qset
 
     def filter_for_tags(self, tags):
