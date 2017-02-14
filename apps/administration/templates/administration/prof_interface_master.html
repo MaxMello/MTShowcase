@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Prof-Interface{% endblock %}
+
+{% block content %}
+    <div class="container-row" id="prof-actions">
+        <div class="row">
+            {% if view.enter_allowed %}
+                <!-- Main Actionbar to navigate between admin interface -->
+                {% include 'administration/prof_interface_left_actionbar.html' %}
+
+                <div id="content-wrapper">
+                    {% block main_content %}
+                        {% include 'administration/prof_interface_approval_content.html' %}
+                    {% endblock %}
+                </div>
+            {% else %}
+                <p>Du musst eingeloggt sein, um diesen Bereich zu betreten</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        $('#exampleModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var modal = $(this);
+            modal.find('.modal-body input').val("d.@haw-hamburg.de");
+        });
+
+        $('#students-link').on("click", function (event) {
+            $("#content-wrapper").load("{% url 'student_organisation' %}");
+            event.preventDefault();
+        });
+
+        $('#approval-link').on("click", function (event) {
+            console.log("approval clicked");
+             $.getJSON( "{% url 'approval_content' %}", function( json ) {
+                 $("#content-wrapper").html(json.text);
+             });
+            event.preventDefault();
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,53 @@
+<div class="col-lg-9 col-md-8">
+    {% for p in projects %}
+        <div class="panel">
+            <div class="panel-body">
+                <div class="col-lg-9">
+                    <p>{{ p.heading }}</p>
+
+                    <ul>
+                        {% for m in p.members.all %}
+                            <li>{{ m.auth_user.first_name }} {{ m.auth_user.last_name }}</li>
+                        {% endfor %}
+                    </ul>
+
+                    <div style="display: inline;">
+                        Betreuer:
+                        {% for sv in p.supervisors.all %}
+                            {% if request.user.get_lib_user == sv %}
+                                <span style="font-weight: 800;">{{ sv.auth_user.first_name }} {{ sv.auth_user.last_name }}</span>
+                            {% else %}
+                                {{ sv.auth_user.first_name }} {{ sv.auth_user.last_name }}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    <style>
+                        p {
+                            padding-bottom: 0px;
+                            margin-bottom: 0px;
+                        }
+                    </style>
+
+                    <p>Status: {{ p.get_approval_string }}</p>
+                    <p>Studiengang: {{ p.degree_program.name }}</p>
+                    <p>Vorlesung: {{ p.subject.name }} ({{ p.get_semester_year_string }})</p>
+                    <p>Abgabedatum: {{ p.upload_date | date:'d.m.Y' }}</p>
+
+                    <a href="{% url 'project' base64_unique_id=p.unique_id_base64 %}"
+                       class="btn btn-primary">Zum Projekt</a>
+
+                    <button type="button" class="btn btn-info" data-toggle="modal" data-target="#exampleModal">Zur
+                        Nachbereitung
+                    </button>
+                    <button class="btn btn-danger">Freigeben</button>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <p>Keine zu prüfenden Projekte vorhanden.</p>
+    {% endfor %}
+
+    <!-- Modal to set project to review state and add some notes -->
+    {% include 'administration/prof_interface_review_modal.html' %}
+</div>
