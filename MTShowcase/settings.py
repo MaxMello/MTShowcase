@@ -16,7 +16,7 @@ DEBUG = not production
 AUTH_DEBUG = True  # enable/disable debug printing for auth workflow
 
 if production:
-    ALLOWED_HOSTS = ['textildesign.mt.haw-hamburg.de', '141.22.50.244']
+    ALLOWED_HOSTS = ['showcase.mt.haw-hamburg.de', '141.22.50.244']
 else:
     ALLOWED_HOSTS = []
 
@@ -24,7 +24,7 @@ else:
 SITE = "MT Showcase"
 
 if production:
-    DOMAIN = "textildesign.mt.haw-hamburg.de"
+    DOMAIN = "showcase.mt.haw-hamburg.de"
 else:
     DOMAIN = "localhost:8000"
 

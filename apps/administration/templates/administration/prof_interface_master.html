@@ -36,9 +36,9 @@
 
         $('#approval-link').on("click", function (event) {
             console.log("approval clicked");
-             $.getJSON( "{% url 'approval_content' %}", function( json ) {
-                 $("#content-wrapper").html(json.text);
-             });
+            $.getJSON("{% url 'approval_content' %}", function (json) {
+                $("#content-wrapper").html(json.text);
+            });
             event.preventDefault();
         });
     </script>

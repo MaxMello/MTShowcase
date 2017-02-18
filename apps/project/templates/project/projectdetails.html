@@ -10,7 +10,7 @@
     <img src="{{ project.project_image_cropped.url }}" class="img-responsive">
 {% endblock %}
 {% block maininfo %}
-    <h1 class="font-elegance">{{ project.heading }}</h1>
+    <h1 id="project-heading-label" class="font-elegance">{{ project.heading }}</h1>
     <h4 class="font-elegance">{{ project.subheading }}</h4>
     <hr>
     <p>
@@ -32,7 +32,8 @@
                     {% elif content.content_type == "IMAGE" %}
                         {% if content.filename %}
                             <div class="image-wrapper">
-                                <img src="{{ content.content_path }}{{ content.filename }}" class="img-responsive"></div>
+                                <img src="{{ content.content_path }}{{ content.filename }}" class="img-responsive">
+                            </div>
                         {% elif content.url %}
                             <div class="image-wrapper">
                                 <img src="{{ content.url }}" class="img-responsive"></div>
@@ -86,19 +87,22 @@
                         {% endif %}
                         {{ content.text }}
                     {% elif content.content_type == "SLIDESHOW" %}
-                        <div id="imageCarousel{{ content.id }}" class="carousel slide" data-ride="carousel" data-interval="false"
+                        <div id="imageCarousel{{ content.id }}" class="carousel slide" data-ride="carousel"
+                             data-interval="false"
                              style="margin-bottom: 20px;">
                             <!-- Indicators -->
                             <ol class="carousel-indicators">
                                 {% for image in content.images %}
-                                    <li data-target="#imageCarousel{{ content.id }}" data-slide-to="{{ forloop.counter0 }}"
+                                    <li data-target="#imageCarousel{{ content.id }}"
+                                        data-slide-to="{{ forloop.counter0 }}"
                                             {% if forloop.counter0 == 0 %} class="active">{% endif %}</li>
                                 {% endfor %}
                             </ol>
                             <!-- Wrapper for slides -->
                             <div class="carousel-inner" role="listbox">
                                 {% for image in content.images %}
-                                    <div class="item {% if forloop.counter0 == 0 %}active{% endif %}" class="img-responsive">
+                                    <div class="item {% if forloop.counter0 == 0 %}active{% endif %}"
+                                         class="img-responsive">
                                         {% if image.filename %}
                                             <div class="carousel-image-wrapper">
                                                 <img src="{{ content.content_path }}{{ image.filename }}"></div>
@@ -112,13 +116,15 @@
                                 {% endfor %}
                             </div>
                             <!-- Left and right controls -->
-                            <a class="left carousel-control" href="#imageCarousel{{ content.id }}" role="button" data-slide="prev">
+                            <a class="left carousel-control" href="#imageCarousel{{ content.id }}" role="button"
+                               data-slide="prev">
                               <span class="carousel-prev">
                                 <span class="fa fa-arrow-left" aria-hidden="true"></span>
                                 <span class="sr-only">Zurück</span>
                               </span>
                             </a>
-                            <a class="right carousel-control" href="#imageCarousel{{ content.id }}" role="button" data-slide="next">
+                            <a class="right carousel-control" href="#imageCarousel{{ content.id }}" role="button"
+                               data-slide="next">
                               <span class="carousel-next">
                                 <span class="fa fa-arrow-right" aria-hidden="true"></span>
                                 <span class="sr-only">Weiter</span>
@@ -177,7 +183,9 @@
 
         {% for member in project.supervisors.all %}
             <tr>
-                <td><strong><a href="/u/{{ member.unique_name }}">{{ member.auth_user.first_name }} {{ member.auth_user.last_name }}</a></strong></td>
+                <td><strong><a
+                        href="/u/{{ member.unique_name }}">{{ member.auth_user.first_name }} {{ member.auth_user.last_name }}</a></strong>
+                </td>
                 <td><strong>Betreuer</strong></td>
             </tr>
         {% endfor %}
@@ -216,4 +224,40 @@
             </span>
         </div>
     </div>
+    {% if show_release_optionpanel %}
+
+        <div class="panel">
+            <div class="panel-body row">
+                <div class="col-xs-12"><h4>Admin-Optionen</h4></div>
+                <div class="col-xs-12">
+                    <button type="button" class="btn btn-info btn-block" data-toggle="modal"
+                            data-target="#releaseModal">Zur
+                        Nachbereitung
+                    </button>
+                </div>
+                <div class="col-xs-12">
+                    <form action="{% url 'project' base64_unique_id=project.unique_id_base64 %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" name="release" id="release-button" class="btn btn-danger btn-block">
+                            Freigeben
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        {% include 'administration/prof_interface_review_modal.html' %}
+
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    {% if show_release_optionpanel %}
+        <script type="text/javascript" charset="utf-8">
+            $(document).ready(function () {
+                var title = $('#project-heading-label').html();
+                $('#modalLabel').text(title);
+            });
+        </script>
+    {% endif %}
 {% endblock %}

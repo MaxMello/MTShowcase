@@ -1,4 +1,4 @@
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
+<div class="modal fade" id="releaseModal" tabindex="-1" role="dialog"
      aria-labelledby="exampleModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -6,26 +6,33 @@
                 <button type="button" class="close" data-dismiss="modal"
                         aria-label="Close"><span
                         aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="exampleModalLabel">Projekt: {insert
-                    via js}</h4>
+                <h4 class="modal-title" id="modalLabel"></h4>
             </div>
-            <div class="modal-body">
-                <form>
+            <form action="{% url 'project' base64_unique_id=project.unique_id_base64 %}" method="post">
+                <div class="modal-body">
+                    <h5>Eine Email wird an alle Mitglieder des Projektes geschickt. Die Bemerkungen helfen
+                        bei der Überarbeitung.</h5>
+
+                    {% csrf_token %}
                     <div class="form-group">
                         <label for="message-text"
-                               class="control-label">Hinweise:</label>
-                        <textarea style="resize: vertical;" class="form-control"
+                               class="control-label">Bemerkungen:</label>
+                        <textarea style="resize: vertical; min-height: 125px;" class="form-control"
+                                  name="revision_message" placeholder="Projekt muss überarbeitet werden weil,..."
                                   id="message-text"></textarea>
                     </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" style="margin:0" class="btn btn-default"
-                        data-dismiss="modal">Schließen
-                </button>
-                <button type="button" class="btn btn-primary">Abschicken
-                </button>
-            </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" style="margin:0" class="btn btn-default"
+                            data-dismiss="modal">Schließen
+                    </button>
+
+                    <button type="submit" name="revision" id="release-button" class="btn btn-primary">
+                        Abschicken
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

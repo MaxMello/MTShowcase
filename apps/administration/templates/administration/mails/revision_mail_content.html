@@ -1,0 +1,20 @@
+{% load staticfiles %}
+{% load compress %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<div class="panel">
+    <div class="panel-body row">
+        <div class="col-xs-12">
+            Das Projekt {{ project.heading }} muss überarbeitet werden und kann so noch nicht
+            veröffentlicht werden.
+            <p>Bemerkung für Überarbeitung:</p>
+            <p>{{ revision_comment }}</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

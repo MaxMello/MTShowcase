@@ -58,6 +58,9 @@ class User(models.Model):
         else:
             return self.unique_name
 
+    def is_admin_or_prof(self):
+        return self.type == User.ADMIN or self.type == User.PROF
+
     def save(self, *args, **kwargs):
         # delete old image on update if exists
         try:
