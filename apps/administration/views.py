@@ -24,8 +24,9 @@ class ProfInterfaceView(mixins.ProfAdminPermissionMixin, TemplateView):
     def get_projects_for_supervisor(self):
         user_with_admin_rights = self.request.user.get_lib_user()
         return Project.objects.filter(
-            Q(approval_state=Project.REVIEW_STATE) | Q(approval_state=Project.REVISION_STATE),
             projectsupervisor__supervisor=user_with_admin_rights
+        ).filter(
+            Q(approval_state=Project.REVIEW_STATE) | Q(approval_state=Project.REVISION_STATE)
         ).order_by('upload_date')
 
 
@@ -40,3 +41,22 @@ class ApprovalContentView(mixins.JSONResponseMixin, ProfInterfaceView):
         return self.render_json_response(
             {"text": render_to_string(self.template_name, self.get_context_data())}
         )
+
+
+class SupervisorProjectsView(mixins.JSONResponseMixin, ProfInterfaceView):
+    template_name = 'administration/prof_interface_projects_content.html'
+
+    def get(self, request, *args, **kwargs):
+        return self.render_json_response(
+            {"text": render_to_string(self.template_name, self.get_context_data())}
+        )
+
+    def get_context_data(self, **kwargs):
+        user_with_admin_rights = self.request.user.get_lib_user()
+        projects = Project.objects.filter(
+            projectsupervisor__supervisor=user_with_admin_rights
+        ).filter(
+            approval_state=Project.APPROVED_STATE
+        ).order_by('upload_date')
+
+        return {'projects': projects}

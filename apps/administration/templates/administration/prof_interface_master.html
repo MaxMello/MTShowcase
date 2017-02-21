@@ -35,8 +35,14 @@
         });
 
         $('#approval-link').on("click", function (event) {
-            console.log("approval clicked");
             $.getJSON("{% url 'approval_content' %}", function (json) {
+                $("#content-wrapper").html(json.text);
+            });
+            event.preventDefault();
+        });
+
+        $('#projects-link').on("click", function (event) {
+            $.getJSON("{% url 'prof_projects' %}", function (json) {
                 $("#content-wrapper").html(json.text);
             });
             event.preventDefault();
