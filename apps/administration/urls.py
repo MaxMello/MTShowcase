@@ -12,4 +12,5 @@ urlpatterns = [
     url(r'^projects/$', views.SupervisorProjectsView.as_view(), name='prof_projects'),
 
     url(r'^approval_content/$', views.ApprovalContentView.as_view(), name='approval_content'),
+    url(r'^prof_search', views.ProfInterfaceSearchView.as_view(), name='prof_search')
 ]

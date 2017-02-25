@@ -1,34 +1,98 @@
 {% extends 'base.html' %}
+{% load staticfiles %}
 
 {% block title %}Prof-Interface{% endblock %}
 
 {% block content %}
+    {% include 'administration/filter_option_bar.html' %}
     <div class="container-row" id="prof-actions">
         <div class="row">
-            {% if view.enter_allowed %}
-                <!-- Main Actionbar to navigate between admin interface -->
-                {% include 'administration/prof_interface_left_actionbar.html' %}
 
-                <div id="content-wrapper">
-                    {% block main_content %}
-                        {% include 'administration/prof_interface_approval_content.html' %}
-                    {% endblock %}
-                </div>
-            {% else %}
-                <p>Du musst eingeloggt sein, um diesen Bereich zu betreten</p>
-            {% endif %}
+            <!-- Main Actionbar to navigate between admin interface -->
+            {% include 'administration/prof_interface_left_actionbar.html' %}
+
+            <div id="content-wrapper">
+                {% block main_content %}
+                    {% include 'administration/prof_interface_approval_content.html' %}
+                {% endblock %}
+            </div>
+
         </div>
     </div>
 {% endblock %}
 
 {% block scripts %}
     <script>
-        $('#exampleModal').on('show.bs.modal', function (event) {
-            var button = $(event.relatedTarget);
-            var modal = $(this);
-            modal.find('.modal-body input').val("d.@haw-hamburg.de");
+        var degree_select_box = $('#pi_degree_select');
+        var subject_select_box = $('#pi_subject_select');
+        var year_select_box = $('#pi_year_select');
+        var semester_select_box = $('#pi_semester_select');
+        var sort_icon = $('#project_sort');
+        var select_json = {{ select_json | safe }};
+        var sort_desc = true;
+        var oldClass = "fa-sort-amount-desc";
+
+        degree_select_box.on('change', function () {
+            var degree_sel = degree_select_box.val();
+            subject_select_box
+                    .find('option')
+                    .remove()
+                    .end()
+                    .append('<option value="all">Alle</option>')
+                    .val("all");
+
+            if (degree_sel != "all") {
+                subject_select_box.prop('disabled', false);
+                select_json[degree_sel].forEach(function (subject) {
+                    subject_select_box.append($('<option>', {
+                        value: subject,
+                        text: subject
+                    }));
+                });
+            } else {
+                subject_select_box.prop('disabled', true);
+            }
+            apply_search();
         });
 
+
+        sort_icon.on("click", function () {
+            sort_desc = !sort_desc;
+            var newClassValue = "";
+            if (sort_desc) {
+                newClassValue = "fa-sort-amount-desc";
+            } else {
+                newClassValue = "fa-sort-amount-asc"
+            }
+            sort_icon.removeClass(oldClass);
+            oldClass = newClassValue;
+            sort_icon.addClass(newClassValue);
+            apply_search();
+        });
+
+        function apply_search() {
+            var search_param_dict = JSON.stringify({
+                degree_select: degree_select_box.val(),
+                subject_select: subject_select_box.val(),
+                year_select: year_select_box.val(),
+                semester_select: semester_select_box.val(),
+                sort_order_desc: sort_desc
+            });
+
+            $.ajax({
+                url: "{% url 'prof_search' %}",
+                type: "POST",
+                data: {
+                    params: search_param_dict,
+                    csrfmiddlewaretoken: window.CSRF_TOKEN
+                },
+                success: function (json) {
+                    $("#content-wrapper").html(json.text);
+                }
+            });
+        }
+
+        // navigation listener
         $('#students-link').on("click", function (event) {
             $("#content-wrapper").load("{% url 'student_organisation' %}");
             event.preventDefault();
@@ -47,5 +111,7 @@
             });
             event.preventDefault();
         });
+
     </script>
+
 {% endblock %}
