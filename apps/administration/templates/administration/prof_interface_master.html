@@ -4,7 +4,9 @@
 {% block title %}Prof-Interface{% endblock %}
 
 {% block content %}
-    {% include 'administration/filter_option_bar.html' %}
+    <div id="filter-wrapper" style="visibility: hidden">
+        {% include 'administration/filter_option_bar.html' %}
+    </div>
     <div class="container-row" id="prof-actions">
         <div class="row">
 
@@ -21,6 +23,8 @@
     </div>
 {% endblock %}
 
+
+
 {% block scripts %}
     <script>
         var degree_select_box = $('#pi_degree_select');
@@ -31,6 +35,7 @@
         var select_json = {{ select_json | safe }};
         var sort_desc = true;
         var oldClass = "fa-sort-amount-desc";
+        var filterWrapper = $('#filter-wrapper');
 
         degree_select_box.on('change', function () {
             var degree_sel = degree_select_box.val();
@@ -56,19 +61,68 @@
         });
 
 
-        sort_icon.on("click", function () {
+        $(document).on("click", "#project_sort", function () {
+            console.log("sort icon clicked");
             sort_desc = !sort_desc;
             var newClassValue = "";
             if (sort_desc) {
                 newClassValue = "fa-sort-amount-desc";
             } else {
-                newClassValue = "fa-sort-amount-asc"
+                newClassValue = "fa-sort-amount-asc";
             }
             sort_icon.removeClass(oldClass);
             oldClass = newClassValue;
             sort_icon.addClass(newClassValue);
             apply_search();
         });
+
+        function bindProjectSettings() {
+            $('#project-visibility-cb').on("click", function () {
+                console.log("toggle visibility project");
+                var checked = $(this).is(':checked');
+                var p_id = $(this).val();
+                $.ajax({
+                    url: "{% url 'project_options' %}",
+                    type: "POST",
+                    data: {
+                        params: JSON.stringify({
+                            project: p_id,
+                            checked: checked
+                        }),
+                        csrfmiddlewaretoken: window.CSRF_TOKEN
+                    }
+                });
+            });
+        }
+
+
+        function bindProjectSelection() {
+            $('.project_select_box').on("click", function (event) {
+                //event.preventDefault();
+                console.log("selected");
+                if ($(this).is(':checked')) {
+                    $('.project_select_box').not(this).prop('checked', false);
+
+                    $.ajax({
+                        url: "{% url 'project_options' %}",
+                        type: "POST",
+                        data: {
+                            params: JSON.stringify({
+                                project: $('.project_select_box:checked').val()
+                            }),
+                            csrfmiddlewaretoken: window.CSRF_TOKEN
+                        },
+                        success: function (json) {
+                            $("#project_option_panel").css('visibility', 'visible');
+                            $("#project_option_panel").html(json.text);
+                            bindProjectSettings();
+                        }
+                    });
+                } else {
+                    $("#project_option_panel").css('visibility', 'hidden');
+                }
+            });
+        }
 
         function apply_search() {
             var search_param_dict = JSON.stringify({
@@ -91,25 +145,40 @@
                 }
             });
         }
+        function resetFilter() {
+            degree_select_box.val("all");
+            subject_select_box.val("all");
+            subject_select_box.prop('disabled', true);
+            year_select_box.val("all");
+            semester_select_box.val("all");
+            sort_icon.removeClass("fa-sort-amount-asc");
+            sort_icon.addClass("fa-sort-amount-desc");
+        }
+
+        function getJsonAndReplaceContent(url, event, showFilter) {
+            event.preventDefault();
+            $.getJSON(url, function (json) {
+                if (showFilter) {
+                    filterWrapper.css('visibility', 'visible');
+                    console.log("rebind");
+                } else {
+                    filterWrapper.css('visibility', 'hidden');
+                    $("#project_option_panel").css('visibility', 'hidden');
+                    resetFilter();
+                }
+                $("#content-wrapper").html(json.text);
+                bindProjectSelection();
+
+            });
+        }
 
         // navigation listener
-        $('#students-link').on("click", function (event) {
-            $("#content-wrapper").load("{% url 'student_organisation' %}");
-            event.preventDefault();
-        });
-
         $('#approval-link').on("click", function (event) {
-            $.getJSON("{% url 'approval_content' %}", function (json) {
-                $("#content-wrapper").html(json.text);
-            });
-            event.preventDefault();
+            getJsonAndReplaceContent("{% url 'approval_content' %}", event, false);
         });
 
         $('#projects-link').on("click", function (event) {
-            $.getJSON("{% url 'prof_projects' %}", function (json) {
-                $("#content-wrapper").html(json.text);
-            });
-            event.preventDefault();
+            getJsonAndReplaceContent("{% url 'prof_projects' %}", event, true);
         });
 
     </script>

@@ -1,6 +1,7 @@
 import json
 
 from django.db.models import Q
+from django.http import Http404
 from django.template.loader import render_to_string
 from django.views.generic.base import TemplateView
 
@@ -45,10 +46,6 @@ class ProfInterfaceView(mixins.ProfAdminPermissionMixin, TemplateView):
         return result
 
 
-class StudentOrganisationView(mixins.ProfAdminPermissionMixin, TemplateView):
-    template_name = 'administration/prof_interface_students_content.html'
-
-
 class ApprovalContentView(mixins.JSONResponseMixin, ProfInterfaceView):
     template_name = 'administration/prof_interface_approval_content.html'
 
@@ -72,7 +69,7 @@ class SupervisorProjectsView(mixins.JSONResponseMixin, ProfInterfaceView):
             projectsupervisor__supervisor=user_with_admin_rights
         ).filter(
             approval_state=Project.APPROVED_STATE
-        ).order_by('upload_date DESC')
+        ).order_by('-upload_date')
 
         return {'projects': projects}
 
@@ -103,23 +100,55 @@ class ProfInterfaceSearchView(mixins.JSONResponseMixin, mixins.ProfAdminPermissi
 
         if params_dict:
             if params_dict['degree_select'] and not params_dict['degree_select'] == 'all':
-                project_qs.filter(
+                project_qs = project_qs.filter(
                     degree_program__name=params_dict['degree_select']
                 )
             if params_dict['subject_select'] and not params_dict['subject_select'] == 'all':
-                project_qs.filter(
+                project_qs = project_qs.filter(
                     subject__name=params_dict['subject_select']
                 )
             if params_dict['year_select'] and not params_dict['year_select'] == 'all':
-                project_qs.filter(
+                project_qs = project_qs.filter(
                     Q(year_from=params_dict['year_select']) |
                     Q(year_to=params_dict['year_select'])
                 )
             if params_dict['semester_select'] and not params_dict['semester_select'] == 'all':
-                project_qs.filter(
+                project_qs = project_qs.filter(
                     semester=params_dict['semester_select']
                 )
 
         return project_qs.order_by(
             '{}upload_date'.format(self.sort_order)
         )
+
+
+class ProjectOptionsView(mixins.JSONResponseMixin, ProfInterfaceView):
+    template_name = 'administration/prof_interface_project_settingbar.html'
+
+    def post(self, request, *args, **kwargs):
+        if request.POST and 'checked' in json.loads(request.POST.get('params')).keys():
+            params = json.loads(self.request.POST.get('params'))
+            project_id = params['project']
+            should_hide_project = params['checked']
+            project = Project.objects.get(pk=project_id)
+            # TODO: add global field for hide project and check for on all needed places
+            project.approval_state = Project.REVISION_STATE if not should_hide_project else Project.APPROVED_STATE
+            project.save()
+            return self.render_json_response({})
+        else:
+            return self.render_json_response(
+                {"text": render_to_string(self.template_name, self.get_context_data())}
+            )
+
+    def get_context_data(self, **kwargs):
+        params = json.loads(self.request.POST.get('params'))
+        print("##id", params['project'])
+        if params:
+            project = Project.objects.get(pk=params['project'])
+            return {
+                'visible': True if project.approval_state == Project.APPROVED_STATE else False,
+                'project_id': project.id
+            }
+
+        else:
+            raise Http404()

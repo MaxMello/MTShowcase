@@ -1,0 +1,16 @@
+<div class="panel-body">
+    <i class="icon-ok-sign" rel="tooltip" title="Key active" id="blah"></i>
+    <div>
+        <label>
+            <input id="project-visibility-cb" value="{{ project_id }}" type="checkbox" {% if visible %}checked{% endif %} name="project-visibility"/>
+            Einsehbar</label>
+        <i class="fa fa-question-circle" style="float: right;" rel="tooltip"
+           title="Wenn aus nur für Professoren oder Admins sichtbar."></i>
+    </div>
+</div>
+<style>
+    .panel-body {
+        padding-bottom: 20px;
+    }
+
+</style>

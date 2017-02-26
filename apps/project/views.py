@@ -24,7 +24,7 @@ class ProjectView(TemplateView):
         project = get_object_or_404(Project, unique_id=unique_project_id)
 
         user = request.user.get_lib_user() if request.user.is_authenticated() else None
-        show_release_panel = True if user is not None and user in project.supervisors.all() else False
+        show_release_panel = True if user is not None and user in project.supervisors.all() and project.approval_state != Project.APPROVED_STATE else False
 
         if project.approval_state != Project.APPROVED_STATE:
             if not show_release_panel:
