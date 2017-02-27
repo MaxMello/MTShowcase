@@ -3,7 +3,7 @@
         <div class=" my">    <!-- div col-lg-x für jedes element oder form control inline-->
             <div class="form-group tt">
                 <select class="form-control" id="pi_degree_select">
-                    <option value="all">Alle</option>
+                    <option value="all">Alle Studiengänge</option>
                     {% for program in degree_programs %}
                         <option value="{{ program.name }}">{{ program.name | capfirst }}</option>
                     {% endfor %}
@@ -12,26 +12,17 @@
 
             <div class="form-group tt marginl8">
                 <select disabled class="form-control" id="pi_subject_select" onchange="apply_search()">
-                    <option value="all" selected>Alle</option>
-                </select>
-            </div>
-
-            <div class="form-group tt">
-                <select class="form-control marginl8" id="pi_year_select" onchange="apply_search()">
-                    <option value="all" selected>Alle</option>
-                    {% for year in year_choices %}
-                        <option value="{{ year.0 }}">{{ year.0 }}</option>
-                    {% endfor %}
+                    <option value="all" selected>Alle Fächer</option>
                 </select>
             </div>
 
             <div class="form-group tt marginl8">
-                <select class="form-control marginl8" id="pi_semester_select" onchange="apply_search()">
+                <select id="pi-semesteryear-select" class="form-control" onchange="apply_search()">
                     <option value="all" selected>Alle Semester</option>
-                    {% for semester in semester_choices %}
-                        <option value="{{ semester.0 }}">{{ semester.0 }}</option>
+                    {% for i in year_choices %}
+                        <option value="SS{{ i }}">SoSe {{ i }}</option>
+                        <option value="WS{{ i }}">WiSe {{ i }}/{{ i|add:1 }}</option>
                     {% endfor %}
-
                 </select>
             </div>
 

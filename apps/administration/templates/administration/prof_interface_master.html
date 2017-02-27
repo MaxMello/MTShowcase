@@ -29,8 +29,7 @@
     <script>
         var degree_select_box = $('#pi_degree_select');
         var subject_select_box = $('#pi_subject_select');
-        var year_select_box = $('#pi_year_select');
-        var semester_select_box = $('#pi_semester_select');
+        var semester_year_select_box = $('#pi-semesteryear-select');
         var sort_icon = $('#project_sort');
         var select_json = {{ select_json | safe }};
         var sort_desc = true;
@@ -98,8 +97,6 @@
 
         function bindProjectSelection() {
             $('.project_select_box').on("click", function (event) {
-                //event.preventDefault();
-                console.log("selected");
                 if ($(this).is(':checked')) {
                     $('.project_select_box').not(this).prop('checked', false);
 
@@ -128,8 +125,7 @@
             var search_param_dict = JSON.stringify({
                 degree_select: degree_select_box.val(),
                 subject_select: subject_select_box.val(),
-                year_select: year_select_box.val(),
-                semester_select: semester_select_box.val(),
+                semester_year_select: semester_year_select_box.val(),
                 sort_order_desc: sort_desc
             });
 
@@ -142,6 +138,7 @@
                 },
                 success: function (json) {
                     $("#content-wrapper").html(json.text);
+                    bindProjectSelection();
                 }
             });
         }
@@ -149,8 +146,7 @@
             degree_select_box.val("all");
             subject_select_box.val("all");
             subject_select_box.prop('disabled', true);
-            year_select_box.val("all");
-            semester_select_box.val("all");
+            semester_year_select_box.val("all");
             sort_icon.removeClass("fa-sort-amount-asc");
             sort_icon.addClass("fa-sort-amount-desc");
         }
@@ -160,7 +156,6 @@
             $.getJSON(url, function (json) {
                 if (showFilter) {
                     filterWrapper.css('visibility', 'visible');
-                    console.log("rebind");
                 } else {
                     filterWrapper.css('visibility', 'hidden');
                     $("#project_option_panel").css('visibility', 'hidden');
@@ -168,7 +163,6 @@
                 }
                 $("#content-wrapper").html(json.text);
                 bindProjectSelection();
-
             });
         }
 
@@ -178,6 +172,7 @@
         });
 
         $('#projects-link').on("click", function (event) {
+            $("#project_option_panel").css('visibility', 'hidden');
             getJsonAndReplaceContent("{% url 'prof_projects' %}", event, true);
         });
 

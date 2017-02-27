@@ -1,5 +1,6 @@
 import json
 
+import datetime
 from django.db.models import Q
 from django.http import Http404
 from django.template.loader import render_to_string
@@ -23,7 +24,7 @@ class ProfInterfaceView(mixins.ProfAdminPermissionMixin, TemplateView):
             'projects': self.get_projects_for_supervisor(),
             'select_json': self.build_select_json(),
             'degree_programs': DegreeProgram.objects.all(),
-            'year_choices': Project.YEAR_CHOICES,
+            'year_choices': reversed([r for r in range(1980, datetime.date.today().year + 1)]),
             'semester_choices': Project.SEMESTER,
             'view': self
         }
@@ -107,14 +108,16 @@ class ProfInterfaceSearchView(mixins.JSONResponseMixin, mixins.ProfAdminPermissi
                 project_qs = project_qs.filter(
                     subject__name=params_dict['subject_select']
                 )
-            if params_dict['year_select'] and not params_dict['year_select'] == 'all':
+
+            if params_dict['semester_year_select'] and not params_dict['semester_year_select'] == 'all':
+                semester = params_dict['semester_year_select'][:2]
+                year_from = (params_dict['semester_year_select'][2:])
+                year_to = int(year_from) + 1 if semester == Project.WINTER else year_from
+                print("FROM: " , year_from, "TO: " , year_to)
                 project_qs = project_qs.filter(
-                    Q(year_from=params_dict['year_select']) |
-                    Q(year_to=params_dict['year_select'])
-                )
-            if params_dict['semester_select'] and not params_dict['semester_select'] == 'all':
-                project_qs = project_qs.filter(
-                    semester=params_dict['semester_select']
+                    Q(year_from=year_from) &
+                    Q(year_to=year_to) &
+                    Q(semester=semester)
                 )
 
         return project_qs.order_by(
