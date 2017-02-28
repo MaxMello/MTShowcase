@@ -20,7 +20,7 @@
                 {% for subform, projectm in object_list %}
                     <tr>
                         <td>
-                            <h4><a href="{% url 'project' projectm.project.id %}"> {{ projectm.project.heading }}</a>
+                            <h4><a href="{% url 'project' base64_unique_id=projectm.project.unique_id_base64 %}"> {{ projectm.project.heading }}</a>
                             </h4>
                             <h5>{{ projectm.project.subheading }}</h5>
                         </td>
