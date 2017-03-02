@@ -1,0 +1,16 @@
+<select class='profs-choices' class="form-control">
+    <option value="choose" selected>Betreuer wählen</option>
+    {% for supervisor in supervisors %}
+        <option value='{{ supervisor.id }}'>
+            {{ supervisor.auth_user.first_name }} {{ supervisor.auth_user.last_name }}
+        </option>
+    {% endfor %}
+</select>
+<style>
+    .profs-choices {
+        margin-right: 8px;
+        height: 40px;
+        border: 1px solid #ececec;
+        color: rgb(64, 64, 64);
+    }
+</style>

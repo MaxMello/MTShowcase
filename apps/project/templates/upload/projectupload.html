@@ -4,7 +4,7 @@
     {% if project %}
         {{ project.heading }} - Bearbeiten
     {% else %}
-    Neues Projekt erstellen
+        Neues Projekt erstellen
     {% endif %}
 {% endblock %}
 {% block id %}
@@ -23,12 +23,14 @@
 
 {% block maininfo %}
     <input type="text" id="heading" class="form-control input-lg h1 font-elegance" placeholder="Titel" maxlength="40"
-           {% if project %} value="{{project.heading}}" {% endif %}>
-    <input type="text" id="subheading" class="form-control input-sm h4 font-elegance" placeholder="Untertitel" maxlength="70"
-           {% if project %} value="{{project.subheading}}" {% endif %}>
+            {% if project %} value="{{ project.heading }}" {% endif %}>
+    <input type="text" id="subheading" class="form-control input-sm h4 font-elegance" placeholder="Untertitel"
+           maxlength="70"
+            {% if project %} value="{{ project.subheading }}" {% endif %}>
     <hr>
     <div class="input-group">
-        <textarea id="description" class="form-control resize-none" placeholder="Kurzbeschreibung" rows="5" maxlength="500">{% if project %}{{project.description}}{%endif%}</textarea>
+        <textarea id="description" class="form-control resize-none" placeholder="Kurzbeschreibung" rows="5"
+                  maxlength="500">{% if project %}{{ project.description }}{% endif %}</textarea>
     </div>
 {% endblock %}
 
@@ -71,7 +73,10 @@
     <hr>
     <button class="btn btn-primary btn-block">Mitglied hinzufügen</button>
     <hr>
-    <button class="btn btn-primary btn-block">Betreuer hinzufügen</button>
+    <div id="supervisor-wrapper">
+    </div>
+    <button class="btn btn-primary btn-block" id="pu-add-supervisor">Betreuer hinzufügen</button>
+
 {% endblock %}
 
 {% block projectinfo %}
@@ -87,8 +92,9 @@
     <div class="form-group">
         <label for="semesteryear-select">Semester</label>
         <select id="semesteryear-select" class="form-control">{% for i in year_choices %}
-            <option id="S{{ i }}">SoSe {{ i|add:1 }}</option>
-            <option id="W{{ i }}" {% if  forloop.counter0 == 0 %}selected{% endif %}>WiSe {{ i }}/{{ i|add:1 }}</option>{% endfor %}</select>
+            <option value="SS{{ i }}">SoSe {{ i }}</option>
+            <option value="WS{{ i }}" {% if  forloop.counter0 == 0 %}selected{% endif %}>
+                WiSe {{ i }}/{{ i|add:1 }}</option>{% endfor %}</select>
     </div>
 {% endblock %}
 
@@ -107,25 +113,31 @@
                 <button class="btn btn-secondary btn-block">Verwerfen</button>
             </div>
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <button class="btn btn-danger btn-block">Veröffentlichen</button>
+                <button class="btn btn-danger btn-block" id="pu-publish">Veröffentlichen</button>
             </div>
         </div>
     </div>
 {% endblock %}
 {% block scripts %}
-    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js" type="text/javascript"
+            charset="utf-8"></script>
     <script src="{% static 'search/js/tag-it.js' %}" type="text/javascript" charset="utf-8"></script>
     <script src="{% static 'upload/js/upload.js' %}" type="text/javascript" charset="utf-8"></script>
     <script>
         var addcontentchoice = `{% include "upload/addcontentchoice.html" %}`;
         var addcontent = `{% include "upload/addcontent.html" %}`;
+        var supervisor_wrapper = $('#supervisor-wrapper');
+        var supervisor_input_uid = 0;
+        var supervisor_choices = `{{ supervisors |safe}}`;
+        var users_responsibilities = {};
+
         $('#content-btn').hover(function () {
             $('#addcontent-row').replaceWith(addcontentchoice);
         }, function () {
             $('#addcontentchoice-row').replaceWith(addcontent);
         });
 
-        $('#degreeprogram-select').change(function(){
+        $('#degreeprogram-select').change(function () {
             var id = $(this).val();
             $.ajax({
                 url: "/subjects_by_degree_program/" + id,
@@ -134,7 +146,7 @@
                 data: {csrfmiddlewaretoken: window.CSRF_TOKEN},
                 success: function (data) {
                     $('#subject-select').find('option').remove().end();
-                    $.each(data, function(i, item) {
+                    $.each(data, function (i, item) {
                         $('#subject-select').append($('<option>', {
                             value: item.id,
                             text: item.name
@@ -142,8 +154,8 @@
                     });
                 },
                 error: function (request, status, error) {
-                console.log("Ajax Request Error - Status: " + status, " - Error: " + error);
-            }
+                    console.log("Ajax Request Error - Status: " + status, " - Error: " + error);
+                }
             });
         });
 
@@ -155,7 +167,62 @@
             });
         };
 
+        $('#pu-add-supervisor').on("click", function () {
+            var selection = $('#sv-' + (supervisor_input_uid - 1) +  " .profs-choices").val();
+            console.log(selection);
+            if (supervisor_input_uid == 0 || !(selection === "choose") ){
+                supervisor_wrapper.append(
+                    "<div class='form-group' id='sv-" + supervisor_input_uid + "' style='display:inline-block;'>" +
+                     supervisor_choices +
+                    "<span class='sv-close fa fa-times-circle'></span></div>"
+                );
+                // increment for unique ids
+                supervisor_input_uid += 1;
+            }
+        });
+
+        supervisor_wrapper.on("click", '.sv-close', function (event) {
+            var surrounding_div_id = $(event.target).parent()[0].id;
+            $('#' + surrounding_div_id).remove();
+        });
+
+        function getSupervisors() {
+            var supervisors = [];
+            $('.profs-choices').each(function (index, item) {
+                if (item.value != "choose") {
+                    supervisors.push(item.value);
+                }
+            });
+            return supervisors
+        }
+
+        $('#pu-publish').on("click", function () {
+            var project_json_dict = JSON.stringify({
+                p_heading: $('#heading').val(),
+                p_subheading: $('#subheading').val(),
+                p_description: $('#description').val(),
+                p_degree_program: $('#degreeprogram-select').val(),
+                p_semesteryear: $('#semesteryear-select').val(),
+                p_subject: $('#subject-select').val(),
+                p_supervisors: getSupervisors()
+            });
+            $.ajax({
+                url: "{% url 'new-project' %}",
+                type: "POST",
+                data: {
+                    params: project_json_dict,
+                    csrfmiddlewaretoken: window.CSRF_TOKEN
+                },
+                success: function (json) {
+                    alert("success");
+                }
+            });
+        });
+
         $(document).ready(function () {
+            users_responsibilities["{{ request.user.get_lib_user.id }}"] = new Set();
+            console.log(users_responsibilities);
+
             $("#add-tags-bar").tagit({
                 placeholderText: 'Hinzufügen',
                 afterTagAdded: function (event, ui) {
@@ -172,10 +239,10 @@
             $("#resp-bar-{{ request.user.get_lib_user.id }}").tagit({
                 placeholderText: 'Tätigkeit hinzufügen',
                 afterTagAdded: function (event, ui) {
-                    console.log("Added tag");
+                    users_responsibilities[this.id.split("-")[2]].add(ui.tagLabel);
                 },
                 afterTagRemoved: function (event, ui) {
-                    console.log("Removed tag");
+                    users_responsibilities[this.id.split("-")[2]].delete(ui.tagLabel);
                 },
                 autocomplete: {
                     source: [] //TODO: Get list of all tags from server

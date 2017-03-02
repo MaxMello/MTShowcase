@@ -6,14 +6,17 @@ from django.core.mail import send_mail
 from django.core.urlresolvers import reverse_lazy
 from django.http import Http404
 from django.http import HttpResponse
+from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
 from django.shortcuts import render
+from django.template.loader import render_to_string
 from django.views.generic.base import TemplateView
 
 from MTShowcase import names
 from MTShowcase import settings
 from apps.administration.mail_utils import mail
 from apps.project.models import *
+import apps.administration.mixins as mixins
 
 
 class ProjectView(TemplateView):
@@ -100,7 +103,7 @@ class ProjectView(TemplateView):
             raise PermissionDenied()
 
 
-class UploadView(LoginRequiredMixin, TemplateView):
+class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
     login_url = reverse_lazy('login')
     template_name = 'upload/projectupload.html'
 
@@ -112,7 +115,11 @@ class UploadView(LoginRequiredMixin, TemplateView):
             'names': names,
             'degree_programs': degree_programs,
             'subjects': subjects,
-            'year_choices': year_choices
+            'year_choices': year_choices,
+            'supervisors': render_to_string(
+                'upload/supervisor_choices.html',
+                {'supervisors': User.objects.filter(type=User.PROF)}
+            )
         }
 
         unique_project_id = Project.base64_to_uuid(self.kwargs.get('base64_unique_id'))
@@ -121,6 +128,72 @@ class UploadView(LoginRequiredMixin, TemplateView):
             context['project'] = project
 
         return render(request, template_name=self.template_name, context=context)
+
+    def post(self, request, *args, **kwargs):
+        """
+        Titel
+        Untertitel
+        Kurzbeschreibung
+
+        Projektmitglieder (mit Tätigkeiten)
+        Betreuer
+        Studiengang
+        Fach
+        Semester
+
+        Tags
+        """
+        if request.POST and request.POST.get('params'):
+            project_params = json.loads(request.POST.get('params'))
+            print(project_params)
+            try:
+                heading = project_params['p_heading']
+                subheading = project_params['p_subheading']
+                description = project_params['p_description']
+                degree_program_id = project_params['p_degree_program']
+                semesteryear = project_params['p_semesteryear']
+                subject_id = project_params['p_subject']
+                supervisors_list = project_params['p_supervisors']
+            except KeyError:
+                return HttpResponseBadRequest()
+
+            semester = semesteryear[:2]
+            if semester != "SS" or semester != "WS":
+                return HttpResponseBadRequest()
+
+            year_from = (semesteryear[2:])
+            year_to = int(year_from) + 1 if semester == Project.WINTER else year_from
+            degree_program = get_object_or_404(DegreeProgram, pk=degree_program_id)
+            subject = get_object_or_404(Subject, pk=subject_id)
+
+            new_project = Project.objects.create(
+                # image
+                # image crop
+                heading=heading,
+                subheading=subheading,
+                description=description,
+                semester=semester,
+                year_from=year_from,
+                year_to=year_to,
+                degree_program=degree_program,
+                subject=subject,
+                approval_state=Project.REVIEW_STATE
+            )
+
+            # socials M2M
+            # tags M2M
+            # members M2M
+
+            # supervisors M2M
+            for supervisor_id in supervisors_list:
+                supervisor = User.objects.get(pk=supervisor_id)
+                if supervisor is None:
+                    return HttpResponseBadRequest()
+
+                ProjectSupervisor.objects.create(project=new_project, supervisor=supervisor)
+
+            return self.render_json_response({})
+        return self.render_json_response({})
 
 
 def get_subjects_by_degree_program(request, degree_program_id):
