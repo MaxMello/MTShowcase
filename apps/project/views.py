@@ -10,7 +10,7 @@ from django.http import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
 from django.shortcuts import render
 from django.template.loader import render_to_string
-from django.views.generic.base import TemplateView
+from django.views.generic.base import TemplateView, View
 
 from MTShowcase import names
 from MTShowcase import settings
@@ -115,11 +115,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
             'names': names,
             'degree_programs': degree_programs,
             'subjects': subjects,
-            'year_choices': year_choices,
-            'supervisors': render_to_string(
-                'upload/supervisor_choices.html',
-                {'supervisors': User.objects.filter(type=User.PROF)}
-            )
+            'year_choices': year_choices
         }
 
         unique_project_id = Project.base64_to_uuid(self.kwargs.get('base64_unique_id'))
@@ -154,15 +150,23 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                 semesteryear = project_params['p_semesteryear']
                 subject_id = project_params['p_subject']
                 supervisors_list = project_params['p_supervisors']
+                member_resp_list = project_params['p_member_responsibilities']
             except KeyError:
+                print("key error")
                 return HttpResponseBadRequest()
 
             semester = semesteryear[:2]
-            if semester != "SS" or semester != "WS":
+            if semester is None or semester not in [Project.WINTER, Project.SUMMER]:
+                print("wrong semester")
                 return HttpResponseBadRequest()
 
             year_from = (semesteryear[2:])
+            year_choices = reversed([r for r in range(1980, datetime.date.today().year + 1)])
+            if year_from is None or int(year_from) not in year_choices:
+                print("bad year input")
+                return HttpResponseBadRequest()
             year_to = int(year_from) + 1 if semester == Project.WINTER else year_from
+
             degree_program = get_object_or_404(DegreeProgram, pk=degree_program_id)
             subject = get_object_or_404(Subject, pk=subject_id)
 
@@ -182,12 +186,33 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
 
             # socials M2M
             # tags M2M
+
             # members M2M
+            non_empty_keys = {key for key in member_resp_list.keys() if key and key.isdigit()}
+
+            all_students_ids = User.objects.filter(type=User.PROF).values_list("id", flat=True)
+            if not all(int(key) in all_students_ids for key in non_empty_keys):
+                print("bad member resp")
+                return HttpResponseBadRequest()
+
+            for (index, key) in enumerate(non_empty_keys):
+                tags = member_resp_list[key]
+                user = User.objects.get(pk=key)
+                member = ProjectMember.objects.create(member=user, project=new_project)
+                for tag in tags:
+                    new_tag = Tag.objects.create(value=tag)
+                    ProjectMemberResponsibility.objects.create(
+                        project_member=member,
+                        responsibility=new_tag,
+                        position=index
+                    )
 
             # supervisors M2M
+            all_supervisors = User.objects.filter(type=User.PROF)
             for supervisor_id in supervisors_list:
                 supervisor = User.objects.get(pk=supervisor_id)
-                if supervisor is None:
+                if supervisor is None or supervisor not in all_supervisors:
+                    print("supervisor unknown or not accepted")
                     return HttpResponseBadRequest()
 
                 ProjectSupervisor.objects.create(project=new_project, supervisor=supervisor)
@@ -205,3 +230,23 @@ def get_subjects_by_degree_program(request, degree_program_id):
 
     else:
         return HttpResponse(json.dumps([]), content_type='application/json')
+
+
+class MemberChoicesRespJsonResponseView(LoginRequiredMixin, mixins.JSONResponseMixin, View):
+    def get(self, request, *args, **kwargs):
+        user_choice_rendered = render_to_string(
+            'upload/member_resp_choices.html',
+            {'users': User.objects.exclude(pk=request.user.id)}
+        )
+        return self.render_json_response({"text": user_choice_rendered})
+
+
+class SupervisorChoicesJsonResponseView(LoginRequiredMixin, mixins.JSONResponseMixin, View):
+    def get(self, request, *args, **kwargs):
+        return self.render_json_response({
+            "text": render_to_string(
+                'upload/supervisor_choices.html', {
+                    'supervisors': User.objects.filter(type=User.PROF)
+                }
+            )
+        })

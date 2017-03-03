@@ -1,0 +1,27 @@
+<select style="width: 100%;" class="pu-member-select2">
+    <option></option>
+    {% for user in users %}
+        <option value="{{ user.id }}">
+            {{ user.auth_user.first_name }} {{ user.auth_user.last_name }}
+        </option>
+    {% endfor %}
+</select>
+
+<ul class="resp-bar" style="border: 1px solid #e6e6e6;">
+</ul>
+<style>
+    /* TODO: move to less */
+    [class^='select2'] {
+        border-radius: 0px !important;
+    }
+
+    .select2-container .select2-selection--single {
+        height: 41px !important;
+        border: 1px solid #e6e6e6;
+        margin-bottom: 12px;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 41px;
+    }
+</style>

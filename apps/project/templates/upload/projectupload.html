@@ -7,6 +7,9 @@
         Neues Projekt erstellen
     {% endif %}
 {% endblock %}
+{% block css %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css">
+{% endblock %}
 {% block id %}
     projectupload-area
 {% endblock %}
@@ -67,11 +70,13 @@
 {% endblock %}
 
 {% block projectmember %}
-    {{ request.user.get_lib_user.get_public_name }}
-    <ul id="resp-bar-{{ request.user.get_lib_user.id }}" style="border: 1px solid #e6e6e6;">
-    </ul>
+    <div id="member-wrapper">
+        {{ request.user.get_lib_user.get_public_name }}
+        <ul id="resp-bar-{{ request.user.get_lib_user.id }}" style="border: 1px solid #e6e6e6;">
+        </ul>
+    </div>
     <hr>
-    <button class="btn btn-primary btn-block">Mitglied hinzufügen</button>
+    <button class="btn btn-primary btn-block" id="pu-add-member">Mitglied hinzufügen</button>
     <hr>
     <div id="supervisor-wrapper">
     </div>
@@ -92,9 +97,10 @@
     <div class="form-group">
         <label for="semesteryear-select">Semester</label>
         <select id="semesteryear-select" class="form-control">{% for i in year_choices %}
-            <option value="SS{{ i }}">SoSe {{ i }}</option>
             <option value="WS{{ i }}" {% if  forloop.counter0 == 0 %}selected{% endif %}>
-                WiSe {{ i }}/{{ i|add:1 }}</option>{% endfor %}</select>
+                WiSe {{ i }}/{{ i|add:1 }}</option>
+            <option value="SS{{ i }}">SoSe {{ i }}</option>
+        {% endfor %}</select>
     </div>
 {% endblock %}
 
@@ -121,6 +127,8 @@
 {% block scripts %}
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js" type="text/javascript"
             charset="utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.full.min.js"></script>
+
     <script src="{% static 'search/js/tag-it.js' %}" type="text/javascript" charset="utf-8"></script>
     <script src="{% static 'upload/js/upload.js' %}" type="text/javascript" charset="utf-8"></script>
     <script>
@@ -128,7 +136,7 @@
         var addcontent = `{% include "upload/addcontent.html" %}`;
         var supervisor_wrapper = $('#supervisor-wrapper');
         var supervisor_input_uid = 0;
-        var supervisor_choices = `{{ supervisors |safe}}`;
+        var member_wrapper = $('#member-wrapper');
         var users_responsibilities = {};
 
         $('#content-btn').hover(function () {
@@ -167,17 +175,65 @@
             });
         };
 
+        function aMemberNameEmpty() {
+            var result = false;
+            $('.pu-member-select2').each(function () {
+                if ($(this).val() === "") {
+                    result = true;
+                    return false;
+                }
+            });
+            return result;
+        }
+
+        $('#pu-add-member').on("click", function () {
+            if (!aMemberNameEmpty()) {
+                $.getJSON({% url 'member-choices-with-resp' %}, function (json) {
+                    member_wrapper.append(json.text);
+                    $(".pu-member-select2").select2({
+                        containerCss: "pu-member-select2",
+                        placeholder: "Mitglied wählen"
+                    });
+
+                    $(".resp-bar").tagit({
+                        placeholderText: 'Tätigkeit hinzufügen',
+                        autocomplete: {
+                            source: [] //TODO: Get list of all tags from server
+                        },
+                        showAutocompleteOnFocus: true
+                    });
+                });
+            }
+        });
+
+        function fillMemberResponsibilities() {
+            users_responsibilities = {};
+            var resp_arr = $('.resp-bar');
+            $('.pu-member-select2').each(function (index, item) {
+                users_responsibilities[$(this).val()] = $(resp_arr.get(index)).tagit("assignedTags");
+            });
+
+            users_responsibilities[{{ request.user.get_lib_user.id }}] =
+                $("#resp-bar-{{ request.user.get_lib_user.id }}").tagit("assignedTags");
+        }
+
         $('#pu-add-supervisor').on("click", function () {
-            var selection = $('#sv-' + (supervisor_input_uid - 1) +  " .profs-choices").val();
+            var selection = $('#sv-' + (supervisor_input_uid - 1) + " .profs-choices").val();
             console.log(selection);
-            if (supervisor_input_uid == 0 || !(selection === "choose") ){
-                supervisor_wrapper.append(
-                    "<div class='form-group' id='sv-" + supervisor_input_uid + "' style='display:inline-block;'>" +
-                     supervisor_choices +
-                    "<span class='sv-close fa fa-times-circle'></span></div>"
-                );
-                // increment for unique ids
-                supervisor_input_uid += 1;
+            if (supervisor_input_uid == 0 || !(selection === "choose")) {
+                $.getJSON({% url 'supervisor-choices' %}, function(json){
+                    supervisor_wrapper.append(
+                        "<div class='form-group' id='sv-" + supervisor_input_uid + "'>" +
+                        json.text +
+                        "<span style='margin-left:8px;' class='sv-close fa fa-times-circle'></span></div>"
+                    );
+
+                    $('.profs-choices').select2({
+                        containerCss: "prof-choices",
+                        placeholder: "Betreuer wählen"
+                    });
+                    supervisor_input_uid += 1;
+                });
             }
         });
 
@@ -197,6 +253,8 @@
         }
 
         $('#pu-publish').on("click", function () {
+            fillMemberResponsibilities();
+
             var project_json_dict = JSON.stringify({
                 p_heading: $('#heading').val(),
                 p_subheading: $('#subheading').val(),
@@ -204,7 +262,8 @@
                 p_degree_program: $('#degreeprogram-select').val(),
                 p_semesteryear: $('#semesteryear-select').val(),
                 p_subject: $('#subject-select').val(),
-                p_supervisors: getSupervisors()
+                p_supervisors: getSupervisors(),
+                p_member_responsibilities: users_responsibilities
             });
             $.ajax({
                 url: "{% url 'new-project' %}",
@@ -220,9 +279,6 @@
         });
 
         $(document).ready(function () {
-            users_responsibilities["{{ request.user.get_lib_user.id }}"] = new Set();
-            console.log(users_responsibilities);
-
             $("#add-tags-bar").tagit({
                 placeholderText: 'Hinzufügen',
                 afterTagAdded: function (event, ui) {
@@ -236,14 +292,9 @@
                 },
                 showAutocompleteOnFocus: true
             });
+
             $("#resp-bar-{{ request.user.get_lib_user.id }}").tagit({
                 placeholderText: 'Tätigkeit hinzufügen',
-                afterTagAdded: function (event, ui) {
-                    users_responsibilities[this.id.split("-")[2]].add(ui.tagLabel);
-                },
-                afterTagRemoved: function (event, ui) {
-                    users_responsibilities[this.id.split("-")[2]].delete(ui.tagLabel);
-                },
                 autocomplete: {
                     source: [] //TODO: Get list of all tags from server
                 },
