@@ -52,6 +52,12 @@
             <br>
             Link hinzufügen
         </a>
+        <div class="hidden">
+            <label>Link eingeben</label>
+            <img class="link-close" width="12px" style="margin-left:8px; cursor: pointer;"
+                 src="{% static 'images/x.svg' %}">
+            <input type="text" class="form-control input-sm h4 font-elegance"/>
+        </div>
     </div>
     <div class="psocial col-xs-12 col-sm-4 col-md-4 col-lg-4 text-center">
         <a id="link2">
@@ -59,6 +65,12 @@
             <br>
             Link hinzufügen
         </a>
+        <div class="hidden">
+            <label>Link eingeben</label>
+            <img class="link-close" width="12px" style="margin-left:8px; cursor: pointer;"
+                 src="{% static 'images/x.svg' %}">
+            <input type="text" class="form-control input-sm h4 font-elegance"/>
+        </div>
     </div>
     <div class="psocial col-xs-12 col-sm-4 col-md-4 col-lg-4 text-center">
         <a id="link3">
@@ -66,6 +78,12 @@
             <br>
             Link hinzufügen
         </a>
+        <div class="hidden">
+            <label>Link eingeben</label>
+            <img class="link-close" width="12px" style="margin-left:8px; cursor: pointer;"
+                 src="{% static 'images/x.svg' %}">
+            <input type="text" class="form-control input-sm h4 font-elegance"/>
+        </div>
     </div>
 {% endblock %}
 
@@ -221,7 +239,7 @@
             var selection = $('#sv-' + (supervisor_input_uid - 1) + " .profs-choices").val();
             console.log(selection);
             if (supervisor_input_uid == 0 || !(selection === "choose")) {
-                $.getJSON({% url 'supervisor-choices' %}, function(json){
+                $.getJSON({% url 'supervisor-choices' %}, function (json) {
                     supervisor_wrapper.append(
                         "<div class='form-group' id='sv-" + supervisor_input_uid + "'>" +
                         json.text +
@@ -252,6 +270,25 @@
             return supervisors
         }
 
+        $('[id^=link]').find('.btn').on("click", function () {
+            $(this).parent().hide();
+            $(this).parent().next().removeClass("hidden");
+        });
+
+        $('.link-close').on("click", function () {
+            $(this).parent().prev().show();
+            $(this).parent().addClass("hidden");
+            $(this).next().val("");
+        });
+
+        function getProjectLinks() {
+            var p_links = [];
+            $(".psocial input").each(function () {
+                p_links.push($(this).val());
+            });
+            return p_links;
+        }
+
         $('#pu-publish').on("click", function () {
             fillMemberResponsibilities();
 
@@ -264,7 +301,8 @@
                 p_subject: $('#subject-select').val(),
                 p_supervisors: getSupervisors(),
                 p_member_responsibilities: users_responsibilities,
-                p_project_tags: $("#add-tags-bar").tagit("assignedTags")
+                p_project_tags: $("#add-tags-bar").tagit("assignedTags"),
+                p_project_links: getProjectLinks()
             });
             $.ajax({
                 url: "{% url 'new-project' %}",

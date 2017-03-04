@@ -15,6 +15,7 @@ from django.views.generic.base import TemplateView, View
 from MTShowcase import names
 from MTShowcase import settings
 from apps.administration.mail_utils import mail
+from apps.project.validators import UrlToSocialMapper
 from apps.project.models import *
 import apps.administration.mixins as mixins
 
@@ -156,6 +157,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                 supervisors_list = project_params['p_supervisors']
                 member_resp_list = project_params['p_member_responsibilities']
                 project_tags = project_params['p_project_tags']
+                project_links = project_params['p_project_links']
             except KeyError:
                 print("key error")
                 return HttpResponseBadRequest()
@@ -190,6 +192,15 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
             )
 
             # socials M2M
+            try:
+                for social_url in project_links:
+                    social = UrlToSocialMapper.return_social_from_url_or_none(social_url)
+                    if social:
+                        ProjectSocial.objects.create(project=new_project, social=social, url=social_url)
+
+            except (TypeError, AttributeError, Exception):
+                return HttpResponseBadRequest()
+
             # tags M2M
             try:
                 for index, tag in enumerate(project_tags):
