@@ -263,7 +263,8 @@
                 p_semesteryear: $('#semesteryear-select').val(),
                 p_subject: $('#subject-select').val(),
                 p_supervisors: getSupervisors(),
-                p_member_responsibilities: users_responsibilities
+                p_member_responsibilities: users_responsibilities,
+                p_project_tags: $("#add-tags-bar").tagit("assignedTags")
             });
             $.ajax({
                 url: "{% url 'new-project' %}",
@@ -281,12 +282,6 @@
         $(document).ready(function () {
             $("#add-tags-bar").tagit({
                 placeholderText: 'Hinzufügen',
-                afterTagAdded: function (event, ui) {
-                    console.log("Added tag");
-                },
-                afterTagRemoved: function (event, ui) {
-                    console.log("Removed tag");
-                },
                 autocomplete: {
                     source: [] //TODO: Get list of all tags from server
                 },

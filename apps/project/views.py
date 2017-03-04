@@ -18,6 +18,10 @@ from apps.administration.mail_utils import mail
 from apps.project.models import *
 import apps.administration.mixins as mixins
 
+char_umlaut_range = '[a-zA-Z\u00c4\u00e4\u00d6\u00f6\u00dc\u00fc\u00df]'
+tag_validation_pattern = re.compile(
+    '^({}+[\s-])*{}+$'.format(char_umlaut_range, char_umlaut_range))
+
 
 class ProjectView(TemplateView):
     template_name = 'project/projectdetails.html'
@@ -151,6 +155,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                 subject_id = project_params['p_subject']
                 supervisors_list = project_params['p_supervisors']
                 member_resp_list = project_params['p_member_responsibilities']
+                project_tags = project_params['p_project_tags']
             except KeyError:
                 print("key error")
                 return HttpResponseBadRequest()
@@ -186,13 +191,25 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
 
             # socials M2M
             # tags M2M
+            try:
+                for index, tag in enumerate(project_tags):
+                    print(tag)
+                    if tag_validation_pattern.match(tag):
+                        new_tag = Tag.objects.get_or_create(value=tag)[0]  # TODO: adapt after migrate Tag value:unique
+                        ProjectTag.objects.create(project=new_project, tag=new_tag, position=index)
+            except (TypeError, AttributeError, Exception):
+                # TODO: add error msg as form validation error collection and display hints for user
+                return HttpResponseBadRequest()
 
             # members M2M
-            non_empty_keys = {key for key in member_resp_list.keys() if key and key.isdigit()}
+            try:
+                non_empty_keys = {key for key in member_resp_list.keys() if key and key.isdigit()}
 
-            all_students_ids = User.objects.filter(type=User.PROF).values_list("id", flat=True)
-            if not all(int(key) in all_students_ids for key in non_empty_keys):
-                print("bad member resp")
+                all_students_ids = User.objects.filter(type=User.PROF).values_list("id", flat=True)
+                if not all(int(key) in all_students_ids for key in non_empty_keys):
+                    print("bad member resp")
+                    return HttpResponseBadRequest()
+            except (TypeError, AttributeError, Exception):
                 return HttpResponseBadRequest()
 
             for (index, key) in enumerate(non_empty_keys):
@@ -200,7 +217,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                 user = User.objects.get(pk=key)
                 member = ProjectMember.objects.create(member=user, project=new_project)
                 for tag in tags:
-                    new_tag = Tag.objects.create(value=tag)
+                    new_tag = Tag.objects.get_or_create(value=tag)[0]  # TODO: adapt after migrate Tag value:unique
                     ProjectMemberResponsibility.objects.create(
                         project_member=member,
                         responsibility=new_tag,

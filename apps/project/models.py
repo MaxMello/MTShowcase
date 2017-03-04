@@ -209,7 +209,7 @@ class ProjectContentRevision(models.Model):
 
 
 class Tag(models.Model):
-    value = models.CharField(max_length=50)
+    value = models.CharField(max_length=50) # TODO: migrate unique=True
 
     def __str__(self):
         return "ID: {} - {}".format(self.id, self.value)
