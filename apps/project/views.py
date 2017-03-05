@@ -278,3 +278,8 @@ class SupervisorChoicesJsonResponseView(LoginRequiredMixin, mixins.JSONResponseM
                 }
             )
         })
+
+
+class ContentTextJsonResponseView(LoginRequiredMixin, mixins.JSONResponseMixin, View):
+    def get(self, request, *args, **kwargs):
+        return self.render_json_response({"text": render_to_string('upload/content_text.html')})

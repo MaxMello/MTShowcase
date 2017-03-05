@@ -156,12 +156,25 @@
         var supervisor_input_uid = 0;
         var member_wrapper = $('#member-wrapper');
         var users_responsibilities = {};
+        var content_btn = $('#content-btn');
 
-        $('#content-btn').hover(function () {
-            $('#addcontent-row').replaceWith(addcontentchoice);
-        }, function () {
-            $('#addcontentchoice-row').replaceWith(addcontent);
+        function bindContentRow() {
+            $('#addText').on("click", function () {
+                $.getJSON({% url 'add-content-text' %}, function (json) {
+                    content_btn.before(json.text);
+                });
+            });
+        }
+
+        content_btn.on("mouseenter", "#addcontent-row", function () {
+            $(this).replaceWith(addcontentchoice);
+            bindContentRow();
         });
+
+        content_btn.on("mouseleave", "#addcontentchoice-row", function () {
+            $(this).replaceWith(addcontent);
+        });
+
 
         $('#degreeprogram-select').change(function () {
             var id = $(this).val();
@@ -289,6 +302,16 @@
             return p_links;
         }
 
+        function buildVariableProjectContents() {
+            var content = {};
+            $('.add-content-text').each(function (i, obj) {
+                var subheading = $(this).children().eq(0).val();
+                var text = $(this).children().eq(1).val();
+                content[i] = {content_type: "TEXT", subheading: subheading, text: text}
+            });
+            return JSON.stringify(content);
+        }
+
         $('#pu-publish').on("click", function () {
             fillMemberResponsibilities();
 
@@ -302,7 +325,8 @@
                 p_supervisors: getSupervisors(),
                 p_member_responsibilities: users_responsibilities,
                 p_project_tags: $("#add-tags-bar").tagit("assignedTags"),
-                p_project_links: getProjectLinks()
+                p_project_links: getProjectLinks(),
+                P_contents: buildVariableProjectContents()
             });
             $.ajax({
                 url: "{% url 'new-project' %}",
