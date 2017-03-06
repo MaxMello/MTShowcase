@@ -1,0 +1,17 @@
+<div class="add-content-slideshow" style="margin-bottom: 30px;">
+    <input type="text"
+           class="content-subheading form-control input-sm h4 font-elegance"
+           style="margin-bottom: 8px;"
+           placeholder="Überschrift(optional)"
+           maxlength="70">
+    <form action="{% url 'new-project' %}" name="test" class="dropzone form-control" method="POST" enctype="multipart/form-data" id="myawesomedropzone">
+        {% csrf_token %}
+        <input type="hidden" name="params" id="json-input"/>
+    </form>
+</div>
+<style>
+    .dropzone {
+        height: 250px;
+        overflow-y: scroll;
+    }
+</style>

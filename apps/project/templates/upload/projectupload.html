@@ -9,6 +9,16 @@
 {% endblock %}
 {% block css %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css">
+    <link rel="stylesheet" href="{% static 'style/libs/dropzone.min.css' %}">
+    <style>
+        .dz-details {
+            display: none !important;
+        }
+
+        .dz-progress {
+            display: none !important;
+        }
+    </style>
 {% endblock %}
 {% block id %}
     projectupload-area
@@ -146,7 +156,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js" type="text/javascript"
             charset="utf-8"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.full.min.js"></script>
-
+    <script src="{% static 'js/libs/dropzone.min.js' %}" type="text/javascript"></script>
     <script src="{% static 'search/js/tag-it.js' %}" type="text/javascript" charset="utf-8"></script>
     <script src="{% static 'upload/js/upload.js' %}" type="text/javascript" charset="utf-8"></script>
     <script>
@@ -160,8 +170,40 @@
 
         function bindContentRow() {
             $('#addText').on("click", function () {
-                $.getJSON({% url 'add-content-text' %}, function (json) {
+                $.getJSON("{% url 'add-content' content_type='text' %}", function (json) {
                     content_btn.before(json.text);
+                });
+            });
+
+            $('#addSlideshow').on("click", function () {
+                $.getJSON("{% url 'add-content' content_type='slideshow' %}", function (json) {
+                    content_btn.before(json.text);
+                    $('.add-content-slideshow').last().find('form').dropzone({
+                        url: "{% url 'new-project' %}",
+                        addRemoveLinks: true,
+                        dictDefaultMessage: "Füge ein oder mehrere Bilder hinzu.",
+                        dictRemoveFile: "Entfernen",
+                        acceptedFiles: 'image/*',
+                        // referring to https://github.com/enyo/dropzone/wiki/Combine-normal-form-with-Dropzone
+                        autoProcessQueue: false,
+                        uploadMultiple: true,
+                        parallelUploads: 100,
+                        maxFiles: 1,
+                        init: function () {
+                            this.on("error", function (file, errMsg, xhr) {
+                                if(!xhr) {
+                                    if (!file.accepted) this.removeFile(file);
+                                } else{
+                                    var json = JSON.parse(xhr.responseText);
+                                    // TODO: render errors
+                                }
+                            });
+                            this.on("successmultiple", function (files, response) {
+                                window.location = response.redirect;
+                                console.log("success dropzone submit + json");
+                            });
+                        }
+                    });
                 });
             });
         }
@@ -303,13 +345,24 @@
         }
 
         function buildVariableProjectContents() {
-            var content = {};
+            var content = [];
             $('.add-content-text').each(function (i, obj) {
                 var subheading = $(this).children().eq(0).val();
                 var text = $(this).children().eq(1).val();
-                content[i] = {content_type: "TEXT", subheading: subheading, text: text}
+                content.push({
+                    content_type: "TEXT",
+                    subheading: subheading,
+                    text: text
+                });
             });
-            return JSON.stringify(content);
+
+            $('.add-content-slideshow').each(function (i, obj) {
+                content.push({
+                    content_type: "SLIDESHOW",
+                    subheading: $(this).children().eq(0).val(),
+                });
+            });
+            return {content: content};
         }
 
         $('#pu-publish').on("click", function () {
@@ -326,19 +379,34 @@
                 p_member_responsibilities: users_responsibilities,
                 p_project_tags: $("#add-tags-bar").tagit("assignedTags"),
                 p_project_links: getProjectLinks(),
-                P_contents: buildVariableProjectContents()
+                p_contents: buildVariableProjectContents()
             });
-            $.ajax({
-                url: "{% url 'new-project' %}",
-                type: "POST",
-                data: {
-                    params: project_json_dict,
-                    csrfmiddlewaretoken: window.CSRF_TOKEN
-                },
-                success: function (json) {
-                    alert("success");
+
+            var $dropZone = $('.add-content-slideshow .dropzone');
+            var processViaAjax = true;
+            if ($dropZone.length) {
+                var imagesDropzone = $dropZone[0].dropzone;
+                if (imagesDropzone.getQueuedFiles().length > 0) {
+                    processViaAjax = false;
+                    console.log("processed via dropzone submit");
+                    $('#json-input').val(project_json_dict);
+                    imagesDropzone.processQueue();
                 }
-            });
+            }
+            if (processViaAjax) {
+                console.log("processed via ajax");
+                $.ajax({
+                    url: "{% url 'new-project' %}",
+                    type: "POST",
+                    data: {
+                        params: project_json_dict,
+                        csrfmiddlewaretoken: window.CSRF_TOKEN
+                    },
+                    success: function (json) {
+                        alert("success");
+                    }
+                });
+            }
         });
 
         $(document).ready(function () {

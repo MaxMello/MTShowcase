@@ -1,3 +1,4 @@
+import json
 from random import randint
 
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -12,12 +13,13 @@ from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.views.generic.base import TemplateView, View
 
+import apps.administration.mixins as mixins
 from MTShowcase import names
 from MTShowcase import settings
 from apps.administration.mail_utils import mail
-from apps.project.validators import UrlToSocialMapper
+from apps.project.forms import ImageFormField
 from apps.project.models import *
-import apps.administration.mixins as mixins
+from apps.project.validators import UrlToSocialMapper
 
 char_umlaut_range = '[a-zA-Z\u00c4\u00e4\u00d6\u00f6\u00dc\u00fc\u00df]'
 tag_validation_pattern = re.compile(
@@ -131,19 +133,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
         return render(request, template_name=self.template_name, context=context)
 
     def post(self, request, *args, **kwargs):
-        """
-        Titel
-        Untertitel
-        Kurzbeschreibung
 
-        Projektmitglieder (mit Tätigkeiten)
-        Betreuer
-        Studiengang
-        Fach
-        Semester
-
-        Tags
-        """
         if request.POST and request.POST.get('params'):
             project_params = json.loads(request.POST.get('params'))
             print(project_params)
@@ -158,6 +148,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                 member_resp_list = project_params['p_member_responsibilities']
                 project_tags = project_params['p_project_tags']
                 project_links = project_params['p_project_links']
+                project_contents = project_params['p_contents']
             except KeyError:
                 print("key error")
                 return HttpResponseBadRequest()
@@ -245,7 +236,47 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
 
                 ProjectSupervisor.objects.create(project=new_project, supervisor=supervisor)
 
-            return self.render_json_response({})
+            slideshow_image_urls = []
+            if request.FILES:
+                print(request.FILES)
+                for i in range(len(request.FILES)):
+                    # file[0], file[1] representation of dropzone multiple files upload
+                    field = 'file[{}]'.format(i)
+                    # only accept files formatted as expected dropzone file
+                    if field in request.FILES:
+                        form = ImageFormField(field, request.POST, request.FILES)
+                        if form.is_valid():
+                            saved_image = UploadImage.objects.create(image=form.cleaned_data[field])
+                            if saved_image is not None:
+                                slideshow_image_urls.append(saved_image.image.url)
+                                print(saved_image.image.url)
+
+            # variable content building
+            project_json_content = []
+            for content in project_contents['content']:
+                try:
+                    print(project_contents['content'])
+                    if 'content_type' in content and content['content_type'] == Project.SLIDESHOW:
+                        project_json_content.append({
+                            'subheading': content['subheading'],
+                            'content_type': Project.SLIDESHOW,
+                            'images': slideshow_image_urls
+                        })
+
+                    elif content['content_type'] == Project.TEXT:
+                        project_json_content.append({
+                            'subheading': content['subheading'],
+                            'content_type': Project.TEXT,
+                            'text': content['text']
+                        })
+                except KeyError:
+                    continue
+
+            new_project.contents = project_json_content
+            new_project.save()
+
+            return self.render_json_response({"redirect": str(reverse_lazy('home'))})
+
         return self.render_json_response({})
 
 
@@ -280,6 +311,17 @@ class SupervisorChoicesJsonResponseView(LoginRequiredMixin, mixins.JSONResponseM
         })
 
 
-class ContentTextJsonResponseView(LoginRequiredMixin, mixins.JSONResponseMixin, View):
+class AddContentJsonResponseView(LoginRequiredMixin, mixins.JSONResponseMixin, View):
     def get(self, request, *args, **kwargs):
-        return self.render_json_response({"text": render_to_string('upload/content_text.html')})
+        try:
+            content_type = kwargs.get('content_type')
+            if content_type == 'text':
+                template = 'upload/content_text.html'
+            elif content_type == 'slideshow':
+                template = 'upload/content_slideshow.html'
+            else:
+                return HttpResponseBadRequest()
+        except AttributeError:
+            return HttpResponseBadRequest()
+        else:
+            return self.render_json_response({"text": render_to_string(template, request=request)})

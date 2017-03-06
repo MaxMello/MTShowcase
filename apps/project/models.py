@@ -1,22 +1,23 @@
-import datetime
-import json
-import uuid
 import base64
+import datetime
 import re
-from apps.project import stopwords
+import uuid
+
 from django.contrib import admin
 from django.core.exceptions import ValidationError
 from django.db import models
-from MTShowcase.settings import STATIC_URL, MEDIA_URL
-from apps.user.models import User
 from django.db.models import Count
 from jsonfield import JSONField
 
+from MTShowcase.settings import STATIC_URL, MEDIA_ROOT, MEDIA_URL
+from apps.project import stopwords
+from apps.user.models import User
+
 
 def can_be_supversivor(value):
-    #print(value)
+    # print(value)
     user = User.objects.filter(id=value).first()
-    #print(user)
+    # print(user)
     if not (user.type == User.ADMIN or user.type == User.PROF):
         raise ValidationError(message="{} is not a user applicable for being a supervisor".format(value))
 
@@ -26,7 +27,6 @@ def project_directory_path(instance, filename):
 
 
 class Project(models.Model):
-
     SUMMER = 'SS'
     WINTER = 'WS'
 
@@ -50,8 +50,10 @@ class Project(models.Model):
     YEAR_CHOICES = [(r, r) for r in range(1980, datetime.date.today().year + 1)]
 
     # DISPLAYED CONTENT
-    project_image = models.ImageField(upload_to=project_directory_path, default=STATIC_URL + 'images/default_project_image.jpg')
-    project_image_cropped = models.ImageField(upload_to=project_directory_path, default=STATIC_URL + 'images/default_project_image.jpg')
+    project_image = models.ImageField(upload_to=project_directory_path,
+                                      default=STATIC_URL + 'images/default_project_image.jpg')
+    project_image_cropped = models.ImageField(upload_to=project_directory_path,
+                                              default=STATIC_URL + 'images/default_project_image.jpg')
     heading = models.CharField(max_length=100)
     subheading = models.CharField(max_length=255)
     description = models.TextField(max_length=2000)
@@ -110,7 +112,8 @@ class Project(models.Model):
     # ASSOCIATED USERS
     members = models.ManyToManyField('user.User', through='ProjectMember', through_fields=('project', 'member'),
                                      related_name='project_member')
-    supervisors = models.ManyToManyField('user.User', through='ProjectSupervisor', through_fields=('project', 'supervisor'),
+    supervisors = models.ManyToManyField('user.User', through='ProjectSupervisor',
+                                         through_fields=('project', 'supervisor'),
                                          related_name='project_supervisor')
 
     # META DATA
@@ -121,8 +124,10 @@ class Project(models.Model):
     search_string = models.TextField(max_length=5000, default="-")
 
     def __str__(self):
-        return 'ID: {} - {} - {} - Status: {} - {} views (Hochgeladen {})'.format(self.id, self.heading, self.get_semester_year_string(),
-                                                                                  self.approval_state, self.views, self.upload_date)
+        return 'ID: {} - {} - {} - Status: {} - {} views (Hochgeladen {})'.format(self.id, self.heading,
+                                                                                  self.get_semester_year_string(),
+                                                                                  self.approval_state, self.views,
+                                                                                  self.upload_date)
 
     def unique_id_base64(self):
         return base64.urlsafe_b64encode(self.unique_id.bytes).decode('utf-8').rstrip('=\n')
@@ -147,7 +152,7 @@ class Project(models.Model):
         return self.upload_date.date().strftime("%d.%m.%Y")
 
     def build_search_string(self):
-        #print("BUILD SEARCH STRING")
+        # print("BUILD SEARCH STRING")
         pattern = re.compile(stopwords.punctuation_regex)
 
         search_string = ''
@@ -174,7 +179,7 @@ class Project(models.Model):
     def save(self, *args, **kwargs):
         if self.id is not None:
             orig = Project.objects.get(id=self.id)
-            #print(orig)
+            # print(orig)
             if orig.tags != self.tags or orig.heading != self.heading or orig.subheading != self.subheading or orig.description != self.description \
                     or orig.semester != self.semester or orig.year_from != self.year_from or orig.year_to != self.year_to \
                     or orig.search_string != self.search_string:
@@ -199,8 +204,10 @@ class ProjectContentRevision(models.Model):
     project = models.ForeignKey('Project', on_delete=models.CASCADE)
     editor = models.ForeignKey('user.User', on_delete=models.PROTECT)
     revision_date = models.DateTimeField(auto_now_add=True)
-    project_image = models.ImageField(upload_to=project_directory_path, default=STATIC_URL + 'images/default_project_image.jpg')
-    project_image_cropped = models.ImageField(upload_to=project_directory_path, default=STATIC_URL + 'images/default_project_image.jpg')
+    project_image = models.ImageField(upload_to=project_directory_path,
+                                      default=STATIC_URL + 'images/default_project_image.jpg')
+    project_image_cropped = models.ImageField(upload_to=project_directory_path,
+                                              default=STATIC_URL + 'images/default_project_image.jpg')
     heading = models.CharField(max_length=100)
     subheading = models.CharField(max_length=255)
     description = models.TextField(max_length=2000)
@@ -209,7 +216,7 @@ class ProjectContentRevision(models.Model):
 
 
 class Tag(models.Model):
-    value = models.CharField(max_length=50) # TODO: migrate unique=True
+    value = models.CharField(max_length=50)  # TODO: migrate unique=True
 
     def __str__(self):
         return "ID: {} - {}".format(self.id, self.value)
@@ -266,10 +273,12 @@ class ProjectMember(models.Model):
                                               related_name='member_responsibility')
 
     def get_responsibilities(self):
-        return [r.responsibility.value for r in ProjectMemberResponsibility.objects.filter(project_member=self).order_by('position').order_by('id')]
+        return [r.responsibility.value for r in
+                ProjectMemberResponsibility.objects.filter(project_member=self).order_by('position').order_by('id')]
 
     def __str__(self):
-        return "{} (ID: {}) - {} (ID: {}, {})".format(self.project.heading, self.project.id, self.member.unique_name, self.member.id,
+        return "{} (ID: {}) - {} (ID: {}, {})".format(self.project.heading, self.project.id, self.member.unique_name,
+                                                      self.member.id,
                                                       "Sichtbar" if self.display_username else "Versteckt")
 
 
@@ -278,7 +287,8 @@ class ProjectSupervisor(models.Model):
     project = models.ForeignKey('Project', on_delete=models.PROTECT)
 
     def __str__(self):
-        return "{} (ID: {}) - {} (ID: {})".format(self.project.heading, self.project.id, self.supervisor.unique_name, self.supervisor.id)
+        return "{} (ID: {}) - {} (ID: {})".format(self.project.heading, self.project.id, self.supervisor.unique_name,
+                                                  self.supervisor.id)
 
 
 class ProjectTag(models.Model):
@@ -296,16 +306,23 @@ class ProjectMemberResponsibility(models.Model):
     position = models.PositiveSmallIntegerField(default=1)  # TODO: Automatically order by default by occurrence
 
     def __str__(self):
-        return "{} (ID: {}) - {} (ID: {}) : {}".format(self.project_member.project.heading, self.project_member.project.id,
-                                                       self.project_member.member.unique_name, self.project_member.member.id,
+        return "{} (ID: {}) - {} (ID: {}) : {}".format(self.project_member.project.heading,
+                                                       self.project_member.project.id,
+                                                       self.project_member.member.unique_name,
+                                                       self.project_member.member.id,
                                                        self.responsibility.value)
 
     @staticmethod
     def get_skills_for_user(user):
-        a = ProjectMemberResponsibility.objects.filter(project_member__member=user).values('responsibility__value').annotate(
+        a = ProjectMemberResponsibility.objects.filter(project_member__member=user).values(
+            'responsibility__value').annotate(
             c=Count('responsibility__value')).order_by('-c')[:10]
-        #print(str(a))
+        # print(str(a))
         return a
+
+
+class UploadImage(models.Model):
+    image = models.ImageField(upload_to="images")
 
 
 class ProjectSocial(models.Model):
@@ -315,7 +332,8 @@ class ProjectSocial(models.Model):
     description = models.CharField(max_length=30, default="")
 
     def __str__(self):
-        return "{} (ID: {}) - {} (ID: {}): {}".format(self.project.heading, self.project.id, self.social.display_name, self.social.id, self.url)
+        return "{} (ID: {}) - {} (ID: {}): {}".format(self.project.heading, self.project.id, self.social.display_name,
+                                                      self.social.id, self.url)
 
 
 class ProjectMemberInline(admin.TabularInline):

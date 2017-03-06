@@ -100,18 +100,12 @@
                             </ol>
                             <!-- Wrapper for slides -->
                             <div class="carousel-inner" role="listbox">
-                                {% for image in content.images %}
+                                {% for image_abs_path in content.images %}
                                     <div class="item {% if forloop.counter0 == 0 %}active{% endif %}"
                                          class="img-responsive">
-                                        {% if image.filename %}
-                                            <div class="carousel-image-wrapper">
-                                                <img src="{{ content.content_path }}{{ image.filename }}"></div>
-                                        {% elif image.url %}
-                                            <div class="carousel-image-wrapper">
-                                                <img src="{{ image.url }}"></div>
-                                        {% else %}
-                                            <img src="{% static 'project/images/default_content_image.jpg' %}">
-                                        {% endif %}
+                                     <div class="carousel-image-wrapper">
+                                                <img src="{{ image_abs_path}}">
+                                     </div>
                                     </div>
                                 {% endfor %}
                             </div>
