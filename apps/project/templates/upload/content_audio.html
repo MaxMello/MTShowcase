@@ -1,0 +1,43 @@
+{% load staticfiles %}
+<div class="add-content-video" style="text-align: center; margin-bottom: 32px;">
+    <input type="text"
+           class="content-subheading form-control input-sm h4 font-elegance"
+           style="margin-bottom: 8px;"
+           placeholder="Überschrift(optional)"
+           maxlength="70">
+    <p>Lade ein Audio-File hoch oder nutze einen Soundcloud-Link.</p>
+
+    <div class="audio-input-container" style="width: 100%;"></div>
+
+    <div style="text-align: center;display: inline-block">
+        <p id="addAudioFile" class="btn btn-primary btn-lg" style="width: 50px;text-align: center;">
+            <i class="fa fa-file-audio-o"></i>
+        </p>
+        <p>Audio-File</p>
+    </div>
+
+    <div id="audio-file-input" style="margin-bottom: 12px;" class="hidden">
+        <label>Wähle eine Datei</label>
+         <img class="audiofile-close" width="12px" style="margin-left:8px; cursor: pointer;"
+             src="{% static 'images/x.svg' %}">
+        <input type="file" name="file">
+    </div>
+
+    <div style="display:inline-block;width: 32px;"></div>
+    <div style="text-align: center; display: inline-block">
+        <p id="addSoundcloudLink" class="btn btn-primary btn-lg" style="width: 50px;text-align: center;">
+            <i class="fa fa-soundcloud">
+            </i>
+        </p>
+        <p>Soundcloud-Link</p>
+    </div>
+
+    <div id="soundcloud-input" class="hidden">
+        <label>Soundcloud URL</label>
+        <img class="soundcloud-close" width="12px" style="margin-left:8px; cursor: pointer;"
+             src="{% static 'images/x.svg' %}">
+        <input type="text"
+               class="form-control input-sm h4 font-elegance"
+               placeholder="https://soundcloud.com/xyz..."/>
+    </div>
+</div>

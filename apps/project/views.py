@@ -319,9 +319,21 @@ class AddContentJsonResponseView(LoginRequiredMixin, mixins.JSONResponseMixin, V
                 template = 'upload/content_text.html'
             elif content_type == 'slideshow':
                 template = 'upload/content_slideshow.html'
+            elif content_type == 'audio':
+                template = 'upload/content_audio.html'
             else:
                 return HttpResponseBadRequest()
         except AttributeError:
             return HttpResponseBadRequest()
         else:
             return self.render_json_response({"text": render_to_string(template, request=request)})
+
+
+class ChooseContentJsonResponseView(LoginRequiredMixin, mixins.JSONResponseMixin, View):
+    def get(self, request, *args, **kwargs):
+        return self.render_json_response({"text": render_to_string('upload/addcontent.html')})
+
+
+class ChooseContentChoicesJsonResponseView(LoginRequiredMixin, mixins.JSONResponseMixin, View):
+    def get(self, request, *args, **kwargs):
+        return self.render_json_response({"text": render_to_string('upload/addcontentchoice.html')})

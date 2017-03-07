@@ -159,58 +159,98 @@
     <script src="{% static 'js/libs/dropzone.min.js' %}" type="text/javascript"></script>
     <script src="{% static 'search/js/tag-it.js' %}" type="text/javascript" charset="utf-8"></script>
     <script src="{% static 'upload/js/upload.js' %}" type="text/javascript" charset="utf-8"></script>
+    <script src="{% static 'js/libs/bootstrap-filestyle.min.js' %}" type="text/javascript" charset="utf-8"></script>
+
     <script>
-        var addcontentchoice = `{% include "upload/addcontentchoice.html" %}`;
-        var addcontent = `{% include "upload/addcontent.html" %}`;
+        var addcontentchoice;
+        var addcontent;
         var supervisor_wrapper = $('#supervisor-wrapper');
         var supervisor_input_uid = 0;
         var member_wrapper = $('#member-wrapper');
         var users_responsibilities = {};
         var content_btn = $('#content-btn');
+        var $body = $('body');
 
-        function bindContentRow() {
-            $('#addText').on("click", function () {
-                $.getJSON("{% url 'add-content' content_type='text' %}", function (json) {
-                    content_btn.before(json.text);
+        content_btn.on("click", "#addText", function () {
+            $.getJSON("{% url 'add-content' content_type='text' %}", function (json) {
+                content_btn.before(json.text);
+            });
+        });
+
+        $body.on("click", "#addSoundcloudLink", function () {
+            var soundcloud_input = $('#soundcloud-input');
+            soundcloud_input
+                .clone()
+                .removeAttr("id")
+                .addClass("soundcloud-input")
+                .removeClass("hidden")
+                .appendTo(soundcloud_input.siblings('.audio-input-container'));
+        });
+
+        $body.on("click", "#addAudioFile", function () {
+            var audio_file_input = $('#audio-file-input');
+            audio_file_input
+                .clone()
+                .removeAttr("id")
+                .addClass("audio-input")
+                .removeClass("hidden")
+                .appendTo(audio_file_input.siblings('.audio-input-container'));
+            $(".audio-input").find(":file").filestyle({
+                buttonText: "",
+                buttonName: "btn-primary",
+                iconName: "fa fa-file-audio-o",
+                buttonBefore: true,
+                placeholder: "Keine Datei ausgewählt."
+            });
+        });
+
+        $body.on("click", ".soundcloud-close", function () {
+            $(this).parent().remove();
+        });
+        $body.on("click", ".audiofile-close", function () {
+            $(this).parent().remove();
+        });
+
+        content_btn.on("click", "#addSlideshow", function () {
+            $.getJSON("{% url 'add-content' content_type='slideshow' %}", function (json) {
+                content_btn.before(json.text);
+                $('.add-content-slideshow').last().find('form').dropzone({
+                    url: "{% url 'new-project' %}",
+                    addRemoveLinks: true,
+                    dictDefaultMessage: "Füge ein oder mehrere Bilder hinzu.",
+                    dictRemoveFile: "Entfernen",
+                    acceptedFiles: 'image/*',
+                    // referring to https://github.com/enyo/dropzone/wiki/Combine-normal-form-with-Dropzone
+                    autoProcessQueue: false,
+                    uploadMultiple: true,
+                    parallelUploads: 100,
+                    maxFiles: 10,
+                    init: function () {
+                        this.on("error", function (file, errMsg, xhr) {
+                            if (!xhr) {
+                                if (!file.accepted) this.removeFile(file);
+                            } else {
+                                var json = JSON.parse(xhr.responseText);
+                                // TODO: render errors
+                            }
+                        });
+                        this.on("successmultiple", function (files, response) {
+                            window.location = response.redirect;
+                            console.log("success dropzone submit + json");
+                        });
+                    }
                 });
             });
+        });
 
-            $('#addSlideshow').on("click", function () {
-                $.getJSON("{% url 'add-content' content_type='slideshow' %}", function (json) {
-                    content_btn.before(json.text);
-                    $('.add-content-slideshow').last().find('form').dropzone({
-                        url: "{% url 'new-project' %}",
-                        addRemoveLinks: true,
-                        dictDefaultMessage: "Füge ein oder mehrere Bilder hinzu.",
-                        dictRemoveFile: "Entfernen",
-                        acceptedFiles: 'image/*',
-                        // referring to https://github.com/enyo/dropzone/wiki/Combine-normal-form-with-Dropzone
-                        autoProcessQueue: false,
-                        uploadMultiple: true,
-                        parallelUploads: 100,
-                        maxFiles: 1,
-                        init: function () {
-                            this.on("error", function (file, errMsg, xhr) {
-                                if(!xhr) {
-                                    if (!file.accepted) this.removeFile(file);
-                                } else{
-                                    var json = JSON.parse(xhr.responseText);
-                                    // TODO: render errors
-                                }
-                            });
-                            this.on("successmultiple", function (files, response) {
-                                window.location = response.redirect;
-                                console.log("success dropzone submit + json");
-                            });
-                        }
-                    });
-                });
+        content_btn.on("click", "#addAudio", function () {
+            $.getJSON("{% url 'add-content' content_type='audio' %}", function (json) {
+                content_btn.before(json.text);
             });
-        }
+        });
 
         content_btn.on("mouseenter", "#addcontent-row", function () {
             $(this).replaceWith(addcontentchoice);
-            bindContentRow();
         });
 
         content_btn.on("mouseleave", "#addcontentchoice-row", function () {
@@ -410,6 +450,14 @@
         });
 
         $(document).ready(function () {
+            $.getJSON("{% url 'add-content-choose' %}", function(json){
+                addcontent = json.text;
+            });
+
+             $.getJSON("{% url 'add-content-choices' %}", function(json){
+                addcontentchoice = json.text;
+            });
+
             $("#add-tags-bar").tagit({
                 placeholderText: 'Hinzufügen',
                 autocomplete: {

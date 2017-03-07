@@ -10,5 +10,8 @@ urlpatterns = [
     url(r'^user_choices_member_resp/$', views.MemberChoicesRespJsonResponseView.as_view(), name='member-choices-with-resp'),
     url(r'^supervisor_choices/$', views.SupervisorChoicesJsonResponseView.as_view(), name='supervisor-choices'),
     url(r'^add_content/(?P<content_type>[a-z]+)/$', views.AddContentJsonResponseView.as_view(), name='add-content'),
+    url(r'^addcontentchoose$', views.ChooseContentJsonResponseView.as_view(), name="add-content-choose"),
+    url(r'^addcontent_choices', views.ChooseContentChoicesJsonResponseView.as_view(), name="add-content-choices")
+
 ]
 
