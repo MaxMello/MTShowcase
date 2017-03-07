@@ -17,7 +17,7 @@ import apps.administration.mixins as mixins
 from MTShowcase import names
 from MTShowcase import settings
 from apps.administration.mail_utils import mail
-from apps.project.forms import ImageFormField, AudioFileField
+from apps.project.forms import ImageFormField, AudioFileField, VideoFileField
 from apps.project.models import *
 from apps.project.validators import UrlToSocialMapper
 
@@ -150,6 +150,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                 project_links = project_params['p_project_links']
                 project_contents = project_params['p_contents']
                 audio_labels = project_params['p_audio_labels']
+                video_labels = project_params['p_video_labels']
             except KeyError:
                 print("key error")
                 return HttpResponseBadRequest()
@@ -239,6 +240,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
 
             slideshow_image_urls = []
             audio_files = []
+            video_files = []
             if request.FILES:
                 print(request.FILES)
                 for i in range(len(request.FILES)):
@@ -276,6 +278,21 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                             # TODO: add error
                             print(form.errors)
 
+                    field = 'video[{}]'.format(i)
+                    if field in request.FILES:
+                        form = VideoFileField(field, request.POST, request.FILES)
+                        if form.is_valid():
+                            saved_file = UploadVideo.objects.create(file=form.cleaned_data[field])
+                            if saved_file is not None:
+                                try:
+                                    video_files.append({
+                                        "filename": saved_file.file.url,
+                                        "text": video_labels[field]
+                                    })
+                                except KeyError as e:
+                                    print("error while video labels" + str(e))
+                                    continue
+            print(video_files)
             print(audio_files)
 
             # variable content building
@@ -300,9 +317,8 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                     elif content['content_type'] == Project.AUDIO:
                         if 'urls' in content:
                             for media in content['urls']:
-                                if media['media_host'] == "SOUNDCLOUD":
-                                    pass
-                                    # TODO: validate URL and install python-souncloud add client id get Track-ID
+                                pass
+                                # TODO: validate URL and install python-souncloud add client id get Track-ID
                         project_json_content.append({
                             'subheading': content['subheading'],
                             'content_type': Project.AUDIO,
@@ -361,6 +377,8 @@ class AddContentJsonResponseView(LoginRequiredMixin, mixins.JSONResponseMixin, V
                 template = 'upload/content_slideshow.html'
             elif content_type == 'audio':
                 template = 'upload/content_audio.html'
+            elif content_type == 'video':
+                template = 'upload/content_video.html'
             else:
                 return HttpResponseBadRequest()
         except AttributeError:

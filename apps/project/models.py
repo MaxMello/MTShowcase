@@ -329,6 +329,10 @@ class UploadAudio(models.Model):
     file = models.FileField(upload_to="audio")
 
 
+class UploadVideo(models.Model):
+    file = models.FileField(upload_to="video")
+
+
 class ProjectSocial(models.Model):
     project = models.ForeignKey('Project', on_delete=models.CASCADE)
     social = models.ForeignKey('user.Social', on_delete=models.CASCADE)

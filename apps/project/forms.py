@@ -1,6 +1,6 @@
 from django import forms
 
-from apps.project.validators import MimeTypeValidator, ALLOWED_AUDIO_MIME_TYPES
+from apps.project.validators import MimeTypeValidator, ALLOWED_AUDIO_MIME_TYPES, ALLOWED_VIDEO_MIME_TYPES
 
 
 class ImageFormField(forms.Form):
@@ -16,3 +16,12 @@ class AudioFileField(forms.Form):
             required=True,
             allow_empty_file=False,
             validators=[MimeTypeValidator(ALLOWED_AUDIO_MIME_TYPES)])
+
+
+class VideoFileField(forms.Form):
+    def __init__(self, field_name, *args, **kwargs):
+        super(VideoFileField, self).__init__(*args, **kwargs)
+        self.fields[field_name] = forms.FileField(
+            required=True,
+            allow_empty_file=False,
+            validators=[MimeTypeValidator(ALLOWED_VIDEO_MIME_TYPES)])

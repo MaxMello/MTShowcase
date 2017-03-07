@@ -32,7 +32,7 @@ class UrlToSocialMapper(object):
 
 
 ALLOWED_AUDIO_MIME_TYPES = ['audio/mp3', 'audio/mp4', 'audio/mpeg', 'audio/ogg', 'audio/wav', 'audio/webm', 'audio/aac']
-VIDEO_MIME_TYPES = ['video/mp4', 'video/ogg', 'video/webm']
+ALLOWED_VIDEO_MIME_TYPES = ['video/mp4', 'video/ogg', 'video/webm']
 
 
 class MimeTypeValidator(object):
