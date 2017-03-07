@@ -67,25 +67,29 @@
                         {% endif %}
                         {{ content.text }}
                     {% elif content.content_type == "AUDIO" %}
-                        {% if content.filename %}
-                            <audio controls class="embedded" style="margin-bottom: 20px;">
-                                <source src="{{ content.content_path }}{{ content.filename }}" type="audio/mp3">
-                            </audio>
-                        {% elif content.audio_id %}
-                            {% if content.media_host == "SOUNDCLOUD" %}
-                                <!-- TODO: Soundcloud url -> ID: http://stackoverflow.com/questions/20870270/how-to-get-soundcloud-embed-code-by-soundcloud-com-url -->
-                                <div style="margin-bottom: 20px;">
-                                    <iframe width="100%" height="166" scrolling="no" frameborder="no"
-                                            src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/{{ content.audio_id }}&amp;color=334d5b&amp;auto_play=false&amp;sharing=false&amp;liking=false&amp;buying=false&amp;show_comments=false&amp;show_user=true&amp;show_reposts=false">
-                                    </iframe>
-                                </div>
+                        {% for audio_content in content.audiofiles %}
+                            {% if audio_content.filename %}
+                                <audio controls class="embedded" style="margin-bottom: 20px;">
+                                    <source src="{{ audio_content.filename }}">
+                                </audio>
+                                {{ audio_content.text }}
+                            {% elif audio_content.audio_id %}
+                                {% if audio_content.media_host == "SOUNDCLOUD" %}
+                                    <!-- TODO: Soundcloud url -> ID: http://stackoverflow.com/questions/20870270/how-to-get-soundcloud-embed-code-by-soundcloud-com-url -->
+                                    <div style="margin-bottom: 20px;">
+                                        <iframe width="100%" height="166" scrolling="no" frameborder="no"
+                                                src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/{{ content.audio_id }}&amp;color=334d5b&amp;auto_play=false&amp;sharing=false&amp;liking=false&amp;buying=false&amp;show_comments=false&amp;show_user=true&amp;show_reposts=false">
+                                        </iframe>
+                                    </div>
+                                    {{ audio_content.text }}
+                                {% else %}
+                                    <div class="alert alert-warning">Fehler beim laden des Audios.</div>
+                                {% endif %}
                             {% else %}
                                 <div class="alert alert-warning">Fehler beim laden des Audios.</div>
                             {% endif %}
-                        {% else %}
-                            <div class="alert alert-warning">Fehler beim laden des Audios.</div>
-                        {% endif %}
-                        {{ content.text }}
+                        {% endfor %}
+
                     {% elif content.content_type == "SLIDESHOW" %}
                         <div id="imageCarousel{{ content.id }}" class="carousel slide" data-ride="carousel"
                              data-interval="false"
@@ -103,9 +107,9 @@
                                 {% for image_abs_path in content.images %}
                                     <div class="item {% if forloop.counter0 == 0 %}active{% endif %}"
                                          class="img-responsive">
-                                     <div class="carousel-image-wrapper">
-                                                <img src="{{ image_abs_path}}">
-                                     </div>
+                                        <div class="carousel-image-wrapper">
+                                            <img src="{{ image_abs_path }}">
+                                        </div>
                                     </div>
                                 {% endfor %}
                             </div>

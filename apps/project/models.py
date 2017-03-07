@@ -322,7 +322,11 @@ class ProjectMemberResponsibility(models.Model):
 
 
 class UploadImage(models.Model):
-    image = models.ImageField(upload_to="images")
+    file = models.ImageField(upload_to="new")
+
+
+class UploadAudio(models.Model):
+    file = models.FileField(upload_to="audio")
 
 
 class ProjectSocial(models.Model):

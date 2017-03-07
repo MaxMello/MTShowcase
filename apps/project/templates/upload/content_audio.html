@@ -1,5 +1,5 @@
 {% load staticfiles %}
-<div class="add-content-video" style="text-align: center; margin-bottom: 32px;">
+<div class="add-content-audio" style="text-align: center; margin-bottom: 32px;">
     <input type="text"
            class="content-subheading form-control input-sm h4 font-elegance"
            style="margin-bottom: 8px;"
@@ -21,6 +21,11 @@
          <img class="audiofile-close" width="12px" style="margin-left:8px; cursor: pointer;"
              src="{% static 'images/x.svg' %}">
         <input type="file" name="file">
+        <input type="text"
+           class="audio-subheading form-control input-sm h4 font-elegance"
+           style="margin-bottom: 8px;"
+           placeholder="Beschreibung unterm des Clips(optional)"
+           maxlength="100">
     </div>
 
     <div style="display:inline-block;width: 32px;"></div>
@@ -37,7 +42,12 @@
         <img class="soundcloud-close" width="12px" style="margin-left:8px; cursor: pointer;"
              src="{% static 'images/x.svg' %}">
         <input type="text"
-               class="form-control input-sm h4 font-elegance"
+               class="audio-url form-control input-sm h4 font-elegance"
                placeholder="https://soundcloud.com/xyz..."/>
+        <input type="text"
+           class="audio-subheading form-control input-sm h4 font-elegance"
+           style="margin-bottom: 8px;"
+           placeholder="Beschreibung unterm des Clips(optional)"
+           maxlength="100">
     </div>
 </div>

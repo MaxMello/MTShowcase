@@ -17,7 +17,7 @@ import apps.administration.mixins as mixins
 from MTShowcase import names
 from MTShowcase import settings
 from apps.administration.mail_utils import mail
-from apps.project.forms import ImageFormField
+from apps.project.forms import ImageFormField, AudioFileField
 from apps.project.models import *
 from apps.project.validators import UrlToSocialMapper
 
@@ -149,6 +149,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                 project_tags = project_params['p_project_tags']
                 project_links = project_params['p_project_links']
                 project_contents = project_params['p_contents']
+                audio_labels = project_params['p_audio_labels']
             except KeyError:
                 print("key error")
                 return HttpResponseBadRequest()
@@ -237,6 +238,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                 ProjectSupervisor.objects.create(project=new_project, supervisor=supervisor)
 
             slideshow_image_urls = []
+            audio_files = []
             if request.FILES:
                 print(request.FILES)
                 for i in range(len(request.FILES)):
@@ -246,10 +248,35 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                     if field in request.FILES:
                         form = ImageFormField(field, request.POST, request.FILES)
                         if form.is_valid():
-                            saved_image = UploadImage.objects.create(image=form.cleaned_data[field])
-                            if saved_image is not None:
-                                slideshow_image_urls.append(saved_image.image.url)
-                                print(saved_image.image.url)
+                            saved_file = UploadImage.objects.create(file=form.cleaned_data[field])
+                            if saved_file is not None:
+                                slideshow_image_urls.append(saved_file.file.url)
+                                print(saved_file.file.url)
+                        else:
+                            # TODO: add error
+                            print(form.errors)
+
+                    # audio[0], audio[1] format of audio file uploads
+                    field = 'audio[{}]'.format(i)
+                    if field in request.FILES:
+                        form = AudioFileField(field, request.POST, request.FILES)
+                        if form.is_valid():
+                            saved_file = UploadAudio.objects.create(file=form.cleaned_data[field])
+                            if saved_file is not None:
+                                try:
+                                    audio_files.append({
+                                        "filename": saved_file.file.url,
+                                        "text": audio_labels[field]
+                                    })
+                                    print(saved_file.file.url)
+                                except KeyError as e:
+                                    print("error while audio labels" + str(e))
+                                    continue
+                        else:
+                            # TODO: add error
+                            print(form.errors)
+
+            print(audio_files)
 
             # variable content building
             project_json_content = []
@@ -269,9 +296,22 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                             'content_type': Project.TEXT,
                             'text': content['text']
                         })
+
+                    elif content['content_type'] == Project.AUDIO:
+                        if 'urls' in content:
+                            for media in content['urls']:
+                                if media['media_host'] == "SOUNDCLOUD":
+                                    pass
+                                    # TODO: validate URL and install python-souncloud add client id get Track-ID
+                        project_json_content.append({
+                            'subheading': content['subheading'],
+                            'content_type': Project.AUDIO,
+                            'audiofiles': audio_files
+                        })
                 except KeyError:
                     continue
 
+            print(project_json_content)
             new_project.contents = project_json_content
             new_project.save()
 

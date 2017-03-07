@@ -402,7 +402,32 @@
                     subheading: $(this).children().eq(0).val(),
                 });
             });
+
+            var soundcloud_urls = [];
+            $('.add-content-audio').find('.soundcloud-input').each(function(i, obj){
+                soundcloud_urls.push({
+                    url:$(this).find('.audio-url').val(),
+                    media_host: "SOUNDCLOUD",
+                    text: $(this).find('.audio-subheading').val()
+                });
+            });
+
+            $('.add-content-audio').each(function (i, obj) {
+                content.push({
+                    content_type: "AUDIO",
+                    subheading: $(this).find('.content-subheading').val(),
+                    urls: soundcloud_urls
+                });
+            });
             return {content: content};
+        }
+
+        function buildAudioLabels (){
+            var audio_descriptions = {};
+            $('[id^=filestyle]').each(function (i, obj) {
+                audio_descriptions["audio[" + i + "]"] = $(this).next().next().val();
+            });
+            return audio_descriptions;
         }
 
         $('#pu-publish').on("click", function () {
@@ -419,42 +444,43 @@
                 p_member_responsibilities: users_responsibilities,
                 p_project_tags: $("#add-tags-bar").tagit("assignedTags"),
                 p_project_links: getProjectLinks(),
-                p_contents: buildVariableProjectContents()
+                p_contents: buildVariableProjectContents(),
+                p_audio_labels: buildAudioLabels()
+
             });
 
+            var formData = new FormData();
             var $dropZone = $('.add-content-slideshow .dropzone');
-            var processViaAjax = true;
             if ($dropZone.length) {
-                var imagesDropzone = $dropZone[0].dropzone;
-                if (imagesDropzone.getQueuedFiles().length > 0) {
-                    processViaAjax = false;
-                    console.log("processed via dropzone submit");
-                    $('#json-input').val(project_json_dict);
-                    imagesDropzone.processQueue();
-                }
-            }
-            if (processViaAjax) {
-                console.log("processed via ajax");
-                $.ajax({
-                    url: "{% url 'new-project' %}",
-                    type: "POST",
-                    data: {
-                        params: project_json_dict,
-                        csrfmiddlewaretoken: window.CSRF_TOKEN
-                    },
-                    success: function (json) {
-                        alert("success");
-                    }
+                $.each($('.dropzone')[0].dropzone.files, function (i, obj) {
+                    formData.append("file[" + i + "]", obj);
                 });
             }
+            formData.append("csrfmiddlewaretoken", window.CSRF_TOKEN);
+            formData.append("params", project_json_dict);
+
+            $('[id^=filestyle]').each(function (i, obj) {
+                formData.append("audio[" + i + "]", obj.files[0]);
+            });
+
+            $.ajax({
+                url: "{% url 'new-project' %}",
+                type: "POST",
+                contentType: false,
+                processData: false,
+                data: formData,
+                success: function (json) {
+                    alert("success");
+                }
+            });
         });
 
         $(document).ready(function () {
-            $.getJSON("{% url 'add-content-choose' %}", function(json){
+            $.getJSON("{% url 'add-content-choose' %}", function (json) {
                 addcontent = json.text;
             });
 
-             $.getJSON("{% url 'add-content-choices' %}", function(json){
+            $.getJSON("{% url 'add-content-choices' %}", function (json) {
                 addcontentchoice = json.text;
             });
 

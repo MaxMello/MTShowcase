@@ -1,6 +1,9 @@
+from io import BytesIO
+
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from urllib.parse import urlparse
+import magic
 
 from apps.user.models import Social
 
@@ -26,3 +29,29 @@ class UrlToSocialMapper(object):
             return None
         else:
             return Social.objects.get(name='link')
+
+
+ALLOWED_AUDIO_MIME_TYPES = ['audio/mp3', 'audio/mp4', 'audio/mpeg', 'audio/ogg', 'audio/wav', 'audio/webm', 'audio/aac']
+VIDEO_MIME_TYPES = ['video/mp4', 'video/ogg', 'video/webm']
+
+
+class MimeTypeValidator(object):
+    def __init__(self, mime_types):
+        self.mime_types = mime_types
+
+    def __call__(self, data):
+        try:
+            if hasattr(data, 'temporary_file_path'):
+                file = data.temporary_file_path()
+            else:
+                if hasattr(data, 'read'):
+                    file = BytesIO(data.read())
+                else:
+                    file = BytesIO(data['content'])
+
+            mime = magic.from_buffer(open(file, "rb").read(32768), mime=True)
+            print("file mime" + mime)
+            if mime not in self.mime_types:
+                raise ValidationError('%s not accepted type' % data)
+        except AttributeError as e:
+            raise ValidationError('Value could not be validated' + str(e))
