@@ -91,13 +91,13 @@
                         {% endfor %}
 
                     {% elif content.content_type == "SLIDESHOW" %}
-                        <div id="imageCarousel{{ content.id }}" class="carousel slide" data-ride="carousel"
+                        <div id="imageCarousel{{ forloop.counter }}" class="carousel slide" data-ride="carousel"
                              data-interval="false"
                              style="margin-bottom: 20px;">
                             <!-- Indicators -->
                             <ol class="carousel-indicators">
                                 {% for image in content.images %}
-                                    <li data-target="#imageCarousel{{ content.id }}"
+                                    <li data-target="#imageCarousel{{ forloop.counter }}"
                                         data-slide-to="{{ forloop.counter0 }}"
                                             {% if forloop.counter0 == 0 %} class="active">{% endif %}</li>
                                 {% endfor %}
@@ -114,14 +114,14 @@
                                 {% endfor %}
                             </div>
                             <!-- Left and right controls -->
-                            <a class="left carousel-control" href="#imageCarousel{{ content.id }}" role="button"
+                            <a class="left carousel-control" href="#imageCarousel{{ forloop.counter }}" role="button"
                                data-slide="prev">
                               <span class="carousel-prev">
                                 <span class="fa fa-arrow-left" aria-hidden="true"></span>
                                 <span class="sr-only">Zurück</span>
                               </span>
                             </a>
-                            <a class="right carousel-control" href="#imageCarousel{{ content.id }}" role="button"
+                            <a class="right carousel-control" href="#imageCarousel{{ forloop.counter }}" role="button"
                                data-slide="next">
                               <span class="carousel-next">
                                 <span class="fa fa-arrow-right" aria-hidden="true"></span>

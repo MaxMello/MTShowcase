@@ -35,7 +35,7 @@ class ProfInterfaceView(mixins.ProfAdminPermissionMixin, TemplateView):
             projectsupervisor__supervisor=user_with_admin_rights
         ).filter(
             Q(approval_state=Project.REVIEW_STATE) | Q(approval_state=Project.REVISION_STATE)
-        ).order_by('upload_date')
+        ).order_by('-upload_date')
 
     @staticmethod
     def build_select_json():

@@ -10,6 +10,7 @@
 {% block css %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css">
     <link rel="stylesheet" href="{% static 'style/libs/dropzone.min.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropper/2.3.4/cropper.css"/>
     <style>
         .dz-details {
             display: none !important;
@@ -25,6 +26,7 @@
 {% endblock %}
 {% block imagespace %}
     <div class="upload-title-image-wrapper">
+        <img id="selectedImage" class="hidden" src="#" alt="your image"/>
         <a class="text-center text-primary" data-toggle="modal" data-target="#imgUploadModal">
             <span class="fa fa-upload fa-4x" style="padding-top:22%;"></span><br>
             <span style="display:inline-block;">Titelbild hochladen</span>
@@ -45,6 +47,8 @@
         <textarea id="description" class="form-control resize-none" placeholder="Kurzbeschreibung" rows="5"
                   maxlength="500">{% if project %}{{ project.description }}{% endif %}</textarea>
     </div>
+
+
 {% endblock %}
 
 {% block contentbody %}
@@ -160,6 +164,8 @@
     <script src="{% static 'search/js/tag-it.js' %}" type="text/javascript" charset="utf-8"></script>
     <script src="{% static 'upload/js/upload.js' %}" type="text/javascript" charset="utf-8"></script>
     <script src="{% static 'js/libs/bootstrap-filestyle.min.js' %}" type="text/javascript" charset="utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropper/2.3.4/cropper.js" type="text/javascript"
+            charset="utf-8"></script>
 
     <script>
         var addcontentchoice;
@@ -169,7 +175,39 @@
         var member_wrapper = $('#member-wrapper');
         var users_responsibilities = {};
         var content_btn = $('#content-btn');
-        var $body = $('body');
+        var body_element = $('body');
+        var titel_image_blob;
+        var crop_data;
+        var title_image =
+
+        $.fn.cropper();
+
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#title_image').cropper('destroy');
+                    $('#title_image').removeClass("hidden").attr('src', e.target.result);
+                    $('#crop-menu').removeClass("hidden");
+                    $('#crop_button').prop("disabled", true);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function initCropper() {
+            $('#title_image').cropper({
+                aspectRatio: 16 / 9,
+                crop: function (e) {
+                    crop_data = JSON.stringify($('#title_image').cropper("getData"));
+                }
+            });
+             $('#crop_button').prop("disabled", false);
+        }
+        body_element.on("click", "#crop_button", function () {
+            var imgurl = $('#title_image').cropper('getCroppedCanvas').toDataURL();
+            $('#selectedImage').attr("src", imgurl).removeClass("hidden");
+        });
 
         content_btn.on("click", "#addText", function () {
             $.getJSON("{% url 'add-content' content_type='text' %}", function (json) {
@@ -177,7 +215,7 @@
             });
         });
 
-        $body.on("click", "#addSoundcloudLink", function () {
+        body_element.on("click", "#addSoundcloudLink", function () {
             var soundcloud_input = $('#soundcloud-input');
             soundcloud_input
                 .clone()
@@ -187,7 +225,7 @@
                 .appendTo(soundcloud_input.siblings('.audio-input-container'));
         });
 
-        $body.on("click", "#addAudioFile", function () {
+        body_element.on("click", "#addAudioFile", function () {
             var audio_file_input = $('#audio-file-input');
             audio_file_input
                 .clone()
@@ -204,10 +242,10 @@
             });
         });
 
-        $body.on("click", ".soundcloud-close", function () {
+        body_element.on("click", ".soundcloud-close", function () {
             $(this).parent().remove();
         });
-        $body.on("click", ".audiofile-close", function () {
+        body_element.on("click", ".audiofile-close", function () {
             $(this).parent().remove();
         });
 
@@ -255,7 +293,7 @@
             });
         });
 
-        $body.on("click", "#addVideoFile", function () {
+        body_element.on("click", "#addVideoFile", function () {
             var video_input = $('#vidoe-file-input');
             video_input
                 .clone()
@@ -271,11 +309,11 @@
                 placeholder: "Keine Datei ausgewählt."
             });
         });
-        $body.on("click", ".videofile-close", function () {
+        body_element.on("click", ".videofile-close", function () {
             $(this).parent().remove();
         });
 
-        $body.on("click", ".addVideoLink", function () {
+        body_element.on("click", ".addVideoLink", function () {
             var video_link = $('#video-link-input');
             video_link
                 .clone()
@@ -285,7 +323,7 @@
                 .appendTo(video_link.siblings('.video-input-container'));
         });
 
-        $body.on("click", ".video-link-close", function () {
+        body_element.on("click", ".video-link-close", function () {
             $(this).parent().remove();
         });
 
@@ -441,6 +479,7 @@
                 content.push({
                     content_type: "SLIDESHOW",
                     subheading: $(this).children().eq(0).val(),
+                    slideshow_index: i
                 });
             });
 
@@ -461,14 +500,14 @@
             });
 
             var video_urls = [];
-             $('.add-content-video').find('.video-link-input').each(function (i, obj) {
+            $('.add-content-video').find('.video-link-input').each(function (i, obj) {
                 video_urls.push({
                     url: $(this).find('.video-url').val(),
                     text: $(this).find('.video-subheading').val()
                 });
             });
 
-             $('.add-content-video').each(function (i, obj) {
+            $('.add-content-video').each(function (i, obj) {
                 content.push({
                     content_type: "VIDEO",
                     subheading: $(this).find('.content-subheading').val(),
@@ -478,6 +517,7 @@
             return {content: content};
         }
 
+        // TODO: refactor for multiple content name uniqueness
         function buildAudioLabels() {
             var audio_descriptions = {};
             $('.add-content-audio').find('[id^=filestyle]').each(function (i, obj) {
@@ -486,7 +526,7 @@
             return audio_descriptions;
         }
 
-        function buildVideoLabels(){
+        function buildVideoLabels() {
             var video_descriptions = {};
             $('.add-content-video').find('[id^=filestyle]').each(function (i, obj) {
                 video_descriptions["video[" + i + "]"] = $(this).next().next().val();
@@ -495,8 +535,39 @@
         }
 
         $('#pu-publish').on("click", function () {
-            fillMemberResponsibilities();
+            var slideshows_content = {};
 
+            var formData = new FormData();
+            var $dropZones = $('.add-content-slideshow .dropzone');
+            if ($dropZones.length) {
+                for (var n = 0; n < $dropZones.length; ++n) {
+                    if ($('.dropzone')[n].dropzone.files.length > 0) {
+                        slideshows_content[n] = [];
+                        $.each($('.dropzone')[n].dropzone.files, function (i, obj) {
+                            var fieldName = n + "file[" + i + "]";
+                            formData.append(fieldName, obj);
+                            slideshows_content[n].push(fieldName);
+                        });
+                    }
+                }
+            }
+
+            $('.audio-input-container').find('[id^=filestyle]').each(function (i, obj) {
+                formData.append("audio[" + i + "]", obj.files[0]);
+            });
+
+            $('.video-input-container').find('[id^=filestyle]').each(function (i, obj) {
+                formData.append("video[" + i + "]", obj.files[0]);
+            });
+
+            if($('#image')[0].files.length > 0) {
+                formData.append("title_image", $('#image')[0].files[0]);
+                if (crop_data != null){
+                    formData.append("crop_data", crop_data);
+                }
+            }
+
+            fillMemberResponsibilities();
             var project_json_dict = JSON.stringify({
                 p_heading: $('#heading').val(),
                 p_subheading: $('#subheading').val(),
@@ -510,26 +581,11 @@
                 p_project_links: getProjectLinks(),
                 p_contents: buildVariableProjectContents(),
                 p_audio_labels: buildAudioLabels(),
-                p_video_labels: buildVideoLabels()
+                p_video_labels: buildVideoLabels(),
+                p_slideshows: slideshows_content
             });
-
-            var formData = new FormData();
-            var $dropZone = $('.add-content-slideshow .dropzone');
-            if ($dropZone.length) {
-                $.each($('.dropzone')[0].dropzone.files, function (i, obj) {
-                    formData.append("file[" + i + "]", obj);
-                });
-            }
             formData.append("csrfmiddlewaretoken", window.CSRF_TOKEN);
             formData.append("params", project_json_dict);
-
-            $('.audio-input-container').find('[id^=filestyle]').each(function (i, obj) {
-                formData.append("audio[" + i + "]", obj.files[0]);
-            });
-
-            $('.video-input-container').find('[id^=filestyle]').each(function (i, obj) {
-                formData.append("video[" + i + "]", obj.files[0]);
-            });
 
             $.ajax({
                 url: "{% url 'new-project' %}",

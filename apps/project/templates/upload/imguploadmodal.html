@@ -4,6 +4,31 @@
 {% endblock %}
 {% block title %}
     Titelbild hochladen und zuschneiden
+
+
 {% endblock %}
 {% block body %}
+    <input type="file" name="image" id="image" class="filestyle"
+           data-input="false"
+           data-buttonName="btn-primary"
+           data-iconName="fa fa-image"
+           onchange="readURL(this);">
+
+    <div class="image_container" style="position: relative;">
+        <div id="crop-menu" class="hidden" style="position: absolute;right: 0;top: 0; margin-top: -40px;">
+            <button style="float:right;" class="btn btn-default" id="startCrop" onclick="initCropper();">Zuschneiden
+            </button>
+            <button style="float:right;" class="btn btn-primary" id="crop_button">Crop</button>
+
+        </div>
+        <img class="hidden" id="title_image" src="#" alt="image"/>
+    </div>
+
+    <style>
+        .image_container img {
+            max-width: 100%
+        }
+    </style>
+    <div id="cropped_result" style="width: auto;"></div>
+
 {% endblock %}

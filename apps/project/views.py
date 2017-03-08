@@ -1,8 +1,10 @@
 import json
+from io import BytesIO
 from random import randint
-
+from PIL import Image
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
+from django.core.files.base import ContentFile
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse_lazy
 from django.http import Http404
@@ -136,6 +138,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
 
         if request.POST and request.POST.get('params'):
             project_params = json.loads(request.POST.get('params'))
+            print(request.POST)
             print(project_params)
             try:
                 heading = project_params['p_heading']
@@ -151,8 +154,10 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                 project_contents = project_params['p_contents']
                 audio_labels = project_params['p_audio_labels']
                 video_labels = project_params['p_video_labels']
-            except KeyError:
-                print("key error")
+                slideshows = project_params['p_slideshows']
+                crop_data = json.loads(request.POST['crop_data']) if 'crop_data' in request.POST else None
+            except KeyError as ke:
+                print("key error " + str(ke))
                 return HttpResponseBadRequest()
 
             semester = semesteryear[:2]
@@ -238,26 +243,60 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
 
                 ProjectSupervisor.objects.create(project=new_project, supervisor=supervisor)
 
-            slideshow_image_urls = []
+            slideshows_image_urls = []
             audio_files = []
             video_files = []
             if request.FILES:
+                form = ImageFormField("title_image", request.POST, request.FILES)
+                if form.is_valid():
+                    print("cleaned: ", form.cleaned_data["title_image"])
+                    new_project.project_image = request.FILES["title_image"]
+                    new_project.save()
+                    if crop_data:
+                        f = BytesIO()
+                        try:
+                            img = Image.open(new_project.project_image.path)
+                            img_crop = img.crop((
+                                int(crop_data["x"]),
+                                int(crop_data["y"]),
+                                int(crop_data["x"] + crop_data["width"]),
+                                int(crop_data["y"] + crop_data["height"]))
+                            )
+                            img_crop.save(f, format='JPEG')
+                            img_crop_file = ContentFile(f.getvalue(), "croppedimage.jpeg")
+                            new_project.project_image_cropped = img_crop_file
+                            new_project.save()
+                            print(new_project.project_image_cropped.url)
+                        except Exception as e:
+                            print("Failed to open and crop image " + str(e))
+                        finally:
+                            f.close()
+                    else:
+                        pass
+                        print("crop empty")
+                        # maybe random crop for grid
+
+
+
                 print(request.FILES)
-                for i in range(len(request.FILES)):
-                    # file[0], file[1] representation of dropzone multiple files upload
-                    field = 'file[{}]'.format(i)
-                    # only accept files formatted as expected dropzone file
-                    if field in request.FILES:
-                        form = ImageFormField(field, request.POST, request.FILES)
+                print("slideshow : ", sorted(slideshows))
+                for slideshow_key in sorted(slideshows):
+                    image_urls = []
+                    fields = slideshows[slideshow_key]
+                    for field_name in fields:
+                        form = ImageFormField(field_name, request.POST, request.FILES)
                         if form.is_valid():
-                            saved_file = UploadImage.objects.create(file=form.cleaned_data[field])
+                            saved_file = UploadImage.objects.create(file=form.cleaned_data[field_name])
                             if saved_file is not None:
-                                slideshow_image_urls.append(saved_file.file.url)
+                                image_urls.append(saved_file.file.url)
                                 print(saved_file.file.url)
                         else:
                             # TODO: add error
                             print(form.errors)
+                    if image_urls:
+                        slideshows_image_urls.append(image_urls)
 
+                for i in range(len(request.FILES)):
                     # audio[0], audio[1] format of audio file uploads
                     field = 'audio[{}]'.format(i)
                     if field in request.FILES:
@@ -304,7 +343,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                         project_json_content.append({
                             'subheading': content['subheading'],
                             'content_type': Project.SLIDESHOW,
-                            'images': slideshow_image_urls
+                            'images': slideshows_image_urls[content['slideshow_index']]
                         })
 
                     elif content['content_type'] == Project.TEXT:
@@ -326,7 +365,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                         })
                 except KeyError:
                     continue
-
+            print("###########################################################################")
             print(project_json_content)
             new_project.contents = project_json_content
             new_project.save()

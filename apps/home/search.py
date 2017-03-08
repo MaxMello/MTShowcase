@@ -64,7 +64,7 @@ class Search:
 
     def get_projects(self):
 
-        qset = Project.objects.all()
+        qset = Project.objects.filter(approval_state=Project.APPROVED_STATE)
         #print(qset)
         if not qset:
             return []
