@@ -1,0 +1,24 @@
+{% load staticfiles %}
+
+<div class="image-file-input" style="margin-bottom: 12px;">
+    <label>Wähle eine Datei</label>
+    <img class="imagefile-close" width="12px" style="margin-left:8px; cursor: pointer;"
+         src="{% static 'images/x.svg' %}">
+    <input type="file" name="file" accept="image/*" onchange="readURL(this,'.add_content_image');">
+
+
+    <div class="image_container" style="position: relative; margin-top: 52px;">
+        <div class="crop-menu hidden" style="position: absolute;right: 0;top: 0; margin-top: -40px;">
+            <button style="float:right;" class="startCrop btn btn-default">Zuschneiden
+            </button>
+            <button style="float:right;" class="crop_button btn btn-primary">Crop</button>
+        </div>
+        <img class="add_content_image hidden" src="#" alt="image"/>
+        <input type="hidden" class="crop-data"/>
+    </div>
+    <input type="text"
+           class="image-subheading form-control input-sm h4 font-elegance"
+           style="margin-bottom: 8px; margin-top: 8px;"
+           placeholder="Beschreibung unter dem Bild(optional)"
+           maxlength="100">
+</div>

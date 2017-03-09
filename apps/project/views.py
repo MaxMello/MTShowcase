@@ -416,6 +416,8 @@ class AddContentJsonResponseView(LoginRequiredMixin, mixins.JSONResponseMixin, V
                 template = 'upload/content_audio.html'
             elif content_type == 'video':
                 template = 'upload/content_video.html'
+            elif content_type == 'image':
+                template = 'upload/content_image.html'
             else:
                 return HttpResponseBadRequest()
         except AttributeError:
@@ -446,6 +448,10 @@ class FileInputTemplateJsonResponseView(LoginRequiredMixin, mixins.JSONResponseM
                 template = 'upload/video_file_input.html'
             elif input_for == 'videolink':
                 template = 'upload/video_link_input.html'
+            elif input_for == 'imagelink':
+                template = 'upload/image_link_input.html'
+            elif input_for == 'imagefile':
+                template = 'upload/image_file_input.html'
             else:
                 return HttpResponseBadRequest()
         except AttributeError:

@@ -178,34 +178,54 @@
         var body_element = $('body');
         var titel_image_blob;
         var crop_data;
-        var title_image =
 
         $.fn.cropper();
 
-        function readURL(input) {
+        function readURL(input, img_selector) {
             if (input.files && input.files[0]) {
                 var reader = new FileReader();
                 reader.onload = function (e) {
-                    $('#title_image').cropper('destroy');
-                    $('#title_image').removeClass("hidden").attr('src', e.target.result);
-                    $('#crop-menu').removeClass("hidden");
-                    $('#crop_button').prop("disabled", true);
+                    if (img_selector == "") {
+                        $('#title_image').cropper('destroy');
+                        $('#title_image').removeClass("hidden").attr('src', e.target.result);
+                        $('#crop-menu').removeClass("hidden");
+                        $('#crop_button').prop("disabled", true);
+                    } else {
+                        var $img = $(input).parent().find(img_selector);
+                        $img.cropper('destroy');
+                        $img.removeClass("hidden").attr('src', e.target.result);
+                        $img.parent().find('.crop-menu').removeClass("hidden")
+                            .find('.crop_button').prop("disabled", true);
+                    }
                 };
                 reader.readAsDataURL(input.files[0]);
             }
         }
 
-        function initCropper() {
+        function initCropper(aspect_ratio) {
             $('#title_image').cropper({
-                aspectRatio: 16 / 9,
-                crop: function (e) {
-                    crop_data = JSON.stringify($('#title_image').cropper("getData"));
-                }
+                aspectRatio: aspect_ratio
             });
-             $('#crop_button').prop("disabled", false);
+            $('#crop_button').prop("disabled", false);
         }
+
+        body_element.on("click", ".startCrop", function () {
+            var $img = $(this).parent().siblings('.add_content_image');
+            $img.cropper();
+            $(this).next().prop("disabled", false);
+        });
+        body_element.on("click", ".crop_button", function () {
+            var $img = $(this).parent().siblings('.add_content_image');
+            $img.siblings('input').val(JSON.stringify($img.cropper("getData")));
+            var imgUrl = $img.cropper('getCroppedCanvas').toDataURL();
+            $img.cropper("destroy");
+            $img.attr("src", imgUrl);
+            $(this).prop("disabled", true);
+        });
+
         body_element.on("click", "#crop_button", function () {
             var imgurl = $('#title_image').cropper('getCroppedCanvas').toDataURL();
+            crop_data = JSON.stringify($('#title_image').cropper("getData"));
             $('#selectedImage').attr("src", imgurl).removeClass("hidden");
         });
 
@@ -215,12 +235,57 @@
             });
         });
 
+        content_btn.on("click", "#addPicture", function () {
+            $.getJSON("{% url 'add-content' content_type='image' %}", function (json) {
+                content_btn.before(json.text);
+            });
+        });
+
+        body_element.on("click", ".addImageLink", function () {
+            var $that = $(this);
+            $.getJSON("{% url 'file-input-templates' input_for='imagelink' %}", function (json) {
+                var container = $that.parent().parent().find('.image-input-container');
+                container.append(json.text);
+            });
+        });
+
+        body_element.on("click", ".addImageFile", function () {
+            var $that = $(this);
+            $.getJSON("{% url 'file-input-templates' input_for='imagefile' %}", function (json) {
+                var container = $that.parent().parent().find('.image-input-container');
+                container.append(json.text);
+                $(".image-file-input").find(":file").filestyle({
+                    buttonText: "",
+                    buttonName: "btn-primary",
+                    iconName: "fa fa-file-image-o",
+                    buttonBefore: true,
+                    placeholder: "Keine Datei ausgewählt."
+                });
+            });
+
+        });
+
+        body_element.on("click", ".imagefile-close", function () {
+            $(this).parent().remove();
+        });
+        body_element.on("click", ".imagelink-close", function () {
+            $(this).parent().remove();
+        });
+
         body_element.on("click", ".addSoundcloudLink", function () {
             var $that = $(this);
-             $.getJSON("{% url 'file-input-templates' input_for='soundcloud' %}", function (json) {
-                 var container = $that.parent().parent().find('.audio-input-container');
-                 container.append(json.text);
-             });
+            $.getJSON("{% url 'file-input-templates' input_for='imagefile' %}", function (json) {
+                var container = $that.parent().parent().find('.audio-input-container');
+                container.append(json.text);
+
+                $(".audio-input").find(":file").filestyle({
+                    buttonText: "",
+                    buttonName: "btn-primary",
+                    iconName: "fa fa-file-audio-o",
+                    buttonBefore: true,
+                    placeholder: "Keine Datei ausgewählt."
+                });
+            });
         });
 
         body_element.on("click", ".addAudioFile", function () {
@@ -556,9 +621,9 @@
                 formData.append("video[" + i + "]", obj.files[0]);
             });
 
-            if($('#image')[0].files.length > 0) {
+            if ($('#image')[0].files.length > 0) {
                 formData.append("title_image", $('#image')[0].files[0]);
-                if (crop_data != null){
+                if (crop_data != null) {
                     formData.append("crop_data", crop_data);
                 }
             }
