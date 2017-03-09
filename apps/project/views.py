@@ -276,8 +276,6 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                         print("crop empty")
                         # maybe random crop for grid
 
-
-
                 print(request.FILES)
                 print("slideshow : ", sorted(slideshows))
                 for slideshow_key in sorted(slideshows):
@@ -434,3 +432,23 @@ class ChooseContentJsonResponseView(LoginRequiredMixin, mixins.JSONResponseMixin
 class ChooseContentChoicesJsonResponseView(LoginRequiredMixin, mixins.JSONResponseMixin, View):
     def get(self, request, *args, **kwargs):
         return self.render_json_response({"text": render_to_string('upload/addcontentchoice.html')})
+
+
+class FileInputTemplateJsonResponseView(LoginRequiredMixin, mixins.JSONResponseMixin, View):
+    def get(self, request, *args, **kwargs):
+        try:
+            input_for = kwargs.get('input_for')
+            if input_for == 'audiofile':
+                template = 'upload/audio_file_input.html'
+            elif input_for == 'soundcloud':
+                template = 'upload/soundcloud_input.html'
+            elif input_for == 'videofile':
+                template = 'upload/video_file_input.html'
+            elif input_for == 'videolink':
+                template = 'upload/video_link_input.html'
+            else:
+                return HttpResponseBadRequest()
+        except AttributeError:
+            return HttpResponseBadRequest()
+        else:
+            return self.render_json_response({"text": render_to_string(template, request=request)})

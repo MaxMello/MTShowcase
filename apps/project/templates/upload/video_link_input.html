@@ -1,0 +1,15 @@
+{% load staticfiles %}
+
+<div class="video-link-input">
+    <label>Url</label>
+    <img class="video-link-close" width="12px" style="margin-left:8px; cursor: pointer;"
+         src="{% static 'images/x.svg' %}">
+    <input type="text"
+           class="video-url form-control input-sm h4 font-elegance"
+           placeholder="https://www....."/>
+    <input type="text"
+           class="video-subheading form-control input-sm h4 font-elegance"
+           style="margin-bottom: 8px;"
+           placeholder="Beschreibung unter dem Video(optional)"
+           maxlength="100">
+</div>

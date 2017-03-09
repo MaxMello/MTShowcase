@@ -215,30 +215,27 @@
             });
         });
 
-        body_element.on("click", "#addSoundcloudLink", function () {
-            var soundcloud_input = $('#soundcloud-input');
-            soundcloud_input
-                .clone()
-                .removeAttr("id")
-                .addClass("soundcloud-input")
-                .removeClass("hidden")
-                .appendTo(soundcloud_input.siblings('.audio-input-container'));
+        body_element.on("click", ".addSoundcloudLink", function () {
+            var $that = $(this);
+             $.getJSON("{% url 'file-input-templates' input_for='soundcloud' %}", function (json) {
+                 var container = $that.parent().parent().find('.audio-input-container');
+                 container.append(json.text);
+             });
         });
 
-        body_element.on("click", "#addAudioFile", function () {
-            var audio_file_input = $('#audio-file-input');
-            audio_file_input
-                .clone()
-                .removeAttr("id")
-                .addClass("audio-input")
-                .removeClass("hidden")
-                .appendTo(audio_file_input.siblings('.audio-input-container'));
-            $(".audio-input").find(":file").filestyle({
-                buttonText: "",
-                buttonName: "btn-primary",
-                iconName: "fa fa-file-audio-o",
-                buttonBefore: true,
-                placeholder: "Keine Datei ausgewählt."
+        body_element.on("click", ".addAudioFile", function () {
+            var $that = $(this);
+            $.getJSON("{% url 'file-input-templates' input_for='audiofile' %}", function (json) {
+                var container = $that.parent().parent().find('.audio-input-container');
+                container.append(json.text);
+
+                $(".audio-input").find(":file").filestyle({
+                    buttonText: "",
+                    buttonName: "btn-primary",
+                    iconName: "fa fa-file-audio-o",
+                    buttonBefore: true,
+                    placeholder: "Keine Datei ausgewählt."
+                });
             });
         });
 
@@ -293,34 +290,33 @@
             });
         });
 
-        body_element.on("click", "#addVideoFile", function () {
-            var video_input = $('#vidoe-file-input');
-            video_input
-                .clone()
-                .removeAttr("id")
-                .addClass("video-input")
-                .removeClass("hidden")
-                .appendTo(video_input.siblings('.video-input-container'));
-            $(".video-input").find(":file").filestyle({
-                buttonText: "",
-                buttonName: "btn-primary",
-                iconName: "fa fa-file-video-o",
-                buttonBefore: true,
-                placeholder: "Keine Datei ausgewählt."
+        body_element.on("click", ".addVideoFile", function () {
+            var $that = $(this);
+            $.getJSON("{% url 'file-input-templates' input_for='videofile' %}", function (json) {
+                var container = $that.parent().parent().find('.video-input-container');
+                container.append(json.text);
+
+                $(".video-input").find(":file").filestyle({
+                    buttonText: "",
+                    buttonName: "btn-primary",
+                    iconName: "fa fa-file-video-o",
+                    buttonBefore: true,
+                    placeholder: "Keine Datei ausgewählt."
+                });
             });
         });
+
         body_element.on("click", ".videofile-close", function () {
             $(this).parent().remove();
         });
 
         body_element.on("click", ".addVideoLink", function () {
-            var video_link = $('#video-link-input');
-            video_link
-                .clone()
-                .removeAttr("id")
-                .addClass("video-link-input")
-                .removeClass("hidden")
-                .appendTo(video_link.siblings('.video-input-container'));
+            var $that = $(this);
+            $.getJSON("{% url 'file-input-templates' input_for='videolink' %}", function (json) {
+                var container = $that.parent().parent().find('.video-input-container');
+                container.append(json.text);
+            });
+
         });
 
         body_element.on("click", ".video-link-close", function () {

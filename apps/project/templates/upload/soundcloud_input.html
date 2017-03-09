@@ -1,0 +1,15 @@
+{% load staticfiles %}
+
+<div class="soundcloud-input">
+    <label>Soundcloud URL</label>
+    <img class="soundcloud-close" width="12px" style="margin-left:8px; cursor: pointer;"
+         src="{% static 'images/x.svg' %}">
+    <input type="text"
+           class="audio-url form-control input-sm h4 font-elegance"
+           placeholder="https://soundcloud.com/xyz..."/>
+    <input type="text"
+           class="audio-subheading form-control input-sm h4 font-elegance"
+           style="margin-bottom: 8px;"
+           placeholder="Beschreibung unterm des Clips(optional)"
+           maxlength="100">
+</div>

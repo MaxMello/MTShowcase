@@ -1,0 +1,13 @@
+{% load staticfiles %}
+
+<div class="video-input" style="margin-bottom: 12px;">
+    <label>Wähle eine Datei</label>
+    <img class="videofile-close" width="12px" style="margin-left:8px; cursor: pointer;"
+         src="{% static 'images/x.svg' %}">
+    <input type="file" name="file">
+    <input type="text"
+           class="video-subheading form-control input-sm h4 font-elegance"
+           style="margin-bottom: 8px;"
+           placeholder="Beschreibung unter dem Video(optional)"
+           maxlength="100">
+</div>

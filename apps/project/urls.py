@@ -11,7 +11,8 @@ urlpatterns = [
     url(r'^supervisor_choices/$', views.SupervisorChoicesJsonResponseView.as_view(), name='supervisor-choices'),
     url(r'^add_content/(?P<content_type>[a-z]+)/$', views.AddContentJsonResponseView.as_view(), name='add-content'),
     url(r'^addcontentchoose$', views.ChooseContentJsonResponseView.as_view(), name="add-content-choose"),
-    url(r'^addcontent_choices', views.ChooseContentChoicesJsonResponseView.as_view(), name="add-content-choices")
+    url(r'^addcontent_choices', views.ChooseContentChoicesJsonResponseView.as_view(), name="add-content-choices"),
+    url(r'^input_templates/(?P<input_for>[a-z]+)$', views. FileInputTemplateJsonResponseView.as_view(), name="file-input-templates")
 
 ]
 
