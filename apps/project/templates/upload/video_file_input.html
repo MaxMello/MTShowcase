@@ -2,11 +2,12 @@
 
 <div class="video-input" style="margin-bottom: 12px;">
     <label>Wähle eine Datei</label>
-    <img class="videofile-close" width="12px" style="margin-left:8px; cursor: pointer;"
+    <img class="sub-content-close" width="12px" style="margin-left:8px; cursor: pointer;"
          src="{% static 'images/x.svg' %}">
-    <input type="file" name="file">
+    <input type="file" data-type-key="filename" data-file-prefix="video" name="file" class="content-input">
     <input type="text"
-           class="video-subheading form-control input-sm h4 font-elegance"
+           data-type-key="text"
+           class="content-input add-input-subtitle form-control input-sm h4 font-elegance"
            style="margin-bottom: 8px;"
            placeholder="Beschreibung unter dem Video(optional)"
            maxlength="100">

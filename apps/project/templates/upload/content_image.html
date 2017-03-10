@@ -1,6 +1,8 @@
 {% load staticfiles %}
 
-<div class="add-content-image upload-content input-group" style="text-align: center; margin-bottom: 32px;">
+<div data-content-type="IMAGE" class="add-content-image upload-content-section input-group" style="text-align: center; margin-bottom: 32px;">
+     <img class="sub-content-close" width="12px" style="float:right;margin:8px; cursor: pointer;"
+         src="{% static 'images/x.svg' %}">
     <input type="text"
            class="content-subheading form-control input-sm h4 font-elegance"
            style="margin-bottom: 8px;"
@@ -9,7 +11,7 @@
 
     <p>Importiere ein Bild oder nutze eine URL!</p>
 
-    <div class="image-input-container" style="width: 100%;"></div>
+    <div class="input-container" style="width: 100%;"></div>
 
 
     <div style="text-align: center;display: inline-block">

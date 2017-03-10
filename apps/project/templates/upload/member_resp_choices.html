@@ -1,14 +1,22 @@
-<select style="width: 100%;" class="pu-member-select2">
-    <option></option>
-    {% for user in users %}
-        <option value="{{ user.id }}">
-            {{ user.auth_user.first_name }} {{ user.auth_user.last_name }}
-        </option>
-    {% endfor %}
-</select>
+{% load staticfiles %}
 
-<ul class="resp-bar" style="border: 1px solid #e6e6e6;">
-</ul>
+<div>
+    <img class="sub-content-close" width="12px"
+         style="float:right;margin-left:8px; margin-bottom: 8px; cursor: pointer;"
+         src="{% static 'images/x.svg' %}">
+
+    <select style="width: 100%;" class="pu-member-select2">
+        <option></option>
+        {% for user in users %}
+            <option value="{{ user.id }}">
+                {{ user.auth_user.first_name }} {{ user.auth_user.last_name }}
+            </option>
+        {% endfor %}
+    </select>
+
+    <ul class="resp-bar" style="border: 1px solid #e6e6e6;">
+    </ul>
+</div>
 <style>
     /* TODO: move to less */
     [class^='select2'] {

@@ -1,13 +1,19 @@
-<div class="add-content-text upload-content input-group">
+{% load staticfiles %}
+
+<div data-content-type="TEXT" class="add-content-text upload-content-section input-group">
+    <img class="sub-content-close" width="12px" style="float:right;margin:8px; cursor: pointer;"
+         src="{% static 'images/x.svg' %}">
+
     <input type="text"
            class="content-subheading form-control input-sm h4 font-elegance"
            style="margin-bottom: 8px;"
            placeholder="Überschrift(optional)"
            maxlength="70">
 
-    <textarea id="description"
-              class="form-control resize-none"
-              style="height:250px;"
-              autofocus
-              rows="5"></textarea>
+    <div class="input-container">
+        <div>
+            <textarea data-type-key="text" class="content-input form-control resize-none" style="height:250px;" autofocus
+                      rows="5"></textarea>
+        </div>
+    </div>
 </div>

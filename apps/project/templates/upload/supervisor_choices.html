@@ -1,11 +1,17 @@
-<select class='profs-choices form-control' style="width: 90%;">
-    <option value="choose" selected>Betreuer wählen</option>
-    {% for supervisor in supervisors %}
-        <option value='{{ supervisor.id }}'>
-            {{ supervisor.auth_user.first_name }} {{ supervisor.auth_user.last_name }}
-        </option>
-    {% endfor %}
-</select>
+{% load staticfiles %}
+
+<div class='form-group'>
+    <select class='profs-choices form-control' style="width: 90%;">
+        <option value="choose" selected>Betreuer wählen</option>
+        {% for supervisor in supervisors %}
+            <option value='{{ supervisor.id }}'>
+                {{ supervisor.auth_user.first_name }} {{ supervisor.auth_user.last_name }}
+            </option>
+        {% endfor %}
+    </select>
+    <img class="sub-content-close" width="12px" style="margin-left:8px; margin-bottom: 8px; cursor: pointer;"
+         src="{% static 'images/x.svg' %}">
+</div>
 <style>
     .profs-choices {
         margin-right: 8px;

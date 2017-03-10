@@ -1,5 +1,7 @@
 {% load staticfiles %}
-<div class="add-content-audio upload-content" style="text-align: center; margin-bottom: 32px;">
+<div data-content-type="AUDIO" class="add-content-audio upload-content-section" style="text-align: center; margin-bottom: 32px;">
+     <img class="sub-content-close" width="12px" style="float:right;margin:8px; cursor: pointer;"
+         src="{% static 'images/x.svg' %}">
     <input type="text"
            class="content-subheading form-control input-sm h4 font-elegance"
            style="margin-bottom: 8px;"
@@ -7,7 +9,7 @@
            maxlength="70">
     <p>Lade ein Audio-File hoch oder nutze einen Soundcloud-Link.</p>
 
-    <div class="audio-input-container" style="width: 100%;"></div>
+    <div class="input-container" style="width: 100%;"></div>
 
     <div style="text-align: center;display: inline-block">
         <p class="addAudioFile btn btn-primary btn-lg" style="width: 50px;text-align: center;">

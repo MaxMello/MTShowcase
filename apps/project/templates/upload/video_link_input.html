@@ -2,13 +2,15 @@
 
 <div class="video-link-input">
     <label>Url</label>
-    <img class="video-link-close" width="12px" style="margin-left:8px; cursor: pointer;"
+    <img class="sub-content-close" width="12px" style="margin-left:8px; cursor: pointer;"
          src="{% static 'images/x.svg' %}">
     <input type="text"
-           class="video-url form-control input-sm h4 font-elegance"
+           data-type-key="url"
+           class="content-input video-url form-control input-sm h4 font-elegance"
            placeholder="https://www....."/>
     <input type="text"
-           class="video-subheading form-control input-sm h4 font-elegance"
+           data-type-key="text"
+           class="content-input add-input-subtitle form-control input-sm h4 font-elegance"
            style="margin-bottom: 8px;"
            placeholder="Beschreibung unter dem Video(optional)"
            maxlength="100">

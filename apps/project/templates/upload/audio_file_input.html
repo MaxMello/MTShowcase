@@ -2,11 +2,12 @@
 
 <div class="audio-input" style="margin-bottom: 12px;">
     <label>Wähle eine Datei</label>
-    <img class="audiofile-close" width="12px" style="margin-left:8px; cursor: pointer;"
+    <img class="sub-content-close" width="12px" style="margin-left:8px; cursor: pointer;"
          src="{% static 'images/x.svg' %}">
-    <input type="file" name="file" accept="audio/*">
+    <input type="file" name="file" data-type-key="filename" data-file-prefix="audio" accept="audio/*" class="content-input">
     <input type="text"
-           class="audio-subheading form-control input-sm h4 font-elegance"
+           data-type-key="text"
+           class="content-input audio-subheading form-control input-sm h4 font-elegance"
            style="margin-bottom: 8px;"
            placeholder="Beschreibung unterm des Clips(optional)"
            maxlength="100">
