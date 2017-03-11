@@ -55,3 +55,10 @@ class MimeTypeValidator(object):
                 raise ValidationError('%s not accepted type' % data)
         except AttributeError as e:
             raise ValidationError('Value could not be validated' + str(e))
+
+
+def is_vimeo_url(url):
+    try:
+        return urlparse(url).hostname == 'vimeo.com'
+    except:
+        return False

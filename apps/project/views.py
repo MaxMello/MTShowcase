@@ -1,6 +1,8 @@
 import json
 from io import BytesIO
 from random import randint
+
+import requests
 from PIL import Image
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
@@ -21,7 +23,7 @@ from MTShowcase import settings
 from apps.administration.mail_utils import mail
 from apps.project.forms import ImageFormField, AudioFileField, VideoFileField
 from apps.project.models import *
-from apps.project.validators import UrlToSocialMapper, url_validator
+from apps.project.validators import UrlToSocialMapper, url_validator, is_vimeo_url
 
 char_umlaut_range = '[a-zA-Z\u00c4\u00e4\u00d6\u00f6\u00dc\u00fc\u00df]'
 tag_validation_pattern = re.compile(
@@ -302,12 +304,21 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                         elif 'url' in content:
                             try:
                                 url_validator(content['url'])
-                                current_section['contents'].append({
-                                    "content_type": content_type,
-                                    "url": content['url'],
-                                    "text": content['text']
-                                })
-                            except ValidationError:
+                                if is_vimeo_url(content['url']):
+                                    from urllib.parse import quote
+                                    embed_base_url = "https://vimeo.com/api/oembed.json?url={}"
+                                    embed_request_url = embed_base_url.format(quote(content['url']))
+                                    r = requests.get(embed_request_url)
+                                    if r.status_code == 200:
+                                        iframe_html = r.json()['html']
+                                        current_section['contents'].append({
+                                            "content_type": content_type,
+                                            "media_host": "VIMEO",
+                                            "i_frame": iframe_html,
+                                            "text": content['text']
+                                        })
+                            except ValidationError as e:
+                                print("error vimeo " + str(e))
                                 pass
                     # +++++++++++++++++++++++++++++++++++++++++++++
                     elif content_type == Project.AUDIO:
