@@ -57,8 +57,8 @@ class MimeTypeValidator(object):
             raise ValidationError('Value could not be validated' + str(e))
 
 
-def is_vimeo_url(url):
+def is_provider_url(url, provider_name):
     try:
-        return urlparse(url).hostname == 'vimeo.com'
+        return urlparse(url).hostname.replace("www.", "") == provider_name
     except:
         return False

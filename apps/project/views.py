@@ -23,7 +23,7 @@ from MTShowcase import settings
 from apps.administration.mail_utils import mail
 from apps.project.forms import ImageFormField, AudioFileField, VideoFileField
 from apps.project.models import *
-from apps.project.validators import UrlToSocialMapper, url_validator, is_vimeo_url
+from apps.project.validators import UrlToSocialMapper, url_validator, is_provider_url
 
 char_umlaut_range = '[a-zA-Z\u00c4\u00e4\u00d6\u00f6\u00dc\u00fc\u00df]'
 tag_validation_pattern = re.compile(
@@ -112,6 +112,28 @@ class ProjectView(TemplateView):
 
         else:
             raise PermissionDenied()
+
+
+def get_iframe_from_oembed_or_none(url, provider_name):
+    if provider_name is None:
+        return None
+
+    from urllib.parse import quote
+
+    if provider_name == 'vimeo.com':
+        embed_base_url = "https://{}/api/oembed.json?url={}"
+        embed_request_url = embed_base_url.format(provider_name, quote(url))
+    elif provider_name == 'youtube.com':
+        embed_base_url = "https://www.youtube.com/oembed?url={}&format=json"
+        embed_request_url = embed_base_url.format(quote(url))
+    else:
+        return None
+
+    r = requests.get(embed_request_url)
+    if r.status_code == 200:
+        return r.json()['html']
+    else:
+        return None
 
 
 class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
@@ -304,19 +326,22 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                         elif 'url' in content:
                             try:
                                 url_validator(content['url'])
-                                if is_vimeo_url(content['url']):
-                                    from urllib.parse import quote
-                                    embed_base_url = "https://vimeo.com/api/oembed.json?url={}"
-                                    embed_request_url = embed_base_url.format(quote(content['url']))
-                                    r = requests.get(embed_request_url)
-                                    if r.status_code == 200:
-                                        iframe_html = r.json()['html']
-                                        current_section['contents'].append({
-                                            "content_type": content_type,
-                                            "media_host": "VIMEO",
-                                            "i_frame": iframe_html,
-                                            "text": content['text']
-                                        })
+                                provider = None
+                                if is_provider_url(content['url'], 'vimeo.com'):
+                                    provider = 'vimeo.com'
+                                    media_host = "VIMEO"
+                                elif is_provider_url(content['url'], 'youtube.com'):
+                                    provider = 'youtube.com'
+                                    media_host = "YOUTUBE"
+
+                                iframe_html = get_iframe_from_oembed_or_none(content['url'], provider)
+                                if iframe_html and media_host:
+                                    current_section['contents'].append({
+                                        "content_type": content_type,
+                                        "media_host": media_host,
+                                        "i_frame": iframe_html,
+                                        "text": content['text']
+                                    })
                             except ValidationError as e:
                                 print("error vimeo " + str(e))
                                 pass
