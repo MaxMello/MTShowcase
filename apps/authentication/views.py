@@ -66,7 +66,9 @@ class RegisterView(FormView):
             RegistrationProfile.objects.create_inactive_user(form)
 
             result = {'success': True,
-                      'message': "Registrierung erfolgreich. Ein Aktivierungslink wurde an deine Email gesendet"}
+                      'message':
+                          "Registrierung erfolgreich. Ein Aktivierungslink wurde an deine Email ({}) gesendet"
+                      .format(form.cleaned_data['email'])}
 
             if request.is_ajax():
                 return HttpResponse(json.dumps(result), content_type="application/json")

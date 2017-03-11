@@ -20,7 +20,7 @@ SHA1_RE = re.compile('^[a-f0-9]{40}$')
 
 # VALIDATORS
 def validate_haw_mail(value):
-    if not value.endswith('@haw-hamburg.de'):
+    if not value.endswith(''): #@haw-hamburg.de
         raise ValidationError(message="{} endet nicht mit '@haw-hamburg.de".format(value))
 
 

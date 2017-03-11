@@ -60,20 +60,13 @@ class UserForm(ModelForm):
         self.helper.disable_csrf = True
         self.helper.layout = Layout(
             Field('unique_name'),
-            Field('profile_img'),
-            HTML('{% load staticfiles %}<img class="img-responsive" style="width:70px; margin-bottom:15px;" src="{% if user_profile.profile_img %}{{ user_profile.profile_img.url }}{% else %}{% static "main/images/demoavatar.png" %}{% endif %}">'),
-            Submit('update', 'Update', css_class="btn-success"),
         )
 
     class Meta:
         model = User
-        fields = ['unique_name', 'profile_img']
+        fields = ['unique_name']
         labels = {
             'unique_name': "Username",
-            'profile_img': "Profilbild"
-        }
-        widgets = {
-            'profile_img': forms.FileInput(),
         }
 
 

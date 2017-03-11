@@ -1,15 +1,104 @@
 {% extends 'settings/settings.html' %}
+{% load staticfiles %}
+
 {% load crispy_forms_tags %}
 
 {% block setting_header %}
     <h3>Accounteinstellungen</h3>
 {% endblock %}
+{% block css %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropper/2.3.4/cropper.css"/>
+    <style>
+        img {
+            max-width: 50%;
+        }
+    </style>
+{% endblock %}
 
 {% block setting_content %}
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {% crispy form %}
-        {% crispy form2 %}
-    </form>
+    <div id="content-wrapper">
+        {% include 'settings/account_settings_form.html' %}
+    </div>
 
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'js/libs/bootstrap-filestyle.min.js' %}" type="text/javascript" charset="utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropper/2.3.4/cropper.js" type="text/javascript"
+            charset="utf-8"></script>
+    <script>
+        $.fn.cropper();
+        function readURL(input) {
+            console.log("read");
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    var $profile_img = $('#user_profile_image');
+                    $profile_img.cropper('destroy');
+                    $profile_img.removeClass("hidden").attr('src', e.target.result);
+                    $('#crop-menu').removeClass("hidden");
+                    $profile_img.cropper({aspectRatio: 1});
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        $('body').on("click", "#submit-id-update", function (event) {
+            console.log("click");
+            event.preventDefault();
+            var formData = new FormData($('#user_profile_form')[0]);
+            formData.append("profile_img", $('#imageinput')[0].files[0]);
+            formData.append("csrfmiddlewaretoken", window.CSRF_TOKEN);
+
+            $.ajax({
+                url: "{% url 'settings-account' %}",
+                type: "POST",
+                contentType: false,
+                processData: false,
+                data: formData,
+                success: function (json) {
+                    console.log("success");
+                    if (json.valid) {
+                        window.location.href = window.location.href;
+                    } else {
+                        $('#content-wrapper').html(json.text);
+                        createFileStyle();
+                        createCropDataInput();
+                    }
+                }
+            });
+        });
+
+        function createFileStyle() {
+            $("#user_profile_form").find(":file").filestyle({
+                buttonText: "",
+                buttonName: "btn-primary",
+                iconName: "fa fa-file-image-o",
+                buttonBefore: true,
+                placeholder: "{{ user_profile.profile_img.name }}"
+            });
+        }
+
+        function crop() {
+            console.log("crop")
+            var $img = $('#user_profile_image');
+            $('#profile_img_crop_data').val(JSON.stringify($img.cropper("getData")));
+            var imgUrl = $img.cropper('getCroppedCanvas').toDataURL();
+            $img.cropper("destroy");
+            $img.attr("src", imgUrl);
+        }
+
+        function createCropDataInput() {
+            $('<input>').attr({
+                type: 'hidden',
+                id: 'profile_img_crop_data',
+                name: 'crop_data'
+            }).appendTo('#user_profile_form');
+        }
+
+        $(document).ready(function () {
+            createCropDataInput();
+            createFileStyle();
+        });
+    </script>
 {% endblock %}

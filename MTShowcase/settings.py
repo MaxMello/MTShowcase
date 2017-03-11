@@ -28,8 +28,8 @@ if production:
 else:
     DOMAIN = "localhost:8000"
 
-EMAIL_HOST = ''
-EMAIL_HOST_USER = ''
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'mtshowcase.haw@gmail.com'
 EMAIL_HOST_PASSWORD = email_pw
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True

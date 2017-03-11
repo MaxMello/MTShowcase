@@ -1,15 +1,20 @@
 import json
+from io import BytesIO
+
+from PIL import Image
+from django.core.files.base import ContentFile
 
 from MTShowcase import names as ns
 
 from apps.authentication.models import AuthEmailUser
+from apps.project.forms import ImageFormField
 from apps.user.forms import MyPasswordChangeForm, AccountUserForm, UserForm, ProjectPrivacyForm, ShowClearNameForm, \
     UserSocialForm, UserSocialEditForm
 from django.contrib.auth.views import password_change
 from django.core.urlresolvers import reverse_lazy
 from django.forms import modelformset_factory
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseBadRequest
-from django.shortcuts import render
+from django.shortcuts import render, render_to_response
 from django.template.loader import render_to_string
 from django.views.generic import FormView, UpdateView
 from django.views.generic.base import TemplateView
@@ -70,6 +75,10 @@ class SettingAccountView(UpdateView):
         return context
 
     def post(self, request, *args, **kwargs):
+        print("SETTINGS########")
+        print(request.POST)
+        print(request.FILES)
+        valid = False
         self.object = self.get_object()
         form = self.form_class(request.POST, instance=self.request.user)
         form2 = self.second_form_class(
@@ -77,14 +86,42 @@ class SettingAccountView(UpdateView):
             request.FILES,
             instance=User.objects.get(auth_user=self.request.user)
         )
-
-        if form.is_valid() and form2.is_valid():
+        image_form = ImageFormField('profile_img', request.POST, request.FILES)
+        if form.is_valid() and form2.is_valid() and image_form.is_valid():
             form.save(commit=True)
             form2.save(commit=True)
-            return HttpResponseRedirect(self.success_url)
-        else:
-            return self.render_to_response(
-                self.get_context_data(form=form, form2=form2))
+            if 'crop_data' in request.POST:
+                crop_data = json.loads(request.POST['crop_data'])
+                f = BytesIO()
+                try:
+                    img = Image.open(image_form.cleaned_data['profile_img'])
+                    img_crop = img.crop((
+                        int(crop_data["x"]),
+                        int(crop_data["y"]),
+                        int(crop_data["x"] + crop_data["width"]),
+                        int(crop_data["y"] + crop_data["height"]))
+                    )
+                    img_crop.save(f, format='JPEG')
+                    img_crop_file = ContentFile(f.getvalue(), "croppedimage.jpeg")
+                    user = User.objects.get(auth_user=self.request.user)
+                    user.profile_img = img_crop_file
+                    user.save()
+                except Exception as e:
+                    print("Failed to open and crop image " + str(e))
+                finally:
+                    f.close()
+            valid = True
+
+        return HttpResponse(
+            content=json.dumps(
+                {'text': render_to_string(
+                    'settings/account_settings_form.html',
+                    context=self.get_context_data(form=form, form2=form2),
+                    request=request
+                ), 'valid': valid}
+            ),
+            content_type="application/json"
+        )
 
 
 class UserSocialView(TemplateView):

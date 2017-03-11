@@ -1,0 +1,23 @@
+{% load staticfiles %}
+
+{% load crispy_forms_tags %}
+
+<form method="post" id="user_profile_form" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% crispy form %}
+    {% crispy form2 %}
+    <input type="file" placeholder="{{ user_profile.profile_img.filename }}" accept="image/*" id="imageinput" onchange="readURL(this)"/>
+    <div class="image_container" style="position: relative; margin-top: 52px; margin-bottom: 52px;">
+        <div id="crop-menu" class="hidden" style="position: absolute;right: 0;top: 0; margin-top: -40px;">
+            <button type="button" style="float:right;"
+                    onclick="$('#user_profile_image').cropper({aspectRatio: 1});"
+                    class="startCrop btn btn-default">Zuschneiden
+            </button>
+            <button type="button" style="float:right;" onclick="crop();" class="btn btn-primary">Crop</button>
+        </div>
+        <img id="user_profile_image" src="#" class="hidden" alt="image"/>
+        <p style="margin-bottom: 4px; margin-top: 16px;">Aktuelles Profilbild:</p>
+        <img src="{{ user_profile.profile_img.url }}" style="width: 150px; margin-top: 16px;">
+    </div>
+    <input type="submit" name="update" value="Update" class="btn btn-primary btn-success" id="submit-id-update">
+</form>
