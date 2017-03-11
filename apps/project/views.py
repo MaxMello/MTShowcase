@@ -126,6 +126,9 @@ def get_iframe_from_oembed_or_none(url, provider_name):
     elif provider_name == 'youtube.com':
         embed_base_url = "https://www.youtube.com/oembed?url={}&format=json"
         embed_request_url = embed_base_url.format(quote(url))
+    elif provider_name == 'soundcloud.com':
+        embed_base_url = "https://soundcloud.com/oembed?format=json&url={}"
+        embed_request_url = embed_base_url.format(quote(url))
     else:
         return None
 
@@ -307,7 +310,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                 for content in content_section_obj['content']:  # single input content inside each content section
                     print("###################################")
                     print(content)
-                    # +++++++++++++++++++++++++++++++++++++++++++++
+# VIDEO             # +++++++++++++++++++++++++++++++++++++++++++++
                     if content_type == Project.VIDEO:
                         if 'filename' in content:
                             field = content['filename']
@@ -345,7 +348,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                             except ValidationError as e:
                                 print("error vimeo " + str(e))
                                 pass
-                    # +++++++++++++++++++++++++++++++++++++++++++++
+# AUDIO             # +++++++++++++++++++++++++++++++++++++++++++++
                     elif content_type == Project.AUDIO:
                         if 'filename' in content:
                             field = content['filename']
@@ -369,20 +372,28 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                         elif 'url' in content:
                             try:
                                 url_validator(content['url'])
-                                current_section['contents'].append({
-                                    "content_type": content_type,
-                                    "url": content['url'],
-                                    "text": content['text']
-                                })
+                                iframe_html = None
+                                if is_provider_url(content['url'], 'soundcloud.com'):
+                                    provider = 'soundcloud.com'
+                                    media_host = 'SOUNDCLOUD'
+                                    iframe_html = get_iframe_from_oembed_or_none(content['url'], provider)
+
+                                if iframe_html:
+                                    current_section['contents'].append({
+                                        "content_type": content_type,
+                                        "media_host": media_host,
+                                        "i_frame": iframe_html,
+                                        "text": content['text']
+                                    })
                             except ValidationError:
                                 pass
-                    # +++++++++++++++++++++++++++++++++++++++++++++
+# TEXT              # +++++++++++++++++++++++++++++++++++++++++++++
                     elif content_type == Project.TEXT:
                         current_section['contents'].append({
                             'content_type': content_type,
                             'text': content['text']
                         })
-                    # +++++++++++++++++++++++++++++++++++++++++++++
+# Slideshow         # +++++++++++++++++++++++++++++++++++++++++++++
                     elif content_type == Project.SLIDESHOW:
                         image_urls = []
                         for field_name in content['slideshow']:
@@ -400,7 +411,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                                 'images': image_urls
                             })
 
-                    # +++++++++++++++++++++++++++++++++++++++++++++
+# IMAGE             # +++++++++++++++++++++++++++++++++++++++++++++
                     elif content_type == Project.IMAGE:
                         if 'filename' in content:
                             field_name = content['filename']
