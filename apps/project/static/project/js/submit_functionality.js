@@ -110,6 +110,7 @@ $('#pu-publish').on("click", function () {
         data: formData,
         success: function (json) {
             alert("success");
+            // TODO: redirect
         }
     });
 });

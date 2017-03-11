@@ -21,7 +21,7 @@ from MTShowcase import settings
 from apps.administration.mail_utils import mail
 from apps.project.forms import ImageFormField, AudioFileField, VideoFileField
 from apps.project.models import *
-from apps.project.validators import UrlToSocialMapper
+from apps.project.validators import UrlToSocialMapper, url_validator
 
 char_umlaut_range = '[a-zA-Z\u00c4\u00e4\u00d6\u00f6\u00dc\u00fc\u00df]'
 tag_validation_pattern = re.compile(
@@ -152,9 +152,6 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                 project_tags = project_params['p_project_tags']
                 project_links = project_params['p_project_links']
                 project_contents = project_params['p_contents']
-                audio_labels = project_params['p_audio_labels']
-                video_labels = project_params['p_video_labels']
-                slideshows = project_params['p_slideshows']
                 crop_data = json.loads(request.POST['crop_data']) if 'crop_data' in request.POST else None
             except KeyError as ke:
                 print("key error " + str(ke))
@@ -243,9 +240,6 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
 
                 ProjectSupervisor.objects.create(project=new_project, supervisor=supervisor)
 
-            slideshows_image_urls = []
-            audio_files = []
-            video_files = []
             if request.FILES:
                 form = ImageFormField("title_image", request.POST, request.FILES)
                 if form.is_valid():
@@ -272,97 +266,158 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                         finally:
                             f.close()
                     else:
-                        pass
                         print("crop empty")
                         # maybe random crop for grid
 
-                print(request.FILES)
-                print("slideshow : ", sorted(slideshows))
-                for slideshow_key in sorted(slideshows):
-                    image_urls = []
-                    fields = slideshows[slideshow_key]
-                    for field_name in fields:
-                        form = ImageFormField(field_name, request.POST, request.FILES)
-                        if form.is_valid():
-                            saved_file = UploadImage.objects.create(file=form.cleaned_data[field_name])
-                            if saved_file is not None:
-                                image_urls.append(saved_file.file.url)
-                                print(saved_file.file.url)
-                        else:
-                            # TODO: add error
-                            print(form.errors)
-                    if image_urls:
-                        slideshows_image_urls.append(image_urls)
-
-                for i in range(len(request.FILES)):
-                    # audio[0], audio[1] format of audio file uploads
-                    field = 'audio[{}]'.format(i)
-                    if field in request.FILES:
-                        form = AudioFileField(field, request.POST, request.FILES)
-                        if form.is_valid():
-                            saved_file = UploadAudio.objects.create(file=form.cleaned_data[field])
-                            if saved_file is not None:
-                                try:
-                                    audio_files.append({
-                                        "filename": saved_file.file.url,
-                                        "text": audio_labels[field]
-                                    })
-                                    print(saved_file.file.url)
-                                except KeyError as e:
-                                    print("error while audio labels" + str(e))
-                                    continue
-                        else:
-                            # TODO: add error
-                            print(form.errors)
-
-                    field = 'video[{}]'.format(i)
-                    if field in request.FILES:
-                        form = VideoFileField(field, request.POST, request.FILES)
-                        if form.is_valid():
-                            saved_file = UploadVideo.objects.create(file=form.cleaned_data[field])
-                            if saved_file is not None:
-                                try:
-                                    video_files.append({
-                                        "filename": saved_file.file.url,
-                                        "text": video_labels[field]
-                                    })
-                                except KeyError as e:
-                                    print("error while video labels" + str(e))
-                                    continue
-            print(video_files)
-            print(audio_files)
-
             # variable content building
             project_json_content = []
-            for content in project_contents['content']:
-                try:
-                    print(project_contents['content'])
-                    if 'content_type' in content and content['content_type'] == Project.SLIDESHOW:
-                        project_json_content.append({
-                            'subheading': content['subheading'],
-                            'content_type': Project.SLIDESHOW,
-                            'images': slideshows_image_urls[content['slideshow_index']]
-                        })
 
-                    elif content['content_type'] == Project.TEXT:
-                        project_json_content.append({
+            section_content_list = project_contents['content']
+            for key in sorted(section_content_list):  # for all content sections (add-content-areas)
+                current_section = {}
+                content_section_obj = section_content_list[key]
+                content_type = content_section_obj['content_type']
+                current_section['subheading'] = content_section_obj['subheading']
+                current_section['contents'] = []
+
+                for content in content_section_obj['content']:  # single input content inside each content section
+                    # +++++++++++++++++++++++++++++++++++++++++++++
+                    if content_type == Project.VIDEO:
+                        if 'filename' in content:
+                            field = content['filename']
+                            form = VideoFileField(field, request.POST, request.FILES)
+                            if form.is_valid():
+                                saved_file = UploadVideo.objects.create(file=form.cleaned_data[field])
+                                if saved_file is not None:
+                                    try:
+                                        current_section['contents'].append({
+                                            "content_type": content_type,
+                                            "filename": saved_file.file.url,
+                                            "text": content['text']
+                                        })
+                                    except KeyError as e:
+                                        print("error while video labels" + str(e))
+                        elif 'url' in content:
+                            try:
+                                url_validator(content['url'])
+                                current_section['contents'].append({
+                                    "content_type": content_type,
+                                    "url": content['url'],
+                                    "text": content['text']
+                                })
+                            except ValidationError:
+                                pass
+                    # +++++++++++++++++++++++++++++++++++++++++++++
+                    elif content_type == Project.AUDIO:
+                        if 'filename' in content:
+                            field = content['filename']
+                            form = AudioFileField(field, request.POST, request.FILES)
+                            if form.is_valid():
+                                saved_file = UploadAudio.objects.create(file=form.cleaned_data[field])
+                                if saved_file is not None:
+                                    try:
+                                        current_section['contents'].append({
+                                            "content_type": content_type,
+                                            "filename": saved_file.file.url,
+                                            "text": content['text']
+                                        })
+                                        print(saved_file.file.url)
+                                    except KeyError as e:
+                                        print("error while audio " + str(e))
+
+                            else:
+                                print(form.errors)
+
+                        elif 'url' in content:
+                            try:
+                                url_validator(content['url'])
+                                current_section['contents'].append({
+                                    "content_type": content_type,
+                                    "url": content['url'],
+                                    "text": content['text']
+                                })
+                            except ValidationError:
+                                pass
+                    # +++++++++++++++++++++++++++++++++++++++++++++
+                    elif content_type == Project.Text:
+                        current_section['contents'].append({
+                            'content_type': content_type,
                             'subheading': content['subheading'],
-                            'content_type': Project.TEXT,
                             'text': content['text']
                         })
+                    # +++++++++++++++++++++++++++++++++++++++++++++
+                    elif content_type == Project.SLIDESHOW:
+                        image_urls = []
+                        for field_name in content['slideshow']:
+                            form = ImageFormField(field_name, request.POST, request.FILES)
+                            if form.is_valid():
+                                saved_file = UploadImage.objects.create(file=form.cleaned_data[field_name])
+                                if saved_file is not None:
+                                    image_urls.append(saved_file.file.url)
+                            else:
+                                print(form.errors)
 
-                    elif content['content_type'] == Project.AUDIO:
-                        if 'urls' in content:
-                            for media in content['urls']:
+                        if image_urls:
+                            try:
+                                url_validator(content['url'])
+                                current_section['contents'].append({
+                                    'content_type': content_type,
+                                    'subheading': content['subheading'],
+                                    'images': image_urls
+                                })
+                            except ValidationError:
                                 pass
-                                # TODO: validate URL and install python-souncloud add client id get Track-ID
-                        project_json_content.append({
-                            'subheading': content['subheading'],
-                            'content_type': Project.AUDIO,
-                            'audiofiles': audio_files
-                        })
-                except KeyError:
-                    continue
+                    # +++++++++++++++++++++++++++++++++++++++++++++
+                    elif content_type == Project.IMAGE:
+                        if 'filename' in content:
+                            field_name = content['filename']
+                            form = ImageFormField(field_name, request.POST, request.FILES)
+                            if form.is_valid():
+                                if 'crop_data' in content:
+                                    f = BytesIO()
+                                    try:
+                                        img = Image.open(form.cleaned_data[field_name])
+                                        img_crop = img.crop((
+                                            int(crop_data["x"]),
+                                            int(crop_data["y"]),
+                                            int(crop_data["x"] + crop_data["width"]),
+                                            int(crop_data["y"] + crop_data["height"]))
+                                        )
+                                        img_crop.save(f, format='PNG')
+                                        img_crop_file = ContentFile(f.getvalue(), "slideshowimage.png")
+                                        saved_file = UploadImage.objects.create(file=img_crop_file)
+                                        print(new_project.project_image_cropped.url)
+                                    except Exception as e:
+                                        # fallback just save not cropped image
+                                        saved_file = UploadImage.objects.create(file=form.cleaned_data[field_name])
+                                        print("Failed to open and crop image " + str(e))
+                                    finally:
+                                        f.close()
+
+                                else:
+                                    saved_file = UploadImage.objects.create(file=form.cleaned_data[field_name])
+
+                                current_section['contents'].append({
+                                    "content_type": content_type,
+                                    "filename": saved_file.file.url,
+                                    "text": content['text']
+                                })
+
+                        elif 'url' in content:
+                            try:
+                                url_validator(content['url'])
+                                current_section['contents'].append({
+                                    "content_type": content_type,
+                                    "url": content['url'],
+                                    "text": content['text']
+                                })
+                            except ValidationError:
+                                pass
+                                # +++++++++++++++++++++++++++++++++++++++++++++
+                # end for content in section
+
+                project_json_content.append(current_section)
+
             print("###########################################################################")
             print(project_json_content)
             new_project.contents = project_json_content
