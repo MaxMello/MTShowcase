@@ -281,6 +281,8 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                 current_section['contents'] = []
 
                 for content in content_section_obj['content']:  # single input content inside each content section
+                    print("###################################")
+                    print(content)
                     # +++++++++++++++++++++++++++++++++++++++++++++
                     if content_type == Project.VIDEO:
                         if 'filename' in content:
@@ -339,10 +341,9 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                             except ValidationError:
                                 pass
                     # +++++++++++++++++++++++++++++++++++++++++++++
-                    elif content_type == Project.Text:
+                    elif content_type == Project.TEXT:
                         current_section['contents'].append({
                             'content_type': content_type,
-                            'subheading': content['subheading'],
                             'text': content['text']
                         })
                     # +++++++++++++++++++++++++++++++++++++++++++++
@@ -358,15 +359,11 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                                 print(form.errors)
 
                         if image_urls:
-                            try:
-                                url_validator(content['url'])
-                                current_section['contents'].append({
-                                    'content_type': content_type,
-                                    'subheading': content['subheading'],
-                                    'images': image_urls
-                                })
-                            except ValidationError:
-                                pass
+                            current_section['contents'].append({
+                                'content_type': content_type,
+                                'images': image_urls
+                            })
+
                     # +++++++++++++++++++++++++++++++++++++++++++++
                     elif content_type == Project.IMAGE:
                         if 'filename' in content:

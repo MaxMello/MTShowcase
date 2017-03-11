@@ -21,119 +21,124 @@
 {% endblock %}
 {% block contentbody %}
     <div class="project-content">
-        {% for content in project.contents %}
-            {% if not content.visibility == "hidden" or request.user.is_authenticated %}
-                {% if content.subheading %}
-                    <h4>{{ content.subheading }}</h4>
+        {% for content_section in project.contents %}
+            {% if not content_section.visibility == "hidden" or request.user.is_authenticated %}
+                {% if content_section.subheading %}
+                    <h4>{{ content_section.subheading }}</h4>
                 {% endif %}
-                <p>
-                    {% if content.content_type == "TEXT" %}
-                        {{ content.text }}
-                    {% elif content.content_type == "IMAGE" %}
-                        {% if content.filename %}
-                            <div class="image-wrapper">
-                                <img src="{{ content.content_path }}{{ content.filename }}" class="img-responsive">
-                            </div>
-                        {% elif content.url %}
-                            <div class="image-wrapper">
-                                <img src="{{ content.url }}" class="img-responsive"></div>
-                        {% else %}
-                            <img src="{% static 'project/images/default_content_image.jpg' %}" class="img-responsive">
-                            <div class="alert alert-warning">Fehler beim laden des Bildes.</div>
-                        {% endif %}
-                        {{ content.text }}
-                    {% elif content.content_type == "VIDEO" %}
-                        {% if content.filename %}
-                            <video class="embedded" controls style="margin-bottom: 20px;">
-                                <source src="{{ content.content_path }}{{ content.filename }}" type="video/mp4">
-                            </video>
-                        {% elif content.video_id %}
-                            {% if content.media_host == "YOUTUBE" %}
-                                <div class="video-wrapper">
-                                    <iframe src="https://www.youtube.com/embed/{{ content.video_id }}" frameborder="0"
-                                            webkitallowfullscreen allowfullscreen></iframe>
+                {% for  content in content_section.contents %}
+                    <p>
+                        {% if content.content_type == "TEXT" %}
+                            {{ content.text }}
+                        {% elif content.content_type == "IMAGE" %}
+                            {% if content.filename %}
+                                <div class="image-wrapper">
+                                    <img src="{{ content.content_path }}{{ content.filename }}" class="img-responsive">
                                 </div>
-                            {% elif content.media_host == "VIMEO" %}
-                                <div class="video-wrapper">
-                                    <iframe src="https://player.vimeo.com/video/{{ content.video_id }}" frameborder="0"
-                                            webkitallowfullscreen allowfullscreen></iframe>
-                                </div>
+                            {% elif content.url %}
+                                <div class="image-wrapper">
+                                    <img src="{{ content.url }}" class="img-responsive"></div>
+                            {% else %}
+                                <img src="{% static 'project/images/default_content_image.jpg' %}"
+                                     class="img-responsive">
+                                <div class="alert alert-warning">Fehler beim laden des Bildes.</div>
+                            {% endif %}
+                            {{ content.text }}
+                        {% elif content.content_type == "VIDEO" %}
+                            {% if content.filename %}
+                                <video class="embedded" controls style="margin-bottom: 20px;">
+                                    <source src="{{ content.content_path }}{{ content.filename }}" type="video/mp4">
+                                </video>
+                            {% elif content.video_id %}
+                                {% if content.media_host == "YOUTUBE" %}
+                                    <div class="video-wrapper">
+                                        <iframe src="https://www.youtube.com/embed/{{ content.video_id }}"
+                                                frameborder="0"
+                                                webkitallowfullscreen allowfullscreen></iframe>
+                                    </div>
+                                {% elif content.media_host == "VIMEO" %}
+                                    <div class="video-wrapper">
+                                        <iframe src="https://player.vimeo.com/video/{{ content.video_id }}"
+                                                frameborder="0"
+                                                webkitallowfullscreen allowfullscreen></iframe>
+                                    </div>
+                                {% else %}
+                                    <div class="alert alert-warning">Fehler beim laden des Videos.</div>
+                                {% endif %}
+                                </video>
                             {% else %}
                                 <div class="alert alert-warning">Fehler beim laden des Videos.</div>
                             {% endif %}
-                            </video>
-                        {% else %}
-                            <div class="alert alert-warning">Fehler beim laden des Videos.</div>
-                        {% endif %}
-                        {{ content.text }}
-                    {% elif content.content_type == "AUDIO" %}
-                        {% for audio_content in content.audiofiles %}
-                            {% if audio_content.filename %}
+                            {{ content.text }}
+                        {% elif content.content_type == "AUDIO" %}
+                            {% if content.filename %}
                                 <audio controls class="embedded" style="margin-bottom: 20px;">
-                                    <source src="{{ audio_content.filename }}">
+                                    <source src="{{ content.filename }}">
                                 </audio>
-                                {{ audio_content.text }}
-                            {% elif audio_content.audio_id %}
-                                {% if audio_content.media_host == "SOUNDCLOUD" %}
+                                {{ content.text }}
+                            {% elif content.audio_id %}
+                                {% if content.media_host == "SOUNDCLOUD" %}
                                     <!-- TODO: Soundcloud url -> ID: http://stackoverflow.com/questions/20870270/how-to-get-soundcloud-embed-code-by-soundcloud-com-url -->
                                     <div style="margin-bottom: 20px;">
                                         <iframe width="100%" height="166" scrolling="no" frameborder="no"
                                                 src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/{{ content.audio_id }}&amp;color=334d5b&amp;auto_play=false&amp;sharing=false&amp;liking=false&amp;buying=false&amp;show_comments=false&amp;show_user=true&amp;show_reposts=false">
                                         </iframe>
                                     </div>
-                                    {{ audio_content.text }}
+                                    {{ content.text }}
                                 {% else %}
                                     <div class="alert alert-warning">Fehler beim laden des Audios.</div>
                                 {% endif %}
                             {% else %}
                                 <div class="alert alert-warning">Fehler beim laden des Audios.</div>
                             {% endif %}
-                        {% endfor %}
 
-                    {% elif content.content_type == "SLIDESHOW" %}
-                        <div id="imageCarousel{{ forloop.counter }}" class="carousel slide" data-ride="carousel"
-                             data-interval="false"
-                             style="margin-bottom: 20px;">
-                            <!-- Indicators -->
-                            <ol class="carousel-indicators">
-                                {% for image in content.images %}
-                                    <li data-target="#imageCarousel{{ forloop.counter }}"
-                                        data-slide-to="{{ forloop.counter0 }}"
-                                            {% if forloop.counter0 == 0 %} class="active">{% endif %}</li>
-                                {% endfor %}
-                            </ol>
-                            <!-- Wrapper for slides -->
-                            <div class="carousel-inner" role="listbox">
-                                {% for image_abs_path in content.images %}
-                                    <div class="item {% if forloop.counter0 == 0 %}active{% endif %}"
-                                         class="img-responsive">
-                                        <div class="carousel-image-wrapper">
-                                            <img src="{{ image_abs_path }}">
+                        {% elif content.content_type == "SLIDESHOW" %}
+                            <div id="imageCarousel{{ forloop.counter }}" class="carousel slide" data-ride="carousel"
+                                 data-interval="false"
+                                 style="margin-bottom: 20px;">
+                                <!-- Indicators -->
+                                <ol class="carousel-indicators">
+                                    {% for image in content.images %}
+                                        <li data-target="#imageCarousel{{ forloop.counter }}"
+                                            data-slide-to="{{ forloop.counter0 }}"
+                                                {% if forloop.counter0 == 0 %} class="active">{% endif %}</li>
+                                    {% endfor %}
+                                </ol>
+                                <!-- Wrapper for slides -->
+                                <div class="carousel-inner" role="listbox">
+                                    {% for image_abs_path in content.images %}
+                                        <div class="item {% if forloop.counter0 == 0 %}active{% endif %}"
+                                             class="img-responsive">
+                                            <div class="carousel-image-wrapper">
+                                                <img src="{{ image_abs_path }}">
+                                            </div>
                                         </div>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                            <!-- Left and right controls -->
-                            <a class="left carousel-control" href="#imageCarousel{{ forloop.counter }}" role="button"
-                               data-slide="prev">
+                                    {% endfor %}
+                                </div>
+                                <!-- Left and right controls -->
+                                <a class="left carousel-control" href="#imageCarousel{{ forloop.counter }}"
+                                   role="button"
+                                   data-slide="prev">
                               <span class="carousel-prev">
                                 <span class="fa fa-arrow-left" aria-hidden="true"></span>
                                 <span class="sr-only">Zurück</span>
                               </span>
-                            </a>
-                            <a class="right carousel-control" href="#imageCarousel{{ forloop.counter }}" role="button"
-                               data-slide="next">
+                                </a>
+                                <a class="right carousel-control" href="#imageCarousel{{ forloop.counter }}"
+                                   role="button"
+                                   data-slide="next">
                               <span class="carousel-next">
                                 <span class="fa fa-arrow-right" aria-hidden="true"></span>
                                 <span class="sr-only">Weiter</span>
                               </span>
-                            </a>
-                        </div>
-                        {{ content.text }}
-                    {% else %}
-                        <!--<div class="alert alert-warning">Fehler beim laden des Inhalts.</div>-->
-                    {% endif %}
-                </p>
+                                </a>
+                            </div>
+                            {{ content.text }}
+                        {% else %}
+                            <!--<div class="alert alert-warning">Fehler beim laden des Inhalts.</div>-->
+                        {% endif %}
+                    </p>
+                {% endfor %}
             {% endif %}
         {% endfor %}
     </div>
