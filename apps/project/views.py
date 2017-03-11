@@ -373,21 +373,21 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                                 if 'crop_data' in content:
                                     f = BytesIO()
                                     try:
+                                        img_crop_data = json.loads(content['crop_data'])
                                         img = Image.open(form.cleaned_data[field_name])
                                         img_crop = img.crop((
-                                            int(crop_data["x"]),
-                                            int(crop_data["y"]),
-                                            int(crop_data["x"] + crop_data["width"]),
-                                            int(crop_data["y"] + crop_data["height"]))
+                                            int(img_crop_data["x"]),
+                                            int(img_crop_data["y"]),
+                                            int(img_crop_data["x"] + img_crop_data["width"]),
+                                            int(img_crop_data["y"] + img_crop_data["height"]))
                                         )
                                         img_crop.save(f, format='PNG')
-                                        img_crop_file = ContentFile(f.getvalue(), "slideshowimage.png")
+                                        img_crop_file = ContentFile(f.getvalue(), "content_image.png")
                                         saved_file = UploadImage.objects.create(file=img_crop_file)
-                                        print(new_project.project_image_cropped.url)
                                     except Exception as e:
                                         # fallback just save not cropped image
                                         saved_file = UploadImage.objects.create(file=form.cleaned_data[field_name])
-                                        print("Failed to open and crop image " + str(e))
+                                        print("Failed to open or crop image " + str(e))
                                     finally:
                                         f.close()
 
@@ -420,7 +420,9 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
             new_project.contents = project_json_content
             new_project.save()
 
-            return self.render_json_response({"redirect": str(reverse_lazy('home'))})
+            return self.render_json_response({
+                "redirect": str(reverse_lazy('project', kwargs={'base64_unique_id': new_project.unique_id_base64()})),
+            })
 
         return self.render_json_response({})
 

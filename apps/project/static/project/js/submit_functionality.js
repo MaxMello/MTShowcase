@@ -109,8 +109,8 @@ $('#pu-publish').on("click", function () {
         processData: false,
         data: formData,
         success: function (json) {
-            alert("success");
-            // TODO: redirect
+            //alert("success");//alert(json.redirect);
+           location.replace(json.redirect);
         }
     });
 });
