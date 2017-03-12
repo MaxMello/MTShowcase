@@ -9,6 +9,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.files.base import ContentFile
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse_lazy
+from django.db.models import Model
 from django.http import Http404
 from django.http import HttpResponse
 from django.http import HttpResponseBadRequest
@@ -194,11 +195,11 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                 print("key error " + str(ke))
                 return HttpResponseBadRequest()
 
-            semester = semesteryear[:2]
-            if semester is None or semester not in [Project.WINTER, Project.SUMMER]:
+            if semesteryear is None or semesteryear[:2] is None or semesteryear[:2] not in [Project.WINTER, Project.SUMMER]:
                 print("wrong semester")
                 return HttpResponseBadRequest()
 
+            semester = semesteryear[:2]
             year_from = (semesteryear[2:])
             year_choices = reversed([r for r in range(1980, datetime.date.today().year + 1)])
             if year_from is None or int(year_from) not in year_choices:
@@ -209,25 +210,46 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
             degree_program = get_object_or_404(DegreeProgram, pk=degree_program_id)
             subject = get_object_or_404(Subject, pk=subject_id)
 
-            new_project = Project.objects.create(
-                # image
-                # image crop
-                heading=heading,
-                subheading=subheading,
-                description=description,
-                semester=semester,
-                year_from=year_from,
-                year_to=year_to,
-                degree_program=degree_program,
-                subject=subject,
-            )
+            existing_project = None
+            if method == 'save':
+                print(request.POST.get("project_unique_id"))
+                project_id = Project.base64_to_uuid(request.POST.get("project_unique_id"))
+                try:
+                    existing_project = Project.objects.filter(unique_id=project_id).get()
+                except:
+                    pass
+
+            if existing_project:
+                new_project = existing_project
+                new_project.heading = heading
+                new_project.subheading = subheading
+                new_project.description = description
+                new_project.semester = semester
+                new_project.year_from = year_from
+                new_project.year_to = year_to
+                new_project.degree_program = degree_program
+                new_project.subject = subject
+                new_project.save()
+            else:
+                new_project = Project.objects.create(
+                    # image
+                    # image crop
+                    heading=heading,
+                    subheading=subheading,
+                    description=description,
+                    semester=semester,
+                    year_from=year_from,
+                    year_to=year_to,
+                    degree_program=degree_program,
+                    subject=subject,
+                )
 
             # socials M2M
             try:
                 for social_url in project_links:
                     social = UrlToSocialMapper.return_social_from_url_or_none(social_url)
                     if social:
-                        ProjectSocial.objects.create(project=new_project, social=social, url=social_url)
+                        ProjectSocial.objects.get_or_create(project=new_project, social=social, url=social_url)
 
             except (TypeError, AttributeError, Exception):
                 return HttpResponseBadRequest()
@@ -237,7 +259,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                 for index, tag in enumerate(project_tags):
                     print(tag)
                     if tag_validation_pattern.match(tag):
-                        new_tag = Tag.objects.get_or_create(value=tag)[0]  # TODO: adapt after migrate Tag value:unique
+                        new_tag, created = Tag.objects.get_or_create(value=tag)
                         ProjectTag.objects.create(project=new_project, tag=new_tag, position=index)
             except (TypeError, AttributeError, Exception):
                 # TODO: add error msg as form validation error collection and display hints for user
@@ -257,9 +279,9 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
             for (index, key) in enumerate(non_empty_keys):
                 tags = member_resp_list[key]
                 user = User.objects.get(pk=key)
-                member = ProjectMember.objects.create(member=user, project=new_project)
+                member, created = ProjectMember.objects.get_or_create(member=user, project=new_project)
                 for tag in tags:
-                    new_tag = Tag.objects.get_or_create(value=tag)[0]  # TODO: adapt after migrate Tag value:unique
+                    new_tag, created = Tag.objects.get_or_create(value=tag)
                     ProjectMemberResponsibility.objects.create(
                         project_member=member,
                         responsibility=new_tag,
@@ -274,7 +296,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                     print("supervisor unknown or not accepted")
                     return HttpResponseBadRequest()
 
-                ProjectSupervisor.objects.create(project=new_project, supervisor=supervisor)
+                ProjectSupervisor.objects.get_or_create(project=new_project, supervisor=supervisor)
 
             if request.FILES:
                 form = ImageFormField("title_image", request.POST, request.FILES)

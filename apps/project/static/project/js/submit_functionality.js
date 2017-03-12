@@ -102,6 +102,10 @@ $('#pu-publish, #pu-save').on("click", function () {
     });
     formData.append("csrfmiddlewaretoken", window.CSRF_TOKEN);
     formData.append("params", project_json_dict);
+    if ($('#project-id').val()){
+        console.log("appended "+ $('#project-id').val());
+        formData.append("project_unique_id", $('#project-id').val());
+    }
 
     $.ajax({
         url: projectPostUrl,

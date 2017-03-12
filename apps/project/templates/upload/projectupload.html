@@ -35,7 +35,8 @@
 {% endblock %}
 {% block imagespace %}
     <div class="upload-title-image-wrapper">
-        <img id="selectedImage" class="{% if not project %}hidden{% endif %}" src="{{ project.project_image_cropped.url }}" alt="your image"/>
+        <img id="selectedImage" style="max-height: 100%;" class="{% if project %}{% else %}hidden{% endif %}"
+             src="{% if project %}{{ project.project_image.url }}{% endif %}" alt="your image"/>
         <a class="text-center text-primary" data-toggle="modal" data-target="#imgUploadModal">
             <span class="fa fa-upload fa-4x" style="padding-top:22%;"></span><br>
             <span style="display:inline-block;">Titelbild hochladen</span>
@@ -61,6 +62,9 @@
 {% endblock %}
 
 {% block contentbody %}
+    {% if project %}
+        <input type="hidden" value="{{ project.unique_id_base64 }}" id="project-id"/>
+    {% endif %}
     <div id="content-body">
         {% if project %}
             {% if project.contents %}
@@ -185,7 +189,7 @@
     <hr>
     <div id="supervisor-wrapper">
         {% for ps in project_supervisors %}
-            {% include 'upload/supervisor_choices.html' with supervisors=all_supervisor current=ps%}
+            {% include 'upload/supervisor_choices.html' with supervisors=all_supervisor current=ps %}
         {% endfor %}
     </div>
     <button class="btn btn-primary btn-block" id="pu-add-supervisor">Betreuer hinzufügen</button>
@@ -209,7 +213,7 @@
     </div>
     <div class="form-group">
         <label for="semesteryear-select">Semester</label>
-        <input type="hidden" value="{{ project.get_semester_year_string }}" id="semesteryear-preload"/>
+        <input type="hidden" value="{{ project.get_semester_year_string_for_preload }}" id="semesteryear-preload"/>
         <select id="semesteryear-select" class="form-control">{% for i in year_choices %}
             <option value="WS {{ i }}" {% if  forloop.counter0 == 0 %}selected{% endif %}>
                 WiSe {{ i }}/{{ i|add:1 }}</option>

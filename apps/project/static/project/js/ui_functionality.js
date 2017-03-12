@@ -267,8 +267,13 @@ $('#degreeprogram-select').change(function () {
                 }));
             });
             if (window.loadComplete) {
-                $('#subject-select').val($('#subject-preload').val()).trigger("change");
-                $('#semesteryear-select').val($('#semesteryear-preload').val()).trigger("change");
+                if ($('#subject-preload').val()) {
+                    $('#subject-select').val($('#subject-preload').val()).trigger("change");
+                }
+                if ($('#semesteryear-preload').val()) {
+                    $('#semesteryear-select').val($('#semesteryear-preload').val()).trigger("change");
+                }
+
                 window.loadComplete = false;
             }
         },

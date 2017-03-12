@@ -148,6 +148,12 @@ class Project(models.Model):
         elif self.semester == self.WINTER:
             return "WS" + " " + str(self.year_from) + "/" + str(self.year_to)
 
+    def get_semester_year_string_for_preload(self):
+        if self.semester == self.SUMMER:
+            return "SS" + " " + str(self.year_from)
+        elif self.semester == self.WINTER:
+            return "WS" + " " + str(self.year_from)
+
     def get_date_string(self):
         return self.upload_date.date().strftime("%d.%m.%Y")
 
@@ -221,7 +227,7 @@ class ProjectEditor(models.Model):
 
 
 class Tag(models.Model):
-    value = models.CharField(max_length=50)  # TODO: migrate unique=True
+    value = models.CharField(unique=True, max_length=50)
 
     def __str__(self):
         return "ID: {} - {}".format(self.id, self.value)
@@ -298,7 +304,7 @@ class ProjectSupervisor(models.Model):
 
 class ProjectTag(models.Model):
     project = models.ForeignKey('Project', on_delete=models.PROTECT)
-    tag = models.ForeignKey('Tag', on_delete=models.PROTECT)
+    tag = models.ForeignKey('Tag', on_delete=models.CASCADE)
     position = models.PositiveSmallIntegerField(default=1)
 
     def __str__(self):
