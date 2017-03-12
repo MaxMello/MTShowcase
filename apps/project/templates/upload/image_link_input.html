@@ -1,12 +1,17 @@
 {% extends 'upload/base_input.html' %}
 {% load staticfiles %}
+
 {% block inputClass %}image-link-input{% endblock %}
+
 {% block inputLabel %}Bild-Link{% endblock %}
+
 {% block input %}
     <input type="text"
            data-type-key="url"
            style="margin-bottom: 16px;"
            class="content-input image-url form-control input-sm h4"
+            {% if url %}value="{{ url }}"{% endif %}
            placeholder="https://www.example.com/example.png"/>
 {% endblock %}
+
 {% block subheadingClass %}image-subheading{% endblock %}

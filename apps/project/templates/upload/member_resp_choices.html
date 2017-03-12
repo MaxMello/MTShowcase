@@ -6,15 +6,26 @@
          src="{% static 'images/x.svg' %}">
 
     <select style="width: 100%;" class="pu-member-select2">
-        <option></option>
-        {% for user in users %}
-            <option value="{{ user.id }}">
-                {{ user.auth_user.first_name }} {{ user.auth_user.last_name }}
+        {% if member %}
+            <option value="{{ member.id }}">
+                {{ member.auth_user.first_name }} {{ member.auth_user.last_name }}
             </option>
+        {% else %}
+            <option></option>
+        {% endif %}
+        {% for user in users %}
+            {% if user != member %}
+                <option value="{{ user.id }}">
+                    {{ user.auth_user.first_name }} {{ user.auth_user.last_name }}
+                </option>
+            {% endif %}
         {% endfor %}
     </select>
 
     <ul class="resp-bar" style="border: 1px solid #e6e6e6;">
+        {% for resp in resps %}
+            <li>{{ resp }}</li>
+        {% endfor %}
     </ul>
 </div>
 <style>

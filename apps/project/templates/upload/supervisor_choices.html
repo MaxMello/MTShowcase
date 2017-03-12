@@ -2,11 +2,20 @@
 
 <div class='form-group'>
     <select class='profs-choices form-control' style="width: 90%;">
-        <option value="choose" selected>Betreuer wählen</option>
-        {% for supervisor in supervisors %}
-            <option value='{{ supervisor.id }}'>
-                {{ supervisor.auth_user.first_name }} {{ supervisor.auth_user.last_name }}
+        {% if current %}
+            <option value="{{ current.supervisor.id }}" selected>
+                {{ current.supervisor.auth_user.first_name }} {{ current.supervisor.auth_user.last_name }}
             </option>
+        {% else %}
+            <option value="choose" selected>Betreuer wählen</option>
+        {% endif %}
+
+        {% for supervisor in supervisors %}
+            {% if current.supervisor != supervisor %}
+                <option value='{{ supervisor.id }}'>
+                    {{ supervisor.auth_user.first_name }} {{ supervisor.auth_user.last_name }}
+                </option>
+            {% endif %}
         {% endfor %}
     </select>
     <img class="sub-content-close" width="12px" style="margin-left:8px; margin-bottom: 8px; cursor: pointer;"

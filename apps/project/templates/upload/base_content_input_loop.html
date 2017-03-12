@@ -1,0 +1,9 @@
+{% if content_inputs %}
+    {% for input in content_inputs %}
+        {% if input.filename %}
+            {% include file_template with text=input.text placeholder=input.filename %}
+        {% elif input.url %}
+            {% include link_template with text=input.text url=input.url %}
+        {% endif %}
+    {% endfor %}
+{% endif %}

@@ -1,11 +1,16 @@
 {% extends 'upload/base_input.html' %}
 {% load staticfiles %}
+
 {% block inputClass %}video-link-input{% endblock %}
+
 {% block inputLabel %}Video-Link{% endblock %}
+
 {% block input %}
     <input type="text"
            data-type-key="url"
            class="content-input video-url form-control input-sm h4"
+           {% if url %}value="{{ url }}"{% endif %}
            placeholder="YouTube or Vimeo Link"/>
 {% endblock %}
+
 {% block subheadingClass %}add-input-subtitle{% endblock %}

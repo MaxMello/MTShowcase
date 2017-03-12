@@ -151,13 +151,22 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
             'names': names,
             'degree_programs': degree_programs,
             'subjects': subjects,
-            'year_choices': year_choices
+            'year_choices': year_choices,
+            'users': User.objects.exclude(pk=request.user.id),
+            'all_supervisor': User.objects.filter(type=User.PROF)
         }
 
         unique_project_id = Project.base64_to_uuid(self.kwargs.get('base64_unique_id'))
         if unique_project_id:
-            project = get_object_or_404(Project, unique_id=unique_project_id)
+            project = get_object_or_404(Project, unique_id=unique_project_id, approval_state=Project.EDIT_STATE)
             context['project'] = project
+            context['project_social'] = ProjectSocial.objects.filter(project=project)
+            context['member_resp'] = [
+                (member, member.get_responsibilities())
+                for member in ProjectMember.objects.filter(project=project).order_by("member__id")
+                ]
+            context['project_supervisors'] = ProjectSupervisor.objects.filter(project=project)
+            print(context['member_resp'])
 
         return render(request, template_name=self.template_name, context=context)
 
@@ -168,6 +177,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
             print(request.POST)
             print(project_params)
             try:
+                method = project_params['upload_method']
                 heading = project_params['p_heading']
                 subheading = project_params['p_subheading']
                 description = project_params['p_description']
@@ -210,7 +220,6 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                 year_to=year_to,
                 degree_program=degree_program,
                 subject=subject,
-                approval_state=Project.REVIEW_STATE
             )
 
             # socials M2M
@@ -305,6 +314,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                 content_section_obj = section_content_list[key]
                 content_type = content_section_obj['content_type']
                 current_section['subheading'] = content_section_obj['subheading']
+                current_section['content_type'] = content_type
                 current_section['contents'] = []
 
                 for content in content_section_obj['content']:  # single input content inside each content section
@@ -316,12 +326,14 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                             field = content['filename']
                             form = VideoFileField(field, request.POST, request.FILES)
                             if form.is_valid():
+                                original_name = form.cleaned_data[field].name
                                 saved_file = UploadVideo.objects.create(file=form.cleaned_data[field])
                                 if saved_file is not None:
                                     try:
                                         current_section['contents'].append({
                                             "content_type": content_type,
                                             "filename": saved_file.file.url,
+                                            "original_name": original_name,
                                             "text": content['text']
                                         })
                                     except KeyError as e:
@@ -342,6 +354,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                                     current_section['contents'].append({
                                         "content_type": content_type,
                                         "media_host": media_host,
+                                        "url": content['url'],
                                         "i_frame": iframe_html,
                                         "text": content['text']
                                     })
@@ -354,12 +367,14 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                             field = content['filename']
                             form = AudioFileField(field, request.POST, request.FILES)
                             if form.is_valid():
+                                original_name = form.cleaned_data[field].name
                                 saved_file = UploadAudio.objects.create(file=form.cleaned_data[field])
                                 if saved_file is not None:
                                     try:
                                         current_section['contents'].append({
                                             "content_type": content_type,
                                             "filename": saved_file.file.url,
+                                            "original_name": original_name,
                                             "text": content['text']
                                         })
                                         print(saved_file.file.url)
@@ -382,6 +397,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                                     current_section['contents'].append({
                                         "content_type": content_type,
                                         "media_host": media_host,
+                                        "url": content['url'],
                                         "i_frame": iframe_html,
                                         "text": content['text']
                                     })
@@ -417,6 +433,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                             field_name = content['filename']
                             form = ImageFormField(field_name, request.POST, request.FILES)
                             if form.is_valid():
+                                original_name = form.cleaned_data[field_name].name
                                 if 'crop_data' in content:
                                     f = BytesIO()
                                     try:
@@ -444,6 +461,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                                 current_section['contents'].append({
                                     "content_type": content_type,
                                     "filename": saved_file.file.url,
+                                    "original_name": original_name,
                                     "text": content['text']
                                 })
 
@@ -457,19 +475,28 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                                 })
                             except ValidationError:
                                 pass
-                                # +++++++++++++++++++++++++++++++++++++++++++++
+                    # +++++++++++++++++++++++++++++++++++++++++++++
                 # end for content in section
 
                 project_json_content.append(current_section)
 
             print("###########################################################################")
             print(project_json_content)
+            response_data = {
+                "redirect": str(reverse_lazy('project', kwargs={'base64_unique_id': new_project.unique_id_base64()})),
+            }
+
             new_project.contents = project_json_content
+            if method == 'publish':
+                new_project.approval_state = Project.REVIEW_STATE
+            elif method == 'save':
+                print("save")
+                response_data = {"save_success": True}
             new_project.save()
 
-            return self.render_json_response({
-                "redirect": str(reverse_lazy('project', kwargs={'base64_unique_id': new_project.unique_id_base64()})),
-            })
+            ProjectEditor.objects.get_or_create(project=new_project, editor=request.user.get_lib_user())
+
+            return self.render_json_response(response_data)
 
         return self.render_json_response({})
 

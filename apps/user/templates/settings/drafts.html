@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <u>
+        {% for draft in drafts %}
+            <li>
+                <a href="{% url 'edit-project' base64_unique_id=draft.project.unique_id_base64 %}">Project {{ forloop.counter }}</a>
+            </li>
+        {% endfor %}
+    </u>
+{% endblock %}

@@ -1,9 +1,19 @@
-{%  extends 'upload/base_content.html' %}
+{% extends 'upload/base_content.html' %}
 {% load staticfiles %}
+
 {% block contentType %}SLIDESHOW{% endblock %}
+
 {% block sectionClass %}add-content-slideshow{% endblock %}
+
 {% block sectionDesc %}Füge mindestens 2 Bilder hinzu, um eine Slideshow zu erstellen.{% endblock %}
+
 {% block specificInput %}
+    {% for input in content_inputs %}
+        {% for image_url in input.images %}
+            <input type="hidden" value="{{ image_url }}" class="slideshow-preload"/>
+        {% endfor %}
+    {% endfor %}
+
     <div class="input-container">
         <div>
             <form action="{% url 'new-project' %}" name="test"

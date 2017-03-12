@@ -1,11 +1,16 @@
 {% extends 'upload/base_input.html' %}
 {% load staticfiles %}
+
 {% block inputClass %}soundcloud-input{% endblock %}
+
 {% block inputLabel %}Soundcloud{% endblock %}
+
 {% block input %}
     <input type="text"
            data-type-key="url"
            class="content-input audio-url form-control input-sm h4"
+            {% if url %}value="{{ url }}"{% endif %}
            placeholder="https://soundcloud.com/<kanal>/<track>"/>
 {% endblock %}
+
 {% block subheadingClass %}audio-subheading{% endblock %}

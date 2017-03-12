@@ -2,6 +2,7 @@ import json
 from io import BytesIO
 
 from PIL import Image
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.files.base import ContentFile
 
 from MTShowcase import names as ns
@@ -18,7 +19,7 @@ from django.shortcuts import render, render_to_response
 from django.template.loader import render_to_string
 from django.views.generic import FormView, UpdateView
 from django.views.generic.base import TemplateView
-from apps.project.models import Project, ProjectMember, ProjectMemberResponsibility
+from apps.project.models import Project, ProjectMember, ProjectMemberResponsibility, ProjectEditor
 from apps.user.models import User, UserSocial
 from MTShowcase import names
 
@@ -262,3 +263,10 @@ class PasswordChangeDoneView(TemplateView):
 class ProjectListView(TemplateView):
     template_name = 'user/projectlist.html'
     names = ns
+
+
+class UserProjectDraftView(LoginRequiredMixin, TemplateView):
+    template_name = 'settings/drafts.html'
+
+    def get_context_data(self, **kwargs):
+        return {'drafts': ProjectEditor.objects.filter(editor=self.request.user.get_lib_user())}

@@ -1,19 +1,29 @@
 {% extends 'upload/base_input.html' %}
 {% load staticfiles %}
+{% load filename %}
+
+
 {% block inputClass %}image-file-input{% endblock %}
+
 {% block inputLabel %}Wähle eine Datei{% endblock %}
+
 {% block input %}
     <input type="file" data-type-key="filename" data-file-prefix="image"
            name="file" accept="image/*" onchange="readURL(this,'.add_content_image');"
+           data-placeholder="{% if placeholder %}{{ placeholder | filename }}{% else %}Keine Datei ausgewählt.{% endif %}"
+           data-icon="fa fa-file-image-o"
            class="content-input">
-    <div class="image_container hidden" style="position: relative; margin-top: 52px;">
-        <div class="crop-menu hidden" style="position: absolute;right: 0;top: 0; margin-top: -40px;">
+
+    <div class="image_container {% if placeholder %}{% else %}hidden{% endif %}" style="position: relative; margin-top: 52px;">
+        <div class="crop-menu {% if placeholder %}{% else %}hidden{% endif %}" style="position: absolute;right: 0;top: 0; margin-top: -40px;">
             <button style="float:right;" class="startCrop btn btn-default">Zuschneiden
             </button>
-            <button style="float:right;" class="crop_button btn btn-primary">Bestätigen</button>
+            <button style="float:right;" class="crop_button btn btn-primary" disabled>Bestätigen</button>
         </div>
-        <img class="add_content_image hidden" src="#" alt="image"/>
-        <input type="hidden" data-type-key="crop_data" class="content-input crop-data" />
+        <img class="add_content_image {% if placeholder %}{% else %}hidden{% endif %}"
+             {% if placeholder %}src="{{ placeholder }}"{% else %} src=""{% endif %} alt="image"/>
+        <input type="hidden" data-type-key="crop_data" class="content-input crop-data"/>
     </div>
 {% endblock %}
+
 {% block subheadingClass %}image-subheading{% endblock %}

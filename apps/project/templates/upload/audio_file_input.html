@@ -1,8 +1,15 @@
 {% extends 'upload/base_input.html' %}
 {% load staticfiles %}
+{% load filename %}
+
+
 {% block inputClass %}audio-input{% endblock %}
+
 {% block inputLabel %}Wähle eine Datei{% endblock %}
+
 {% block input %}
-    <input type="file" name="file" data-type-key="filename" data-file-prefix="audio" accept="audio/*" class="content-input">
+    <input type="file" name="file" data-type-key="filename" data-file-prefix="audio" accept="audio/*" class="content-input"
+    data-placeholder="{% if placeholder %}{{ placeholder | filename }}{% else %}Keine Datei ausgewählt.{% endif %}"
+    data-icon="fa fa-file-audio-o">
 {% endblock %}
 {% block subheadingClass %}audio-subheading{% endblock %}

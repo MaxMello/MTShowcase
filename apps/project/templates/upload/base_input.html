@@ -10,5 +10,5 @@
            style="margin-bottom: 8px; resize: none"
            placeholder="Beschreibungstext (optional)"
            maxlength="200"
-           rows="2"></textarea>
+           rows="2">{% if text %}{{ text }}{% endif %}</textarea>
 </div>

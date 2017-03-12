@@ -35,7 +35,7 @@
 {% endblock %}
 {% block imagespace %}
     <div class="upload-title-image-wrapper">
-        <img id="selectedImage" class="hidden" src="#" alt="your image"/>
+        <img id="selectedImage" class="{% if not project %}hidden{% endif %}" src="{{ project.project_image_cropped.url }}" alt="your image"/>
         <a class="text-center text-primary" data-toggle="modal" data-target="#imgUploadModal">
             <span class="fa fa-upload fa-4x" style="padding-top:22%;"></span><br>
             <span style="display:inline-block;">Titelbild hochladen</span>
@@ -62,6 +62,36 @@
 
 {% block contentbody %}
     <div id="content-body">
+        {% if project %}
+            {% if project.contents %}
+                {% for content_section in project.contents %}
+
+                    {% if content_section.content_type == "TEXT" %}
+                        {% for  content in content_section.contents %}
+                            {% include 'upload/content_text.html' with section_subheading=content_section.subheading text=content.text %}
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if content_section.content_type == "VIDEO" %}
+                        {% include 'upload/content_video.html' with section_subheading=content_section.subheading content_inputs=content_section.contents %}
+                    {% endif %}
+
+                    {% if content_section.content_type == "AUDIO" %}
+                        {% include 'upload/content_audio.html' with section_subheading=content_section.subheading content_inputs=content_section.contents %}
+                    {% endif %}
+
+                    {% if content_section.content_type == "IMAGE" %}
+                        {% include 'upload/content_image.html' with section_subheading=content_section.subheading content_inputs=content_section.contents %}
+                    {% endif %}
+
+                    {% if content_section.content_type == "SLIDESHOW" %}
+                        {% include 'upload/content_slideshow.html' with section_subheading=content_section.subheading content_inputs=content_section.contents %}
+                    {% endif %}
+
+                {% endfor %}
+
+            {% endif %}
+        {% endif %}
         <div id="content-btn">
             {% include 'upload/addcontent.html' %}
         </div>
@@ -69,57 +99,94 @@
 {% endblock %}
 
 {% block projectsocials %}
-    <div class="psocial col-xs-12 col-sm-4 col-md-4 col-lg-4 text-center">
-        <a id="link1">
-            <p class="btn btn-primary btn-lg"><i class="fa fa-plus"></i></p>
-            <br>
-            Link hinzufügen
-        </a>
-        <div class="hidden">
-            <label>Link eingeben</label>
-            <img class="link-close" width="12px" style="margin-left:8px; cursor: pointer;"
-                 src="{% static 'images/x.svg' %}">
-            <input type="text" class="form-control input-sm h4 font-elegance"/>
+    {% if project %}
+        {% for social in project_social %}
+            <div class="psocial col-xs-12 col-sm-4 col-md-4 col-lg-4 text-center">
+                <a id="link1" style="display: none;">
+                    <p class="btn btn-primary btn-lg"><i class="fa fa-plus"></i></p>
+                    <br>
+                    Link hinzufügen
+                </a>
+                <div>
+                    <label>Link eingeben</label>
+                    <img class="link-close" width="12px" style="margin-left:8px; cursor: pointer;"
+                         src="{% static 'images/x.svg' %}">
+                    <input type="text" value="{{ social.url }}" class="form-control input-sm h4 font-elegance"/>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="psocial col-xs-12 col-sm-4 col-md-4 col-lg-4 text-center">
+            <a id="link1">
+                <p class="btn btn-primary btn-lg"><i class="fa fa-plus"></i></p>
+                <br>
+                Link hinzufügen
+            </a>
+            <div class="hidden">
+                <label>Link eingeben</label>
+                <img class="link-close" width="12px" style="margin-left:8px; cursor: pointer;"
+                     src="{% static 'images/x.svg' %}">
+                <input type="text" class="form-control input-sm h4 font-elegance"/>
+            </div>
         </div>
-    </div>
-    <div class="psocial col-xs-12 col-sm-4 col-md-4 col-lg-4 text-center">
-        <a id="link2">
-            <p class="btn btn-primary btn-lg"><i class="fa fa-plus"></i></p>
-            <br>
-            Link hinzufügen
-        </a>
-        <div class="hidden">
-            <label>Link eingeben</label>
-            <img class="link-close" width="12px" style="margin-left:8px; cursor: pointer;"
-                 src="{% static 'images/x.svg' %}">
-            <input type="text" class="form-control input-sm h4 font-elegance"/>
+        <div class="psocial col-xs-12 col-sm-4 col-md-4 col-lg-4 text-center">
+            <a id="link2">
+                <p class="btn btn-primary btn-lg"><i class="fa fa-plus"></i></p>
+                <br>
+                Link hinzufügen
+            </a>
+            <div class="hidden">
+                <label>Link eingeben</label>
+                <img class="link-close" width="12px" style="margin-left:8px; cursor: pointer;"
+                     src="{% static 'images/x.svg' %}">
+                <input type="text" class="form-control input-sm h4 font-elegance"/>
+            </div>
         </div>
-    </div>
-    <div class="psocial col-xs-12 col-sm-4 col-md-4 col-lg-4 text-center">
-        <a id="link3">
-            <p class="btn btn-primary btn-lg"><i class="fa fa-plus"></i></p>
-            <br>
-            Link hinzufügen
-        </a>
-        <div class="hidden">
-            <label>Link eingeben</label>
-            <img class="link-close" width="12px" style="margin-left:8px; cursor: pointer;"
-                 src="{% static 'images/x.svg' %}">
-            <input type="text" class="form-control input-sm h4 font-elegance"/>
+        <div class="psocial col-xs-12 col-sm-4 col-md-4 col-lg-4 text-center">
+            <a id="link3">
+                <p class="btn btn-primary btn-lg"><i class="fa fa-plus"></i></p>
+                <br>
+                Link hinzufügen
+            </a>
+            <div class="hidden">
+                <label>Link eingeben</label>
+                <img class="link-close" width="12px" style="margin-left:8px; cursor: pointer;"
+                     src="{% static 'images/x.svg' %}">
+                <input type="text" class="form-control input-sm h4 font-elegance"/>
+            </div>
         </div>
-    </div>
+    {% endif %}
 {% endblock %}
 
 {% block projectmember %}
     <div id="member-wrapper">
-        {{ request.user.get_lib_user.get_public_name }}
-        <ul id="resp-bar-{{ request.user.get_lib_user.id }}" style="border: 1px solid #e6e6e6;">
-        </ul>
+        {% if member_resp %}
+            {% for projectmember, resps in member_resp %}
+                {% if request.user.get_lib_user == projectmember.member %}
+                    {{ request.user.get_lib_user.get_public_name }}
+                    <ul id="resp-bar-{{ request.user.get_lib_user.id }}" style="border: 1px solid #e6e6e6;">
+                        {% for resp in resps %}
+                            <li>{{ resp }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    {% include 'upload/member_resp_choices.html' with member=projectmember.member resps=resps users=users %}
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            {{ request.user.get_lib_user.get_public_name }}
+            <ul id="resp-bar-{{ request.user.get_lib_user.id }}" style="border: 1px solid #e6e6e6;">
+            </ul>
+        {% endif %}
+
     </div>
     <hr>
     <button class="btn btn-primary btn-block" id="pu-add-member">Mitglied hinzufügen</button>
     <hr>
     <div id="supervisor-wrapper">
+        {% for ps in project_supervisors %}
+            {% include 'upload/supervisor_choices.html' with supervisors=all_supervisor current=ps%}
+        {% endfor %}
     </div>
     <button class="btn btn-primary btn-block" id="pu-add-supervisor">Betreuer hinzufügen</button>
 
@@ -129,24 +196,35 @@
     <div class="form-group">
         <label for="degreeprogram-select">Studiengang</label>
         <select id="degreeprogram-select" class="form-control">{% for d_p in degree_programs %}
-            <option value="{{ d_p.id }}">{{ d_p.name }}</option>{% endfor %}</select>
+            <option value="{{ d_p.id }}"
+                    {% if project.degree_program.id == d_p.id %}selected{% endif %}>{{ d_p.name }}</option>{% endfor %}
+        </select>
     </div>
+    {% if project %}
+        <input type="hidden" id="subject-preload" value="{{ project.subject.id }}"/>
+    {% endif %}
     <div class="form-group">
         <label for="subject-select">Fach</label>
         <select class="form-control" id="subject-select"></select>
     </div>
     <div class="form-group">
         <label for="semesteryear-select">Semester</label>
+        <input type="hidden" value="{{ project.get_semester_year_string }}" id="semesteryear-preload"/>
         <select id="semesteryear-select" class="form-control">{% for i in year_choices %}
-            <option value="WS{{ i }}" {% if  forloop.counter0 == 0 %}selected{% endif %}>
+            <option value="WS {{ i }}" {% if  forloop.counter0 == 0 %}selected{% endif %}>
                 WiSe {{ i }}/{{ i|add:1 }}</option>
-            <option value="SS{{ i }}">SoSe {{ i }}</option>
+            <option value="SS {{ i }}">SoSe {{ i }}</option>
         {% endfor %}</select>
     </div>
 {% endblock %}
 
 {% block tags %}
     <ul id="add-tags-bar" style="border: 1px solid #e6e6e6;">
+        {% if project %}
+            {% for tag in project.tags.all %}
+                <li>{{ tag.value }}</li>
+            {% endfor %}
+        {% endif %}
     </ul>
 {% endblock %}
 
@@ -154,13 +232,13 @@
     <div class="panel">
         <div class="panel-body row">
             <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="padding-right:4px;">
-                <button class="btn btn-primary btn-block">Speichern</button>
+                <button class="btn btn-primary btn-block" name="save" id="pu-save">Speichern</button>
             </div>
             <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="padding-left:4px;">
                 <button class="btn btn-secondary btn-block">Verwerfen</button>
             </div>
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <button class="btn btn-danger btn-block" id="pu-publish">Veröffentlichen</button>
+                <button class="btn btn-danger btn-block" name="publish" id="pu-publish">Veröffentlichen</button>
             </div>
         </div>
     </div>
@@ -176,6 +254,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropper/2.3.4/cropper.js" type="text/javascript"
             charset="utf-8"></script>
     <script>
+        Dropzone.autoDiscover = false;
         var currentUser = {{ request.user.get_lib_user.id }};
         var addContentTextUrl = "{% url 'add-content' content_type='text' %}";
         var addContentPictureUrl = "{% url 'add-content' content_type='image' %}";
@@ -193,6 +272,7 @@
         var supervisorChoicesUrl = "{% url 'supervisor-choices' %}";
         var addContentChooseUrl = "{% url 'add-content-choose' %}";
         var addContentChoicesUrl = "{% url 'add-content-choices' %}";
+            {% if project %}var project_content = {{ project.contents | safe }}{% endif %};
     </script>
 
     <script src="{% static 'project/js/ui_functionality.js' %}" type="application/javascript" charset="utf-8"></script>

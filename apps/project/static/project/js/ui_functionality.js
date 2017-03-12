@@ -266,12 +266,18 @@ $('#degreeprogram-select').change(function () {
                     text: item.name
                 }));
             });
+            if (window.loadComplete) {
+                $('#subject-select').val($('#subject-preload').val()).trigger("change");
+                $('#semesteryear-select').val($('#semesteryear-preload').val()).trigger("change");
+                window.loadComplete = false;
+            }
         },
         error: function (request, status, error) {
             console.log("Ajax Request Error - Status: " + status, " - Error: " + error);
         }
     });
 });
+
 //endregion
 // ########################################
 
@@ -324,8 +330,74 @@ var charCount = function (text_max, input, span) {
     });
 };
 
+// region initialize pre loaded
+function initializePreLoadedContent() {
+    $.each($(".video-input,.audio-input,.image-file-input").find(":file"), function (i, obj) {
+        $(this).filestyle({
+            buttonText: "",
+            buttonName: "btn-primary",
+            iconName: $(this).attr("data-icon"),
+            buttonBefore: true,
+            placeholder: $(this).attr('data-placeholder')
+        });
+    });
+
+    $.each($('.add-content-slideshow'), function (i, slideshow_section) {
+        var existing_images = [];
+        $.each($(this).find('.slideshow-preload'), function (i, obj) {
+            existing_images.push($(this).val());
+        });
+        console.log($(this));
+        $(slideshow_section).find('form').dropzone({
+            url: projectPostUrl,
+            addRemoveLinks: true,
+            dictDefaultMessage: "Hier klicken",
+            dictRemoveFile: "Entfernen",
+            acceptedFiles: 'image/*',
+            // referring to https://github.com/enyo/dropzone/wiki/Combine-normal-form-with-Dropzone
+            autoProcessQueue: false,
+            uploadMultiple: true,
+            parallelUploads: 100,
+            maxFiles: 10,
+            init: function () {
+                this.on("error", function (file, errMsg, xhr) {
+                    if (!file.accepted) this.removeFile(file);
+                });
+
+                var myDropzone = this;
+                $.each(existing_images, function (i, obj) {
+                    var mockFile = {
+                        url: obj
+                    };
+                    console.log(mockFile.url);
+                    myDropzone.emit("addedfile", mockFile);
+                    myDropzone.createThumbnailFromUrl(mockFile, mockFile.url, null, null);
+                    myDropzone.files.push(mockFile);
+                    myDropzone.emit("complete", mockFile);
+                })
+            }
+        });
+    });
+
+    $('.resp-bar').tagit();
+
+    $(".pu-member-select2").select2({
+        containerCss: "pu-member-select2",
+        placeholder: "Mitglied wählen"
+    });
+
+    $('.profs-choices').select2({
+        containerCss: "prof-choices",
+        placeholder: "Betreuer wählen"
+    });
+}
+// enregion
+
 // region ready(), addcontent, choices, tagit initalize
 $(document).ready(function () {
+    window.loadComplete = true;
+    initializePreLoadedContent();
+
     $.getJSON(addContentChooseUrl, function (json) {
         addcontent = json.text;
     });

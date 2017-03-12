@@ -76,7 +76,7 @@ function buildProjectContent(formData) {
     return {content: content_json};
 }
 
-$('#pu-publish').on("click", function () {
+$('#pu-publish, #pu-save').on("click", function () {
     var formData = new FormData();
 
     if ($('#image')[0].files.length > 0) {
@@ -87,6 +87,7 @@ $('#pu-publish').on("click", function () {
     }
 
     var project_json_dict = JSON.stringify({
+        upload_method: $(this).attr("name"),
         p_heading: $('#heading').val(),
         p_subheading: $('#subheading').val(),
         p_description: $('#description').val(),
@@ -110,7 +111,14 @@ $('#pu-publish').on("click", function () {
         data: formData,
         success: function (json) {
             //alert("success");//alert(json.redirect);
-           location.replace(json.redirect);
+            if (json["redirect"]){
+                location.replace(json.redirect);
+            } else if (json["save_success"]){
+                if (json.save_success){
+                    alert("Erfolgreich gespeichert.")
+                }
+            }
+
         }
     });
 });

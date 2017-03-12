@@ -1,13 +1,17 @@
-{%  extends 'upload/base_content.html' %}
+{% extends 'upload/base_content.html' %}
 {% load staticfiles %}
+
 {% block contentType %}TEXT{% endblock %}
+
 {% block sectionClass %}add-content-text input-group{% endblock %}
+
 {% block sectionDesc %}{% endblock %}
+
 {% block specificInput %}
-   <div class="input-container">
+    <div class="input-container">
         <div>
-            <textarea data-type-key="text" class="content-input form-control resize-none" style="height:250px;" autofocus
-                      rows="5" placeholder="Verfasse einen informativen Text über das Projekt"></textarea>
+            <textarea data-type-key="text" class="content-input form-control resize-none" style="height:250px;"
+                      autofocus rows="5" placeholder="Verfasse einen informativen Text über das Projekt">{% if text %}{{ text }}{% endif %}</textarea>
         </div>
     </div>
 {% endblock %}

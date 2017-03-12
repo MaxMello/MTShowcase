@@ -144,9 +144,9 @@ class Project(models.Model):
 
     def get_semester_year_string(self):
         if self.semester == self.SUMMER:
-            return "SoSe" + " " + str(self.year_from)
+            return "SS" + " " + str(self.year_from)
         elif self.semester == self.WINTER:
-            return "WiSe" + " " + str(self.year_from) + "/" + str(self.year_to)
+            return "WS" + " " + str(self.year_from) + "/" + str(self.year_to)
 
     def get_date_string(self):
         return self.upload_date.date().strftime("%d.%m.%Y")
@@ -213,6 +213,11 @@ class ProjectContentRevision(models.Model):
     description = models.TextField(max_length=2000)
     contents = JSONField(default='[]')
     supervisor_comment = models.TextField(max_length=2000, null=True, blank=True)
+
+
+class ProjectEditor(models.Model):
+    project = models.ForeignKey('Project', on_delete=models.CASCADE)
+    editor = models.ForeignKey('user.User', on_delete=models.PROTECT)
 
 
 class Tag(models.Model):
