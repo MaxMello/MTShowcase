@@ -1,0 +1,15 @@
+{% load staticfiles %}
+<div data-content-type="{% block contentType %} {% endblock %}" class="{% block sectionClass %}
+{% endblock %} upload-content-section" style="text-align: center; margin-bottom: 16px;">
+     <hr class="no-margin-bottom">
+     <img class="sub-content-close" width="12px" style="float:right;margin: 8px 1px 8px 8px;cursor: pointer;"
+         src="{% static 'images/x.svg' %}">
+    <input type="text"
+           class="content-subheading form-control input-sm h4"
+           style="margin-bottom: 8px;"
+           placeholder="Sektionsüberschrift (optional)"
+           maxlength="70">
+    <p>{% block sectionDesc %} {% endblock %}</p>
+
+    {% block specificInput %} {% endblock %}
+</div>

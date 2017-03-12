@@ -162,7 +162,7 @@ function setUpDropzoneContainerForSlideshow() {
     $('.add-content-slideshow').last().find('form').dropzone({
         url: projectPostUrl,
         addRemoveLinks: true,
-        dictDefaultMessage: "Füge ein oder mehrere Bilder hinzu.",
+        dictDefaultMessage: "Hier klicken",
         dictRemoveFile: "Entfernen",
         acceptedFiles: 'image/*',
         // referring to https://github.com/enyo/dropzone/wiki/Combine-normal-form-with-Dropzone
@@ -285,6 +285,7 @@ function readURL(input, img_selector) {
                 $('#title_image').cropper('destroy');
                 $('#title_image').removeClass("hidden").attr('src', e.target.result);
                 $('#crop-menu').removeClass("hidden");
+                $('.image_container').removeClass("hidden");
                 $('#crop_button').prop("disabled", true);
             } else {
                 // #addPicture handling
@@ -292,6 +293,7 @@ function readURL(input, img_selector) {
                 $img.cropper('destroy');
                 $img.siblings('input').val('');
                 $img.removeClass("hidden").attr('src', e.target.result);
+                $('.image_container').removeClass("hidden");
                 $img.parent().find('.crop-menu').removeClass("hidden")
                     .find('.crop_button').prop("disabled", true);
             }

@@ -75,7 +75,7 @@ class Search:
                 return []
 
         if self.except_projects:
-            qset = qset.exclude(id__in=self.except_projects)
+            qset = qset.exclude(unique_id__in=[Project.base64_to_uuid(uid) for uid in self.except_projects])
             if not qset:
                 return []
 

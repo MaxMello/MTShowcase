@@ -55,6 +55,7 @@ coverage.xml
 
 # Django stuff:
 *.log
+migrations/
 secrets.py
 
 # Sphinx documentation

@@ -4,8 +4,6 @@
 {% endblock %}
 {% block title %}
     Titelbild hochladen und zuschneiden
-
-
 {% endblock %}
 {% block body %}
     <input type="file" name="image" id="image" class="filestyle"
@@ -19,7 +17,7 @@
         <div id="crop-menu" class="hidden" style="position: absolute;right: 0;top: 0; margin-top: -40px;">
             <button style="float:right;" class="btn btn-default" id="startCrop" onclick="initCropper(16/9);">Zuschneiden
             </button>
-            <button style="float:right;" class="btn btn-primary" id="crop_button">Crop</button>
+            <button style="float:right;" class="btn btn-primary" id="crop_button">Speichern</button>
 
         </div>
         <img class="hidden" id="title_image" src="#" alt="image"/>

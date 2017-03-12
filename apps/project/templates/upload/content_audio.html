@@ -1,21 +1,16 @@
+{%  extends 'upload/base_content.html' %}
 {% load staticfiles %}
-<div data-content-type="AUDIO" class="add-content-audio upload-content-section" style="text-align: center; margin-bottom: 32px;">
-     <img class="sub-content-close" width="12px" style="float:right;margin:8px; cursor: pointer;"
-         src="{% static 'images/x.svg' %}">
-    <input type="text"
-           class="content-subheading form-control input-sm h4 font-elegance"
-           style="margin-bottom: 8px;"
-           placeholder="Überschrift(optional)"
-           maxlength="70">
-    <p>Lade ein Audio-File hoch oder nutze einen Soundcloud-Link.</p>
-
+{% block contentType %}AUDIO{% endblock %}
+{% block sectionClass %}add-content-audio{% endblock %}
+{% block sectionDesc %}Lade eine Audiodatei hoch oder nutze einen Soundcloud-Link.{% endblock %}
+{% block specificInput %}
     <div class="input-container" style="width: 100%;"></div>
 
     <div style="text-align: center;display: inline-block">
         <p class="addAudioFile btn btn-primary btn-lg" style="width: 50px;text-align: center;">
             <i class="fa fa-file-audio-o"></i>
         </p>
-        <p>Audio-File</p>
+        <p>Audiodatei</p>
     </div>
 
     <div style="display:inline-block;width: 32px;"></div>
@@ -24,6 +19,6 @@
             <i class="fa fa-soundcloud">
             </i>
         </p>
-        <p>Soundcloud-Link</p>
+        <p>Soundcloud</p>
     </div>
-</div>
+{% endblock %}

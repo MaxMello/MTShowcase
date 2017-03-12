@@ -1,13 +1,9 @@
+{%  extends 'upload/base_content.html' %}
 {% load staticfiles %}
-
-<div data-content-type="SLIDESHOW" class="add-content-slideshow upload-content-section" style="margin-bottom: 30px;">
-    <img class="sub-content-close" width="12px" style="float:right;margin:8px; cursor: pointer;"
-         src="{% static 'images/x.svg' %}">
-    <input type="text"
-           class="content-subheading form-control input-sm h4 font-elegance"
-           style="margin-bottom: 8px;"
-           placeholder="Überschrift(optional)"
-           maxlength="70">
+{% block contentType %}SLIDESHOW{% endblock %}
+{% block sectionClass %}add-content-slideshow{% endblock %}
+{% block sectionDesc %}Füge mindestens 2 Bilder hinzu, um eine Slideshow zu erstellen.{% endblock %}
+{% block specificInput %}
     <div class="input-container">
         <div>
             <form action="{% url 'new-project' %}" name="test"
@@ -17,10 +13,10 @@
             </form>
         </div>
     </div>
-</div>
-<style>
-    .dropzone {
-        height: 250px;
-        overflow-y: scroll;
-    }
-</style>
+    <style>
+        .dropzone {
+            height: 250px;
+            overflow-y: scroll;
+        }
+    </style>
+{% endblock %}

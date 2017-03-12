@@ -25,7 +25,7 @@ class User(models.Model):
     auth_user = models.OneToOneField('authentication.AuthEmailUser', on_delete=models.CASCADE)
 
     # DISPLAYED CONTENT
-    alias = models.CharField(max_length=50, blank=True, null=True)  # TODO: Remove
+    alias = models.CharField(max_length=50, blank=True, null=True)
     unique_name = models.CharField(max_length=60, unique=True)  # For URL to access user profile
     socials = models.ManyToManyField('Social', through='UserSocial', through_fields=('user', 'social'),
                                      related_name='user_social')

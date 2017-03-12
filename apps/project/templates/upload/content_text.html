@@ -1,19 +1,13 @@
+{%  extends 'upload/base_content.html' %}
 {% load staticfiles %}
-
-<div data-content-type="TEXT" class="add-content-text upload-content-section input-group">
-    <img class="sub-content-close" width="12px" style="float:right;margin:8px; cursor: pointer;"
-         src="{% static 'images/x.svg' %}">
-
-    <input type="text"
-           class="content-subheading form-control input-sm h4 font-elegance"
-           style="margin-bottom: 8px;"
-           placeholder="Überschrift(optional)"
-           maxlength="70">
-
-    <div class="input-container">
+{% block contentType %}TEXT{% endblock %}
+{% block sectionClass %}add-content-text input-group{% endblock %}
+{% block sectionDesc %}{% endblock %}
+{% block specificInput %}
+   <div class="input-container">
         <div>
             <textarea data-type-key="text" class="content-input form-control resize-none" style="height:250px;" autofocus
-                      rows="5"></textarea>
+                      rows="5" placeholder="Verfasse einen informativen Text über das Projekt"></textarea>
         </div>
     </div>
-</div>
+{% endblock %}

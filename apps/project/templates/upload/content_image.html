@@ -1,24 +1,16 @@
+{%  extends 'upload/base_content.html' %}
 {% load staticfiles %}
-
-<div data-content-type="IMAGE" class="add-content-image upload-content-section input-group" style="text-align: center; margin-bottom: 32px;">
-     <img class="sub-content-close" width="12px" style="float:right;margin:8px; cursor: pointer;"
-         src="{% static 'images/x.svg' %}">
-    <input type="text"
-           class="content-subheading form-control input-sm h4 font-elegance"
-           style="margin-bottom: 8px;"
-           placeholder="Überschrift(optional)"
-           maxlength="70">
-
-    <p>Importiere ein Bild oder nutze eine URL!</p>
-
+{% block contentType %}IMAGE{% endblock %}
+{% block sectionClass %}add-content-image input-group{% endblock %}
+{% block sectionDesc %}Lade ein Bild hoch oder verlinke es.{% endblock %}
+{% block specificInput %}
     <div class="input-container" style="width: 100%;"></div>
-
 
     <div style="text-align: center;display: inline-block">
         <p class="addImageFile btn btn-primary btn-lg" style="width: 50px;text-align: center;">
             <i class="fa fa-file-image-o"></i>
         </p>
-        <p>Image-File</p>
+        <p>Datei</p>
     </div>
 
     <div style="display:inline-block;width: 32px;"></div>
@@ -27,7 +19,6 @@
             <i class="fa fa-image">
             </i>
         </p>
-        <p>Image-Link</p>
+        <p>Link</p>
     </div>
-
-</div>
+{% endblock %}

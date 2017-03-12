@@ -1,18 +1,12 @@
+{% extends 'upload/base_input.html' %}
 {% load staticfiles %}
-
-<div class="image-link-input" style="margin-bottom: 12px;">
-    <label>Image URL</label>
-    <img class="sub-content-close" width="12px" style="margin-left:8px; cursor: pointer;"
-         src="{% static 'images/x.svg' %}">
+{% block inputClass %}image-link-input{% endblock %}
+{% block inputLabel %}Bild-Link{% endblock %}
+{% block input %}
     <input type="text"
            data-type-key="url"
            style="margin-bottom: 16px;"
-           class="content-input image-url form-control input-sm h4 font-elegance"
-           placeholder="https://www....."/>
-    <input type="text"
-           data-type-key="text"
-           class="content-input image-subheading form-control input-sm h4 font-elegance"
-           style="margin-bottom: 8px;"
-           placeholder="Beschreibung unter dem Bild(optional)"
-           maxlength="100">
-</div>
+           class="content-input image-url form-control input-sm h4"
+           placeholder="https://www.example.com/example.png"/>
+{% endblock %}
+{% block subheadingClass %}image-subheading{% endblock %}

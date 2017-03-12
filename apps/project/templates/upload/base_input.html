@@ -1,0 +1,14 @@
+{% load staticfiles %}
+<div class="{% block inputClass %}{% endblock %}" style="margin-bottom: 12px;">
+    <label>{% block inputLabel %}{% endblock %}</label>
+    <img class="sub-content-close" width="12px" style="margin-left:8px; cursor: pointer;"
+         src="{% static 'images/x.svg' %}">
+    {% block input %}{% endblock %}
+    <textarea
+           data-type-key="text"
+           class="content-input {% block subheadingClass %}{% endblock %} form-control input-sm h4"
+           style="margin-bottom: 8px; resize: none"
+           placeholder="Beschreibungstext (optional)"
+           maxlength="200"
+           rows="2"></textarea>
+</div>
