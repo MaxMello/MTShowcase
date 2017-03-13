@@ -39,6 +39,7 @@ function buildProjectContent(formData) {
         content_json[section_index] = {};
         content_json[section_index]["content_type"] = $(this).attr('data-content-type');
         content_json[section_index]["subheading"] = $(this).find('.content-subheading').val();
+        content_json[section_index]["visibility"] = $(this).find('.section-visible').is(":checked");
         content_json[section_index]["content"] = [];
 
         $($(this).find('.input-container').children()).each(function (content_index, input_container) {

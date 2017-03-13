@@ -358,8 +358,10 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                 current_section = {}
                 content_section_obj = section_content_list[key]
                 content_type = content_section_obj['content_type']
+                visibility = content_section_obj['visibility']
                 current_section['subheading'] = content_section_obj['subheading']
                 current_section['content_type'] = content_type
+                current_section['visibility'] = visibility
                 current_section['contents'] = []
 
                 for content in content_section_obj['content']:  # single input content inside each content section

@@ -22,7 +22,7 @@
 {% block contentbody %}
     <div class="project-content">
         {% for content_section in project.contents %}
-            {% if not content_section.visibility == "hidden" or request.user.is_authenticated %}
+            {% if not content_section.visibility or request.user.is_authenticated %}
                 {% if content_section.subheading %}
                     <h4>{{ content_section.subheading }}</h4>
                 {% endif %}
