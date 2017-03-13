@@ -3,7 +3,7 @@
 {% load compress %}
 {% load crispy_forms_tags %}
 
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -96,7 +96,8 @@
         </div>
         <!-- Overlay Navbar -->
         <div id="toHide">
-            <div id="navbar-overlay" class="navbar navbar-fixed-top navbar-small {% block visibility %}visible-xs{% endblock %}">
+            <div id="navbar-overlay"
+                 class="navbar navbar-fixed-top navbar-small {% block visibility %}visible-xs{% endblock %}">
                 <div class="container">
                     <div class="row" id="overlay-nav-row" style="padding-top:10px;">
                         <div class="col-xs-3 col-sm-4 text-left">
@@ -137,7 +138,8 @@
                                 <ul class="nav navbar-nav navbar-right">
                                     {% if request.user.is_authenticated %}
                                         <a href="#" id="overlay-user-dropdown-btn">
-                                            <img class="overlay-useravatar" src="{{ request.user.get_lib_user.profile_img.url }}"/>
+                                            <img class="overlay-useravatar"
+                                                 src="{{ request.user.get_lib_user.profile_img.url }}"/>
                                         </a>
                                     {% else %}
                                         <a href="/login">
@@ -164,23 +166,27 @@
                             </div>
                             <div class="row">
                                 <div class="col-xs-12">
-                                    <a href="/me/project/new/"><span class="fa fa-upload fa-fw" aria-hidden="true"></span>&nbsp; <span
+                                    <a href="/me/project/new/"><span class="fa fa-upload fa-fw"
+                                                                     aria-hidden="true"></span>&nbsp; <span
                                             style="margin-left:5px">Projekt hochladen</span></a>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-xs-12">
-                                    <a href="/me/settings/"><span class="fa fa-cog fa-fw" aria-hidden="true"></span>&nbsp; <span
-                                            style="margin-left:5px">Einstellungen</span></a>
+                                    <a href="/me/settings/"><span class="fa fa-cog fa-fw" aria-hidden="true"></span>&nbsp;
+                                        <span
+                                                style="margin-left:5px">Einstellungen</span></a>
                                 </div>
                             </div>
                             <div class="row" style="padding-bottom:10px;">
                                 <div class="col-xs-12">
                                     {% if request.user.is_superuser %}
-                                        <a href="/admin/"><span class="fa fa-database fa-fw" aria-hidden="true"></span>&nbsp; <span
-                                                style="margin-left:5px">Admin-Bereich</span></a>
+                                        <a href="/admin/"><span class="fa fa-database fa-fw" aria-hidden="true"></span>&nbsp;
+                                            <span
+                                                    style="margin-left:5px">Admin-Bereich</span></a>
                                     {% elif request.user.get_lib_user.type == 'professor' %}
-                                        <a href="/admin/"><span class="fa fa-university fa-fw" aria-hidden="true"></span>&nbsp; <span
+                                        <a href="/admin/"><span class="fa fa-university fa-fw"
+                                                                aria-hidden="true"></span>&nbsp; <span
                                                 style="margin-left:5px">Professoren-Bereich</span></a>
                                     {% endif %}
                                 </div>

@@ -1,6 +1,6 @@
 import os
 from MTShowcase.secrets import db_dic, secret_key, email_pw, production
-
+import MTShowcase.names as names
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -13,6 +13,7 @@ SECRET_KEY = secret_key
 
 DEBUG = not production
 
+# TODO
 AUTH_DEBUG = True  # enable/disable debug printing for auth workflow
 
 if production:
@@ -21,15 +22,17 @@ else:
     ALLOWED_HOSTS = []
 
 # MAIL HANDLING
-SITE = "MT Showcase"
+SITE = names.project_name
 
 if production:
     DOMAIN = "showcase.mt.haw-hamburg.de"
 else:
     DOMAIN = "localhost:8000"
 
+
+# TODO: Use HAW Mail Host
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'mtshowcase.haw@gmail.com'
+EMAIL_HOST_USER = 'mtshowcase.haw@gmail.com'  # TODO: Move to secrets.py
 EMAIL_HOST_PASSWORD = email_pw
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True

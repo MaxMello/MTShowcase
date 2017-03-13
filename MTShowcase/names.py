@@ -1,4 +1,4 @@
 project_name = "MT Showcase"
-project_name_r = "MT Showcase"
-project_name_short = "MT Showcase"
-project_group_name = "MT Showcase"
+department = "Department Medientechnik"
+university = "HAW Hamburg"
+project_name_long = "MT Showcase - " + department + " " + university
