@@ -269,7 +269,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
             try:
                 non_empty_keys = {key for key in member_resp_list.keys() if key and key.isdigit()}
 
-                all_students_ids = User.objects.filter(type=User.PROF).values_list("id", flat=True)
+                all_students_ids = User.objects.all().values_list("id", flat=True)
                 if not all(int(key) in all_students_ids for key in non_empty_keys):
                     print("bad member resp")
                     return HttpResponseBadRequest()

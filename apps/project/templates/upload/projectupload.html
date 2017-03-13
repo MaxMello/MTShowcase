@@ -38,8 +38,10 @@
         <img id="selectedImage" style="max-height: 100%;" class="{% if project %}{% else %}hidden{% endif %}"
              src="{% if project %}{{ project.project_image.url }}{% endif %}" alt="your image"/>
         <a class="text-center text-primary" data-toggle="modal" data-target="#imgUploadModal">
-            <span class="fa fa-upload fa-4x" style="padding-top:22%;"></span><br>
-            <span style="display:inline-block;">Titelbild hochladen</span>
+            <div id="icon-upload-title-image">
+                <span class="fa fa-upload fa-4x" style="padding-top:22%;"></span><br>
+                <span style="display:inline-block;">Titelbild hochladen</span>
+            </div>
         </a>
     </div>
 
@@ -47,13 +49,16 @@
 {% endblock %}
 
 {% block maininfo %}
+    <div style="float:right; margin-top:-30px; margin-bottom:-5px">{% include 'upload/help/help_title.html' %}</div>
     <input type="text" id="heading" class="form-control input-lg h1 font-elegance" placeholder="Titel" maxlength="40"
             {% if project %} value="{{ project.heading }}" {% endif %}>
+    <div style="float:right; margin-top:-20px; margin-bottom:-5px">{% include 'upload/help/help_subtitle.html' %}</div>
     <input type="text" id="subheading" class="form-control input-sm h4 font-elegance" placeholder="Untertitel"
            maxlength="70"
             {% if project %} value="{{ project.subheading }}" {% endif %}>
     <hr>
     <div class="input-group">
+        <div style="float:right; margin-top:-25px; margin-bottom:-5px">{% include 'upload/help/help_subtitle.html' %}</div>
         <textarea id="description" class="form-control resize-none" placeholder="Kurzbeschreibung" rows="5"
                   maxlength="500">{% if project %}{{ project.description }}{% endif %}</textarea>
     </div>
@@ -101,8 +106,12 @@
         </div>
     </div>
 {% endblock %}
-
+{% block socials_help %}
+    <div class="row" style="margin-top:-20px">
+    <div class="col-xs-12" style="margin-bottom:-10px"><div style="float:right">{% include 'upload/help/help_socials.html' %}</div></div></div>
+{% endblock %}
 {% block projectsocials %}
+    <div class="row">
     {% if project %}
         {% for social in project_social %}
             <div class="psocial col-xs-12 col-sm-4 col-md-4 col-lg-4 text-center">
@@ -160,8 +169,11 @@
             </div>
         </div>
     {% endif %}
+    </div>
 {% endblock %}
-
+{% block member_help %}
+{% include 'upload/help/help_members.html' %}
+{% endblock %}
 {% block projectmember %}
     <div id="member-wrapper">
         {% if member_resp %}
@@ -195,7 +207,9 @@
     <button class="btn btn-primary btn-block" id="pu-add-supervisor">Betreuer hinzufügen</button>
 
 {% endblock %}
-
+{% block data_help %}
+{% include 'upload/help/help_projectdata.html' %}
+{% endblock %}
 {% block projectinfo %}
     <div class="form-group">
         <label for="degreeprogram-select">Studiengang</label>
@@ -221,7 +235,9 @@
         {% endfor %}</select>
     </div>
 {% endblock %}
-
+{% block tags_help %}
+{% include 'upload/help/help_tags.html' %}
+{% endblock %}
 {% block tags %}
     <ul id="add-tags-bar" style="border: 1px solid #e6e6e6;">
         {% if project %}

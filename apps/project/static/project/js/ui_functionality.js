@@ -198,6 +198,8 @@ body_element.on("click", "#crop_button", function () {
     var imgurl = $img.cropper('getCroppedCanvas').toDataURL();
     crop_data = JSON.stringify($img.cropper("getData"));
     $('#selectedImage').attr("src", imgurl).removeClass("hidden");
+    $('#imgUploadModal').modal("toggle");
+    $('#icon-upload-title-image').addClass("hidden");
 });
 // endregion
 // ########################################
@@ -295,9 +297,10 @@ function readURL(input, img_selector) {
                 // modal handling
                 $('#title_image').cropper('destroy');
                 $('#title_image').removeClass("hidden").attr('src', e.target.result);
-                $('#crop-menu').removeClass("hidden");
+                $('.crop-menu').removeClass("hidden");
                 $('.image_container').removeClass("hidden");
                 $('#crop_button').prop("disabled", true);
+                initCropper(16/9);
             } else {
                 // #addPicture handling
                 var $img = $(input).parent().find(img_selector);

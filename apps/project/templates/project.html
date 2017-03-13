@@ -15,6 +15,7 @@
                 {% block projectsocials-panel %}
                     <div class="panel">
                         <div class="panel-body">
+                            {% block socials_help %} {% endblock %}
                             {% block projectsocials %} {% endblock %}
                         </div>
                     </div>
@@ -23,19 +24,19 @@
             <div class="col-md-4">
                 <div class="panel">
                     <div class="panel-body">
-                        <h4>Projektmitglieder</h4>
+                        <h4>Projektmitglieder{% block member_help %} {% endblock %}</h4>
                         {% block projectmember %} {% endblock %}
                     </div>
                 </div>
                 <div class="panel">
                     <div class="panel-body">
-                        <h4>Projektdaten</h4>
+                        <h4>Projektdaten{% block data_help %} {% endblock %}</h4>
                         {% block projectinfo %} {% endblock %}
                     </div>
                 </div>
                 <div class="panel">
                     <div class="panel-body">
-                        <h4>Tags</h4>
+                        <h4>Tags{% block tags_help %} {% endblock %}</h4>
                         {% block tags %} {% endblock %}
                     </div>
                 </div>

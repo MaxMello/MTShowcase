@@ -56,6 +56,5 @@ function createAddContentDiv() {
     contentChoose.append(contentVideo);
     contentChoose.append(contentAudio);
     contentChoose.append(contentSlideshow);
-
     return contentChoose;
 }
