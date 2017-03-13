@@ -8,10 +8,11 @@
         {% block modal-body %}
             <div class="modal-body" {% block bodyid %}{% endblock %}>
                 {% block body %}{% endblock %}
+                {% block footer %}
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" style="margin:0" data-dismiss="modal">Abbrechen</button>
                     <button type="button" class="btn btn-primary">{% block primaryaction %}Speichern{% endblock %}</button>
-                </div>
+                </div>{% endblock %}
             </div>
         {% endblock %}
         </div>

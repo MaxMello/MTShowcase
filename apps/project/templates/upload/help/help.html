@@ -1,0 +1,14 @@
+<i class="text-primary fa fa-question-circle {% block class %}{% endblock %}" data-title="{% block title %}{% endblock %}"
+   data-popovertype="help" data-toggle="popover" data-html="true" data-trigger="hover" data-container="body"
+   data-placement="bottom" data-content="<span class='help-text'>{% block text %}{% endblock %}</span>"></i>
+<script>
+    $(function () {
+        $('[data-popovertype="help"]').popover();
+    })
+</script>
+<style>
+    .popover-content{
+        font-size:10pt;
+        line-height:110%;
+    }
+</style>

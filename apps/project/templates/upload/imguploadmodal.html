@@ -3,23 +3,20 @@
     imgUploadModal
 {% endblock %}
 {% block title %}
-    Titelbild hochladen und zuschneiden
+    Titelbild hochladen und zuschneiden {% include 'upload/help/help_title_image.html' %}
 {% endblock %}
 {% block body %}
-    <input type="file" name="image" id="image" class="filestyle"
+    <div class="row">
+        <div class="col-xs-6"><input type="file" name="image" id="image" class="filestyle"
            data-input="false"
            accept="image/*"
+           data-buttonText="Datei hochladen"
            data-buttonName="btn-primary"
            data-iconName="fa fa-image"
-           onchange="readURL(this, '');">
-
+           onchange="readURL(this, '');"></div>
+        <div class="col-xs-6 crop-menu hidden"><button style="float:right;" class="btn btn-primary" id="crop_button">Speichern</button></div>
+    </div>
     <div class="image_container" style="position: relative;">
-        <div id="crop-menu" class="hidden" style="position: absolute;right: 0;top: 0; margin-top: -40px;">
-            <button style="float:right;" class="btn btn-default" id="startCrop" onclick="initCropper(16/9);">Zuschneiden
-            </button>
-            <button style="float:right;" class="btn btn-primary" id="crop_button">Speichern</button>
-
-        </div>
         <img class="hidden" id="title_image" src="#" alt="image"/>
     </div>
 
@@ -28,4 +25,6 @@
             max-width: 100%
         }
     </style>
+{% endblock %}
+{% block footer %}
 {% endblock %}
