@@ -1,6 +1,7 @@
 import json
 
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.urlresolvers import reverse_lazy
 from django.http import HttpResponse
 from django.shortcuts import redirect
@@ -9,8 +10,10 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView, View
 
 from MTShowcase import settings
+from apps.project.models import ProjectMember, ProjectEditor, ProjectMemberResponsibility
+from apps.user.models import UserSocial
 from .forms import RegistrationForm, LoginForm
-from .models import RegistrationProfile
+from .models import RegistrationProfile, AuthEmailUser
 
 
 class LoginView(FormView):
@@ -68,7 +71,7 @@ class RegisterView(FormView):
             result = {'success': True,
                       'message':
                           "Registrierung erfolgreich. Ein Aktivierungslink wurde an deine Email ({}) gesendet"
-                      .format(form.cleaned_data['email'])}
+                              .format(form.cleaned_data['email'])}
 
             if request.is_ajax():
                 return HttpResponse(json.dumps(result), content_type="application/json")
@@ -127,3 +130,19 @@ class LogoutView(View):
     def post(self, request, *args, **kwargs):
         logout(request)
         return redirect('/')
+
+
+class DeleteAccountView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        # Clear all project contributions
+        # Clear User and Auth_user
+        user = request.user.get_lib_user()
+        contributions = ProjectMember.objects.filter(member=user).values_list("id")
+        UserSocial.objects.filter(user=user).delete()
+        ProjectEditor.objects.filter(editor=user).delete()
+        ProjectMemberResponsibility.objects.filter(project_member_id__in=contributions).delete()
+        ProjectMember.objects.filter(member=user).delete()
+        user_id = request.user.id
+        logout(request)
+        AuthEmailUser.objects.get(pk=user_id).delete()
+        return redirect(reverse_lazy('home'))

@@ -18,6 +18,15 @@
 {% block setting_content %}
     <div id="content-wrapper">
         {% include 'settings/account_settings_form.html' %}
+        <form action="{% url 'delete-account' %}" method="post">
+            {% csrf_token %}
+            <div style="margin-top: 52px; ">
+                <label for="submit-delete">Gib "Löschen" ein um fortzufahren.</label>
+                <input type="text" id="delete-accept" style="display: block;margin-bottom: 8px;"/>
+                <input disabled type="submit" name="delete" value="Account Löschen" class="btn btn-primary btn-danger"
+                       id="submit-delete">
+            </div>
+        </form>
     </div>
 
 {% endblock %}
@@ -95,6 +104,14 @@
                 name: 'crop_data'
             }).appendTo('#user_profile_form');
         }
+
+        $('#delete-accept').on("keyup", function () {
+            if ($(this).val() === "Löschen") {
+                $('#submit-delete').prop("disabled", false);
+            } else {
+                $('#submit-delete').prop("disabled", true);
+            }
+        });
 
         $(document).ready(function () {
             createCropDataInput();

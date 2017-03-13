@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from .views import ActivationView, RegisterView, LoginView, LogoutView
+from .views import ActivationView, RegisterView, LoginView, LogoutView, DeleteAccountView
 from django.views.generic.base import TemplateView
 
 urlpatterns = [
@@ -7,6 +7,8 @@ urlpatterns = [
     url(r'^login/$', LoginView.as_view(), name="login"),
     url(r'^logout/$', LogoutView.as_view()),
     url(r'^register/$', RegisterView.as_view(), name='register'),
+
+    url(r'^delete_acount/$', DeleteAccountView.as_view(), name='delete-account'),
 
     url(r'^register/complete/$',
         TemplateView.as_view(template_name='authentication/register_complete.html'),
