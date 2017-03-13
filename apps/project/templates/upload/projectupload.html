@@ -43,8 +43,8 @@
 {% endblock %}
 {% block imagespace %}
     <div class="upload-title-image-wrapper">
-        <img id="selectedImage" style="max-height: 100%;" class="{% if project %}{% else %}hidden{% endif %}"
-             src="{% if project %}{{ project.project_image.url }}{% endif %}" alt="your image"/>
+        <img id="selectedImage" class="{% if project %}{% else %}hidden{% endif %}"
+             src="{% if project %}{{ project.project_image_cropped.url }}{% endif %}" alt="your image"/>
         <a class="text-center text-primary" data-toggle="modal" data-target="#imgUploadModal">
             <div id="icon-upload-title-image">
                 <span class="fa fa-upload fa-4x" style="padding-top:22%;"></span><br>

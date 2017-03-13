@@ -326,9 +326,11 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                     print("cleaned: ", form.cleaned_data["title_image"])
                     new_project.project_image = request.FILES["title_image"]
                     new_project.save()
-                    if crop_data:
-                        f = BytesIO()
-                        try:
+
+                    f = BytesIO()
+                    try:
+
+                        if crop_data:
                             img = Image.open(new_project.project_image.path)
                             img_crop = img.crop((
                                 int(crop_data["x"]),
@@ -336,18 +338,35 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                                 int(crop_data["x"] + crop_data["width"]),
                                 int(crop_data["y"] + crop_data["height"]))
                             )
-                            img_crop.save(f, format='JPEG')
-                            img_crop_file = ContentFile(f.getvalue(), "croppedimage.jpeg")
+
+                            width, height = img_crop.size
+                            if width >= 1280 and height >= 720:
+                                img_crop = img_crop.resize((1280, 720), Image.ANTIALIAS)
+
+                            img_crop.save(f, quality=95, optimize=True, format='PNG')
+                            img_crop_file = ContentFile(f.getvalue(), "croppedimage.png")
                             new_project.project_image_cropped = img_crop_file
                             new_project.save()
-                            print(new_project.project_image_cropped.url)
-                        except Exception as e:
-                            print("Failed to open and crop image " + str(e))
-                        finally:
-                            f.close()
-                    else:
-                        print("crop empty")
-                        # maybe random crop for grid
+
+                        f = BytesIO()
+                        project_img = Image.open(form.cleaned_data["title_image"])
+                        project_card_max_width = 500
+
+                        if project_img.size[0] >= 500:
+                            wpercent = (project_card_max_width / float(project_img.size[0]))
+                            hsize = int((float(project_img.size[1]) * float(wpercent)))
+
+                            img_resized = project_img.resize((project_card_max_width, hsize), Image.ANTIALIAS)
+                            img_resized.save(f, quality=95, optimize=True, format='PNG')
+                            project_img_file = ContentFile(f.getvalue(), "projectimageresize.png")
+                            new_project.project_image = project_img_file
+                            new_project.save()
+                    except Exception as e:
+                        print("-------------------------------------")
+                        print("Failed to open and crop image " + str(e))
+                        print("-------------------------------------")
+                    finally:
+                        f.close()
 
             # variable content building
             project_json_content = []
@@ -581,7 +600,8 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                 print("save")
                 response_data = {"save_success": True, }
                 if not existing_project:
-                    response_data.update({"redirect": str(reverse_lazy('edit-project', kwargs={'base64_unique_id': new_project.unique_id_base64()}))})
+                    response_data.update({"redirect": str(
+                        reverse_lazy('edit-project', kwargs={'base64_unique_id': new_project.unique_id_base64()}))})
             new_project.save()
 
             ProjectEditor.objects.get_or_create(project=new_project, editor=request.user.get_lib_user())
