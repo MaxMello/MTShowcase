@@ -178,6 +178,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
             project_params = json.loads(request.POST.get('params'))
             print(request.POST)
             print(project_params)
+
             try:
                 method = project_params['upload_method']
                 heading = project_params['p_heading']
@@ -213,8 +214,8 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
             subject = get_object_or_404(Subject, pk=subject_id)
 
             existing_project = None
-            if method == 'save':
-                print(request.POST.get("project_unique_id"))
+            if request.POST and 'project_unique_id' in request.POST:
+                print("########## GOT EXISTING #+++++++++++++++++")
                 project_id = Project.base64_to_uuid(request.POST.get("project_unique_id"))
                 try:
                     existing_project = Project.objects.filter(unique_id=project_id).get()
@@ -331,6 +332,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
 
             # variable content building
             project_json_content = []
+            old_project_json = new_project.contents
 
             section_content_list = project_contents['content']
             for key in sorted(section_content_list):  # for all content sections (add-content-areas)
@@ -540,9 +542,16 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
 
             print("###########################################################################")
             print(project_json_content)
+            print("###########################################################################")
             response_data = {
                 "redirect": str(reverse_lazy('project', kwargs={'base64_unique_id': new_project.unique_id_base64()})),
             }
+
+            # removes files that are not used any more in this state of the project
+            # to clear storage space
+            if old_project_json is not None:
+                from .clear_files import clear_removed_files
+                clear_removed_files(old_project_json, project_json_content)
 
             new_project.contents = project_json_content
             if method == 'publish':

@@ -96,7 +96,7 @@ class Project(models.Model):
         (AUDIO, 'Audio')
     )
     # Contents is an ordered list of JSONs, while each json can have a content_type and different fields as seen in above comment
-    contents = JSONField(default='[]')
+    contents = JSONField(default=list)
 
     # PROJECT INFO
     semester = models.CharField(max_length=2, choices=SEMESTER, default=SUMMER)
@@ -325,7 +325,9 @@ class ProjectMemberResponsibility(models.Model):
 
     @staticmethod
     def get_skills_for_user(user):
-        a = ProjectMemberResponsibility.objects.filter(project_member__member=user).values(
+        a = ProjectMemberResponsibility.objects.filter(
+            project_member__project__approval_state=Project.APPROVED_STATE,
+            project_member__member=user).values(
             'responsibility__value').annotate(
             c=Count('responsibility__value')).order_by('-c')[:10]
         # print(str(a))
