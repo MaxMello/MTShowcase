@@ -195,7 +195,8 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                 print("key error " + str(ke))
                 return HttpResponseBadRequest()
 
-            if semesteryear is None or semesteryear[:2] is None or semesteryear[:2] not in [Project.WINTER, Project.SUMMER]:
+            if semesteryear is None or semesteryear[:2] is None or semesteryear[:2] not in [Project.WINTER,
+                                                                                            Project.SUMMER]:
                 print("wrong semester")
                 return HttpResponseBadRequest()
 

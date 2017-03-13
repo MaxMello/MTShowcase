@@ -10,7 +10,7 @@
 {% block input %}
     <input type="file" data-type-key="filename" data-file-prefix="image"
            name="file" accept="image/*" onchange="readURL(this,'.add_content_image');"
-           data-placeholder="{% if placeholder %}{{ placeholder | filename }}{% else %}Keine Datei ausgewählt.{% endif %}"
+           data-placeholder="{% if original_name %}{{ original_name }}{% else %}Keine Datei ausgewählt.{% endif %}"
            data-icon="fa fa-file-image-o"
            class="content-input">
 

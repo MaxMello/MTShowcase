@@ -276,7 +276,9 @@
         var supervisorChoicesUrl = "{% url 'supervisor-choices' %}";
         var addContentChooseUrl = "{% url 'add-content-choose' %}";
         var addContentChoicesUrl = "{% url 'add-content-choices' %}";
-            {% if project %}var project_content = {{ project.contents | safe }}{% endif %};
+        {% if project %}
+            var project_content = {{ project.contents | safe }};
+        {% endif %}
     </script>
 
     <script src="{% static 'project/js/ui_functionality.js' %}" type="application/javascript" charset="utf-8"></script>

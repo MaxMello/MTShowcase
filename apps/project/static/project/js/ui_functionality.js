@@ -364,12 +364,16 @@ function initializePreLoadedContent() {
             uploadMultiple: true,
             parallelUploads: 100,
             maxFiles: 10,
+            removedFiles : [],
             init: function () {
+                this['removedFiles'] = [];
+
                 this.on("error", function (file, errMsg, xhr) {
                     if (!file.accepted) this.removeFile(file);
                 });
 
                 var myDropzone = this;
+
                 $.each(existing_images, function (i, obj) {
                     var mockFile = {
                         url: obj
@@ -379,7 +383,14 @@ function initializePreLoadedContent() {
                     myDropzone.createThumbnailFromUrl(mockFile, mockFile.url, null, null);
                     myDropzone.files.push(mockFile);
                     myDropzone.emit("complete", mockFile);
-                })
+                });
+
+                this.on("removedfile", function (file) {
+                    console.log(file);
+                    if ('url' in file) {
+                        this.removedFiles.push(file);
+                    }
+                });
             }
         });
     });
