@@ -9,7 +9,7 @@ from django.template.loader import render_to_string
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView, View
 
-from MTShowcase import settings
+from MTShowcase import settings, names
 from apps.project.models import ProjectMember, ProjectEditor, ProjectMemberResponsibility
 from apps.user.models import UserSocial
 from .forms import RegistrationForm, LoginForm
@@ -60,6 +60,7 @@ class RegisterView(FormView):
     form_class = RegistrationForm
     success_url = reverse_lazy('activation_complete')
     template_name = 'authentication/signup.html'
+    names = names
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(data=request.POST)
