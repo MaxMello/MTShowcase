@@ -62,3 +62,15 @@ def is_provider_url(url, provider_name):
         return urlparse(url).hostname.replace("www.", "") == provider_name
     except:
         return False
+
+
+def validate_empty(test_str, id, msg_stub):
+        try:
+            test_str = test_str.strip()
+            if not test_str:
+                raise Exception()
+        except:
+            print("string was empty")
+            return True, {"id": id, "msg": "{} darf nicht leer sein.".format(msg_stub)}
+        else:
+            return False, None

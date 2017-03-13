@@ -66,7 +66,7 @@ function buildProjectContent(formData) {
                     var $dropZone = $(this);
                     if ($dropZone[0].dropzone.files.length > 0) {
                         $.each($dropZone[0].dropzone.files, function (i, obj) {
-                            if (obj['url']){
+                            if (obj['url']) {
                                 existing_images.push(obj.url);
                             } else {
                                 var fieldName = section_index + "file[" + i + "]";
@@ -120,6 +120,10 @@ $('#pu-publish, #pu-save').on("click", function () {
         formData.append("project_unique_id", $('#project-id').val());
     }
 
+    //clear error
+    $('.error').remove();
+    $('.error-border').removeClass("error-border");
+
     $.ajax({
         url: projectPostUrl,
         type: "POST",
@@ -127,6 +131,7 @@ $('#pu-publish, #pu-save').on("click", function () {
         processData: false,
         data: formData,
         success: function (json) {
+            console.log("reponse");
             //alert("success");//alert(json.redirect);
             if (json["redirect"]) {
                 location.replace(json.redirect);
@@ -136,6 +141,13 @@ $('#pu-publish, #pu-save').on("click", function () {
                 }
             }
 
+        },
+        error: function (jqXHR, exception) {
+            console.log("error", jqXHR.responseText);
+            var json = JSON.parse(jqXHR.responseText);
+            console.log(json["id"], json["msg"]);
+            $('#' + json["id"]).addClass("error-border");
+            $("<label class='error'>" + json["msg"] + "</label>").insertBefore("#" + json["id"]);
         }
     });
 });

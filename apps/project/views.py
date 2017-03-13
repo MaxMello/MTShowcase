@@ -25,7 +25,7 @@ from apps.administration.mail_utils import mail
 from apps.project.forms import ImageFormField, AudioFileField, VideoFileField
 from apps.project.image_crop import crop_image_and_save
 from apps.project.models import *
-from apps.project.validators import UrlToSocialMapper, url_validator, is_provider_url
+from apps.project.validators import UrlToSocialMapper, url_validator, is_provider_url, validate_empty
 
 char_umlaut_range = '[a-zA-Z\u00c4\u00e4\u00d6\u00f6\u00dc\u00fc\u00df]'
 tag_validation_pattern = re.compile(
@@ -212,6 +212,20 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
 
             degree_program = get_object_or_404(DegreeProgram, pk=degree_program_id)
             subject = get_object_or_404(Subject, pk=subject_id)
+
+            if method == 'publish':
+                failed1, result1 = validate_empty(heading, "heading", "Der Titel")
+                failed2, result2 = validate_empty(subheading, "subheading", "Der Unteritel")
+                failed3, result3 = validate_empty(description, "description", "Die Projektbechreibung")
+                response = None
+                if failed1:
+                    response = result1
+                elif failed2:
+                    response = result2
+                elif failed3:
+                    response = result3
+                if response:
+                    return self.render_json_response(response, status=400)
 
             existing_project = None
             if request.POST and 'project_unique_id' in request.POST:
