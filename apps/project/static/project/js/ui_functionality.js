@@ -82,7 +82,7 @@ body_element.on("click", ".addImageFile", function () {
 
 body_element.on("click", ".startCrop", function () {
     var $img = $(this).parent().siblings('.add_content_image');
-    $img.cropper();
+    $img.cropper({zoomable:false, zoomOnWheel:false});
     $(this).next().prop("disabled", false);
 });
 
@@ -302,6 +302,9 @@ function readURL(input, img_selector) {
                 $('#crop_button').prop("disabled", true);
                 initCropper(16/9);
             } else {
+                // reset preloaded data
+                $(input).attr('data-existing-url', "");
+                $(input).attr('data-original-name', "");
                 // #addPicture handling
                 var $img = $(input).parent().find(img_selector);
                 $img.cropper('destroy');

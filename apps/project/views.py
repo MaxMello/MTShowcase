@@ -1,4 +1,5 @@
 import json
+import os
 from io import BytesIO
 from random import randint
 
@@ -9,7 +10,6 @@ from django.core.exceptions import PermissionDenied
 from django.core.files.base import ContentFile
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse_lazy
-from django.db.models import Model
 from django.http import Http404
 from django.http import HttpResponse
 from django.http import HttpResponseBadRequest
@@ -23,6 +23,7 @@ from MTShowcase import names
 from MTShowcase import settings
 from apps.administration.mail_utils import mail
 from apps.project.forms import ImageFormField, AudioFileField, VideoFileField
+from apps.project.image_crop import crop_image_and_save
 from apps.project.models import *
 from apps.project.validators import UrlToSocialMapper, url_validator, is_provider_url
 
@@ -453,40 +454,49 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
 # IMAGE             # +++++++++++++++++++++++++++++++++++++++++++++
                     elif content_type == Project.IMAGE:
                         if 'filename' in content:
-                            field_name = content['filename']
-                            form = ImageFormField(field_name, request.POST, request.FILES)
-                            if form.is_valid():
-                                original_name = form.cleaned_data[field_name].name
-                                if 'crop_data' in content:
-                                    f = BytesIO()
-                                    try:
-                                        img_crop_data = json.loads(content['crop_data'])
-                                        img = Image.open(form.cleaned_data[field_name])
-                                        img_crop = img.crop((
-                                            int(img_crop_data["x"]),
-                                            int(img_crop_data["y"]),
-                                            int(img_crop_data["x"] + img_crop_data["width"]),
-                                            int(img_crop_data["y"] + img_crop_data["height"]))
-                                        )
-                                        img_crop.save(f, format='PNG')
-                                        img_crop_file = ContentFile(f.getvalue(), "content_image.png")
-                                        saved_file = UploadImage.objects.create(file=img_crop_file)
-                                    except Exception as e:
-                                        # fallback just save not cropped image
-                                        saved_file = UploadImage.objects.create(file=form.cleaned_data[field_name])
-                                        print("Failed to open or crop image " + str(e))
-                                    finally:
-                                        f.close()
+                            crop_data = None
+                            saved_file = None
+                            if 'crop_data' in content:
+                                try:
+                                    crop_data = json.loads(content['crop_data'])
+                                except Exception as e:
+                                    print("could not load crop data ", str(e))
+                                    pass
 
-                                else:
-                                    saved_file = UploadImage.objects.create(file=form.cleaned_data[field_name])
+                            if 'existing' in content['filename']:
+                                existing_data = content['filename']['existing']
+                                file_url = existing_data['url']
+                                original_name = existing_data['original_name']
+                                if crop_data:
+                                    # TODO: test in production
+                                    path = UploadImage.objects.get(file=file_url.replace("/media/", "")).file.path
+                                    saved_file = crop_image_and_save(path, crop_data)
+                                    # delete old image from storage
+                                    UploadImage.objects.get(file=file_url.replace("/media/", "")).file.delete()
 
                                 current_section['contents'].append({
                                     "content_type": content_type,
-                                    "filename": saved_file.file.url,
+                                    "filename": saved_file.file.url if saved_file else file_url,
                                     "original_name": original_name,
                                     "text": content['text']
                                 })
+
+                            else:
+                                field_name = content['filename']
+                                form = ImageFormField(field_name, request.POST, request.FILES)
+                                if form.is_valid():
+                                    original_name = form.cleaned_data[field_name].name
+                                    if crop_data:
+                                        saved_file = crop_image_and_save(form.cleaned_data[field_name], crop_data)
+                                    else:
+                                        saved_file = UploadImage.objects.create(file=form.cleaned_data[field_name])
+
+                                    current_section['contents'].append({
+                                        "content_type": content_type,
+                                        "filename": saved_file.file.url,
+                                        "original_name": original_name,
+                                        "text": content['text']
+                                    })
 
                         elif 'url' in content:
                             try:

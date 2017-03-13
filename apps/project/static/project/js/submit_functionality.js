@@ -48,10 +48,16 @@ function buildProjectContent(formData) {
                 var key = $(this).attr('data-type-key');
                 var value;
                 if (key == 'filename') {
-                    // build unique filename to find it during backend validation
-                    var file_unique_name = section_index + $(this).attr('data-file-prefix') + "[" + content_index + "]";
-                    formData.append(file_unique_name, obj.files[0]);
-                    value = file_unique_name;
+                    if ($(this).attr('data-existing-url')) {
+                        var url = $(this).attr('data-existing-url');
+                        var original_name = $(this).attr('data-original-name');
+                        value = {existing: {url: url, original_name: original_name}}
+                    } else {
+                        // build unique filename to find it during backend validation
+                        var file_unique_name = section_index + $(this).attr('data-file-prefix') + "[" + content_index + "]";
+                        formData.append(file_unique_name, obj.files[0]);
+                        value = file_unique_name;
+                    }
 
                 } else if (key == 'slideshow') {
                     var slideshow_content_list = [];
@@ -102,8 +108,8 @@ $('#pu-publish, #pu-save').on("click", function () {
     });
     formData.append("csrfmiddlewaretoken", window.CSRF_TOKEN);
     formData.append("params", project_json_dict);
-    if ($('#project-id').val()){
-        console.log("appended "+ $('#project-id').val());
+    if ($('#project-id').val()) {
+        console.log("appended " + $('#project-id').val());
         formData.append("project_unique_id", $('#project-id').val());
     }
 
@@ -115,10 +121,10 @@ $('#pu-publish, #pu-save').on("click", function () {
         data: formData,
         success: function (json) {
             //alert("success");//alert(json.redirect);
-            if (json["redirect"]){
+            if (json["redirect"]) {
                 location.replace(json.redirect);
-            } else if (json["save_success"]){
-                if (json.save_success){
+            } else if (json["save_success"]) {
+                if (json.save_success) {
                     alert("Erfolgreich gespeichert.")
                 }
             }
