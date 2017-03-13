@@ -260,13 +260,8 @@ class PasswordChangeDoneView(TemplateView):
     template_name = 'settings/password_change_done.html'
 
 
-class ProjectListView(TemplateView):
+class ProjectListView(LoginRequiredMixin, TemplateView):
     template_name = 'user/projectlist.html'
-    names = ns
-
-
-class UserProjectDraftView(LoginRequiredMixin, TemplateView):
-    template_name = 'settings/drafts.html'
 
     def get_context_data(self, **kwargs):
         return {'drafts': ProjectEditor.objects.filter(editor=self.request.user.get_lib_user())}
