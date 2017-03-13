@@ -2,9 +2,9 @@
 {% load staticfiles %}
 {% block title %}
     {% if project %}
-        {{ project.heading }} - Bearbeiten
+        {{ project.heading }} - Bearbeiten - {{ names.project_name }}
     {% else %}
-        Neues Projekt erstellen
+        Neues Projekt erstellen - {{ names.project_name }}
     {% endif %}
 {% endblock %}
 {% block css %}
@@ -66,7 +66,7 @@
             {% if project %} value="{{ project.subheading }}" {% endif %}>
     <hr>
     <div class="input-group">
-        <div style="float:right; margin-top:-25px; margin-bottom:-5px">{% include 'upload/help/help_subtitle.html' %}</div>
+        <div style="float:right; margin-top:-25px; margin-bottom:-5px">{% include 'upload/help/help_desc.html' %}</div>
         <textarea id="description" class="form-control resize-none" placeholder="Kurzbeschreibung" rows="5"
                   maxlength="500">{% if project %}{{ project.description }}{% endif %}</textarea>
     </div>
@@ -220,8 +220,8 @@
 {% endblock %}
 {% block projectinfo %}
     <div class="form-group">
-        <label for="degreeprogram-select">Studiengang</label>
-        <select id="degreeprogram-select" class="form-control">{% for d_p in degree_programs %}
+        <label for="degreeprogram-select" style="width:1%">Studiengang</label>
+        <select id="degreeprogram-select" style="width:100%" class="form-control select2">{% for d_p in degree_programs %}
             <option value="{{ d_p.id }}"
                     {% if project.degree_program.id == d_p.id %}selected{% endif %}>{{ d_p.name }}</option>{% endfor %}
         </select>
@@ -230,13 +230,13 @@
         <input type="hidden" id="subject-preload" value="{{ project.subject.id }}"/>
     {% endif %}
     <div class="form-group">
-        <label for="subject-select">Fach</label>
-        <select class="form-control" id="subject-select"></select>
+        <label for="subject-select" style="width:1%">Fach</label>
+        <select class="form-control select2" style="width:100%" id="subject-select"></select>
     </div>
     <div class="form-group">
-        <label for="semesteryear-select">Semester</label>
+        <label for="semesteryear-select" style="width:1%">Semester</label>
         <input type="hidden" value="{{ project.get_semester_year_string_for_preload }}" id="semesteryear-preload"/>
-        <select id="semesteryear-select" class="form-control">{% for i in year_choices %}
+        <select id="semesteryear-select" style="width:100%"  class="form-control select2">{% for i in year_choices %}
             <option value="WS {{ i }}" {% if  forloop.counter0 == 0 %}selected{% endif %}>
                 WiSe {{ i }}/{{ i|add:1 }}</option>
             <option value="SS {{ i }}">SoSe {{ i }}</option>
@@ -263,15 +263,49 @@
                 <button class="btn btn-primary btn-block" name="save" id="pu-save">Speichern</button>
             </div>
             <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" style="padding-left:4px;">
-                <button class="btn btn-secondary btn-block">Verwerfen</button>
+                {% if not project %}
+                <a class="btn btn-warning btn-block" id="discard-project" data-href="/" data-toggle="modal" data-target="#confirm-discard-modal" href="#">Verwerfen</a>
+                    {% include 'upload/confirm_discard.html' %}
+                {% else %}
+                    <a class="btn btn-warning btn-block" id="delete-project" data-toggle="modal" data-target="#confirm-delete-modal" href="#">Löschen</a>
+                    {% include 'upload/confirm_delete.html' %}
+                {% endif %}
             </div>
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <button class="btn btn-danger btn-block" name="publish" id="pu-publish">Veröffentlichen</button>
+                <button class="btn btn-danger btn-block" data-toggle="modal" data-target="#confirm-publish-modal" href="#" id="publish-project">Veröffentlichen</button>
+                {% include 'upload/confirm_publish.html' %}
             </div>
         </div>
     </div>
 {% endblock %}
 {% block scripts %}
+    <style>
+    .profs-choices {
+        margin-right: 8px;
+        height: 40px;
+        border: 1px solid #ececec;
+        color: rgb(64, 64, 64);
+    }
+
+    /* TODO: move to less */
+    [class^='select2'] {
+        border-radius: 0px !important;
+    }
+
+    .select2-container .select2-selection--single {
+        height: 41px !important;
+        border: 1px solid #e6e6e6;
+        margin-bottom: 12px;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 41px;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow{
+        top:7px;
+    }
+</style>
     <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js" type="text/javascript"
             charset="utf-8"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.full.min.js"></script>
@@ -303,6 +337,7 @@
         {% if project %}
             var project_content = {{ project.contents | safe }};
         {% endif %}
+        $('.select2').select2();
     </script>
 
     <script src="{% static 'project/js/ui_functionality.js' %}" type="application/javascript" charset="utf-8"></script>

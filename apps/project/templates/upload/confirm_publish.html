@@ -1,0 +1,19 @@
+{% extends 'modal.html' %}
+{% block id %}confirm-publish-modal{% endblock %}
+{% block title %}Projekt veröffentlichen{% endblock %}
+{% block body %}Das Projekt wird zur Veröffentlichung freigegeben. Dazu werden die Betreuer benachrichtigt und erhalten
+Einsicht auf das Projekt. Sobald ein Betreuer das Projekt endgültig freigibt, wird es auf der Startseite angezeigt.
+Sollte ein Betreuer Fehler oder z.B. Urheberrechtsverletzungen bemerken, werden die Projektmitglieder per E-Mail benachrichtigt
+und erhalten die Möglichkeit, die Fehler zu beheben.{% endblock %}
+{% block primaryaction %}Veröffentlichen{% endblock %}
+{% block actionID %}pu-publish{% endblock %}
+{% block btnType %}btn-danger{% endblock %}
+{% block additionalConfirm %}name="publish"{% endblock %}
+{% block more %}
+    <script>
+    $('#pu-publish').on("click", function(){
+        console.log("Confirm Publish");
+        $('#confirm-publish-modal').modal("toggle");
+    });
+    </script>
+{% endblock %}

@@ -11,10 +11,12 @@
                 {% block footer %}
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" style="margin:0" data-dismiss="modal">Abbrechen</button>
-                    <button type="button" class="btn btn-primary">{% block primaryaction %}Speichern{% endblock %}</button>
+                    <a type="button" class="btn {% block btnType %}btn-primary{% endblock %} button-ok" id="{% block actionID %}{% endblock %}" {% block additionalConfirm %}{% endblock %}>{% block primaryaction %}Speichern{% endblock %}</a>
                 </div>{% endblock %}
             </div>
         {% endblock %}
         </div>
     </div>
 </div>
+{% block more %}
+{% endblock %}

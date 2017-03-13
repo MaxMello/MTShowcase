@@ -19,5 +19,9 @@
 
     {% block specificInput %} {% endblock %}
 
-    <input type="checkbox" title="Sichtbarkeit" class="section-visible" style="margin-top: 16px;"><span style="margin-left: 8px;">Sektion nur einsehbar für angemeldete Nutzer</span>
+    <div style="margin-top:-10px">
+        <input type="checkbox" title="Sichtbarkeit" class="section-visible" style="margin-top: 16px;">
+        <span style="margin-left: 8px; font-size:small">Sektion nur einsehbar für angemeldete Nutzer</span>
+        {% include 'upload/help/help_visibility.html' %}
+    </div>
 </div>
