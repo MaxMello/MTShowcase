@@ -10,6 +10,8 @@
 {% block input %}
     <input type="file" name="file" data-type-key="filename" data-file-prefix="audio" accept="audio/*" class="content-input"
     data-placeholder="{% if original_name %}{{ original_name }}{% else %}Keine Datei ausgewählt.{% endif %}"
+    data-existing-url="{% if placeholder %}{{ placeholder }}{% endif %}"
+    data-original-name="{% if original_name %}{{ original_name }}{% endif %}"
     data-icon="fa fa-file-audio-o">
 {% endblock %}
 {% block subheadingClass %}audio-subheading{% endblock %}

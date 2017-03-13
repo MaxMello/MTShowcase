@@ -61,15 +61,22 @@ function buildProjectContent(formData) {
 
                 } else if (key == 'slideshow') {
                     var slideshow_content_list = [];
+                    var existing_images = [];
+                    // toAdd: { 'slideshow': [], 'existing':[]}
                     var $dropZone = $(this);
                     if ($dropZone[0].dropzone.files.length > 0) {
                         $.each($dropZone[0].dropzone.files, function (i, obj) {
-                            var fieldName = section_index + "file[" + i + "]";
-                            formData.append(fieldName, obj);
-                            slideshow_content_list.push(fieldName);
+                            if (obj['url']){
+                                existing_images.push(obj.url);
+                            } else {
+                                var fieldName = section_index + "file[" + i + "]";
+                                formData.append(fieldName, obj);
+                                slideshow_content_list.push(fieldName);
+                            }
                         });
                     }
                     value = slideshow_content_list;
+                    toAdd['existing'] = existing_images;
                 }
                 else {
                     value = $(this).val();

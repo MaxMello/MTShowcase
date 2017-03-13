@@ -9,6 +9,8 @@
 {% block input %}
     <input type="file" data-type-key="filename" data-file-prefix="video" name="file" class="content-input"
     data-placeholder="{% if original_name %}{{ original_name }}{% else %}Keine Datei ausgewählt.{% endif %}"
+    data-existing-url="{% if placeholder %}{{ placeholder }}{% endif %}"
+    data-original-name="{% if original_name %}{{ original_name }}{% endif %}"
     data-icon="fa fa-file-video-o">
 {% endblock %}
 

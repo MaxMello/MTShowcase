@@ -347,21 +347,32 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
 # VIDEO             # +++++++++++++++++++++++++++++++++++++++++++++
                     if content_type == Project.VIDEO:
                         if 'filename' in content:
-                            field = content['filename']
-                            form = VideoFileField(field, request.POST, request.FILES)
-                            if form.is_valid():
-                                original_name = form.cleaned_data[field].name
-                                saved_file = UploadVideo.objects.create(file=form.cleaned_data[field])
-                                if saved_file is not None:
-                                    try:
-                                        current_section['contents'].append({
-                                            "content_type": content_type,
-                                            "filename": saved_file.file.url,
-                                            "original_name": original_name,
-                                            "text": content['text']
-                                        })
-                                    except KeyError as e:
-                                        print("error while video labels" + str(e))
+                            if 'existing' in content['filename']:
+                                existing_data = content['filename']['existing']
+                                file_url = existing_data['url']
+                                original_name = existing_data['original_name']
+                                current_section['contents'].append({
+                                    "content_type": content_type,
+                                    "filename": file_url,
+                                    "original_name": original_name,
+                                    "text": content['text']
+                                })
+                            else:
+                                field = content['filename']
+                                form = VideoFileField(field, request.POST, request.FILES)
+                                if form.is_valid():
+                                    original_name = form.cleaned_data[field].name
+                                    saved_file = UploadVideo.objects.create(file=form.cleaned_data[field])
+                                    if saved_file is not None:
+                                        try:
+                                            current_section['contents'].append({
+                                                "content_type": content_type,
+                                                "filename": saved_file.file.url,
+                                                "original_name": original_name,
+                                                "text": content['text']
+                                            })
+                                        except KeyError as e:
+                                            print("error while video labels" + str(e))
                         elif 'url' in content:
                             try:
                                 url_validator(content['url'])
@@ -388,25 +399,36 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
 # AUDIO             # +++++++++++++++++++++++++++++++++++++++++++++
                     elif content_type == Project.AUDIO:
                         if 'filename' in content:
-                            field = content['filename']
-                            form = AudioFileField(field, request.POST, request.FILES)
-                            if form.is_valid():
-                                original_name = form.cleaned_data[field].name
-                                saved_file = UploadAudio.objects.create(file=form.cleaned_data[field])
-                                if saved_file is not None:
-                                    try:
-                                        current_section['contents'].append({
-                                            "content_type": content_type,
-                                            "filename": saved_file.file.url,
-                                            "original_name": original_name,
-                                            "text": content['text']
-                                        })
-                                        print(saved_file.file.url)
-                                    except KeyError as e:
-                                        print("error while audio " + str(e))
-
+                            if 'existing' in content['filename']:
+                                existing_data = content['filename']['existing']
+                                file_url = existing_data['url']
+                                original_name = existing_data['original_name']
+                                current_section['contents'].append({
+                                    "content_type": content_type,
+                                    "filename": file_url,
+                                    "original_name": original_name,
+                                    "text": content['text']
+                                })
                             else:
-                                print(form.errors)
+                                field = content['filename']
+                                form = AudioFileField(field, request.POST, request.FILES)
+                                if form.is_valid():
+                                    original_name = form.cleaned_data[field].name
+                                    saved_file = UploadAudio.objects.create(file=form.cleaned_data[field])
+                                    if saved_file is not None:
+                                        try:
+                                            current_section['contents'].append({
+                                                "content_type": content_type,
+                                                "filename": saved_file.file.url,
+                                                "original_name": original_name,
+                                                "text": content['text']
+                                            })
+                                            print(saved_file.file.url)
+                                        except KeyError as e:
+                                            print("error while audio " + str(e))
+
+                                else:
+                                    print(form.errors)
 
                         elif 'url' in content:
                             try:
@@ -436,6 +458,9 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
 # Slideshow         # +++++++++++++++++++++++++++++++++++++++++++++
                     elif content_type == Project.SLIDESHOW:
                         image_urls = []
+                        for existing_url in content['existing']:
+                            image_urls.append(existing_url)
+
                         for field_name in content['slideshow']:
                             form = ImageFormField(field_name, request.POST, request.FILES)
                             if form.is_valid():
