@@ -1,0 +1,16 @@
+{% extends 'modal.html' %}
+{% block id %}confirm-delete-modal{% endblock %}
+{% block title %}Projekt löschen{% endblock %}
+{% block body %}Das Projekt wird gelöscht und alle bisherigen Fortschritte gehen verloren. Es kann nicht wiederhergestellt werden.{% endblock %}
+{% block primaryaction %}Löschen{% endblock %}
+{% block actionID %}confirm-delete{% endblock %}
+{% block btnType %}btn-danger{% endblock %}
+{% block more %}
+    <script>
+        $('#confirm-delete').on("click", function(){
+            // TODO backend action to delete project
+            console.log("deleted");
+        });
+    </script>
+
+{% endblock %}

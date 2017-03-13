@@ -1,0 +1,15 @@
+{% extends 'modal.html' %}
+{% block id %}confirm-discard-modal{% endblock %}
+{% block title %}Projekt verwerfen{% endblock %}
+{% block body %}Alle eingegebenen Daten gehen verloren.{% endblock %}
+{% block primaryaction %}Verwerfen{% endblock %}
+{% block actionID %}confirm-discard{% endblock %}
+{% block btnType %}btn-danger{% endblock %}
+{% block more %}
+    <script>
+    $('#confirm-discard-modal').on('shown.bs.modal', function(e) {
+        $('#confirm-discard').attr('href', $(e.relatedTarget).data('href'));
+    });
+    </script>
+
+{% endblock %}
