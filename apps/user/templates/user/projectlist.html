@@ -15,7 +15,10 @@
                             <tr>
                                 <td>
                                     <h4>
-                                        <a href="{% url 'edit-project' base64_unique_id=draft.project.unique_id_base64 %}">
+                                        <a href="
+{% if draft.project.approval_state == draft.project.EDIT_STATE %}
+{% url 'edit-project' base64_unique_id=draft.project.unique_id_base64 %}{% elif draft.project.approval_state == draft.project.REVIEW_STATE %}
+{% url 'project' base64_unique_id=draft.project.unique_id_base64 %}{% endif %}">
                                             {% if draft.project.heading %}
                                                 {{ draft.project.heading }}
                                             {% else %}

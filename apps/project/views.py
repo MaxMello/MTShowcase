@@ -44,7 +44,8 @@ class ProjectView(TemplateView):
 
         if project.approval_state != Project.APPROVED_STATE:
             if not show_release_panel:
-                raise Http404()
+                if not list(ProjectEditor.objects.filter(project=project, editor=user)):
+                    raise Http404()
 
         project.views += 1
         project.save()
@@ -227,10 +228,9 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                 if response:
                     return self.render_json_response(response, status=400)
 
-            if not supervisors_list:
-                return self.render_json_response(
-                    {"id": "upload-top-right", "msg": "Jedes Projekt braucht einen Betreuer!"}, status=400)
-
+                if not supervisors_list:
+                    return self.render_json_response(
+                        {"id": "upload-top-right", "msg": "Jedes Projekt braucht einen Betreuer!"}, status=400)
 
             existing_project = None
             if request.POST and 'project_unique_id' in request.POST:
@@ -577,7 +577,9 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                 new_project.approval_state = Project.REVIEW_STATE
             elif method == 'save':
                 print("save")
-                response_data = {"save_success": True}
+                response_data = {"save_success": True, }
+                if not existing_project:
+                    response_data.update({"redirect": str(reverse_lazy('edit-project', kwargs={'base64_unique_id': new_project.unique_id_base64()}))})
             new_project.save()
 
             ProjectEditor.objects.get_or_create(project=new_project, editor=request.user.get_lib_user())
