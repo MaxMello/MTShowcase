@@ -1,7 +1,13 @@
-Hallo neuer Nutzer, dies ist eine Email-Verfikation
+Herzlich Willkommen beim {{ site }}!
 
-Aktiviere deinen Account bei {{ site }}:
-
+Bevor es losgehen kann, muss der Account noch über den folgenden Link aktiviert werden:
 http://{{ domain }}{% url 'registration_activate' activation_key %}
 
-Der Link endet in {{ expiration_days }} Tagen.
+Bitte beachte, dass der Link in {{ expiration_days }} Tagen seine Gütligkeit verliert.
+
+Nach der erfolgreichen Validierung kannst du dich einloggen und in den Nutzereinstellungen deine persönlichen Daten anpassen.
+
+Wir wünschen viel Spaß bei der Nutzung des {{ site }}!
+
+Mit freundlichen Grüßen,
+das MT Showcase Team.
