@@ -3,7 +3,7 @@ from . import views
 
 urlpatterns = [
     url(r'^u/(?P<unique_name>[a-zA-z0-9_\-]+)$', views.UserProfileView.as_view(), name='user_profile'),
-    url(r'^me/settings/$', views.SettingAccountView.as_view(), name='settings-account'),
+    url(r'^me/settings/$', views.SettingAccountView.as_view(), name='settings-account'), # TODO: Change to only me/
     url(r'^me/socials/$', views.UserSocialView.as_view(), name='settings-user-socials'),
     url(r'^me/password_change/$', views.SettingPasswordChangeView.as_view(), name='password-change'),
     url(r'^me/password_change_done/$', views.PasswordChangeDoneView.as_view(), name='password-change-done'),
