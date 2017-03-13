@@ -227,6 +227,11 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                 if response:
                     return self.render_json_response(response, status=400)
 
+            if not supervisors_list:
+                return self.render_json_response(
+                    {"id": "upload-top-right", "msg": "Jedes Projekt braucht einen Betreuer!"}, status=400)
+
+
             existing_project = None
             if request.POST and 'project_unique_id' in request.POST:
                 print("########## GOT EXISTING #+++++++++++++++++")
