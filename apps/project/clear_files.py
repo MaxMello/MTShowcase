@@ -15,9 +15,10 @@ def delete_files(old_files, new_files, model_cls):
         if file not in new_files:
             print("##############################################")
             print("About to delete: " + file)
-            obj = model_cls.objects.get(file=file.replace("/media/", ""))
-            obj.file.delete()
-            obj.delete()
+            obj = model_cls.objects.filter(file=file.replace("/media/", "")).first()
+            if obj:
+                obj.file.delete()
+                obj.delete()
 
 
 def extract_file_paths_from_json(json_content):
