@@ -88,10 +88,13 @@ class SettingAccountView(UpdateView):
             instance=User.objects.get(auth_user=self.request.user)
         )
         image_form = ImageFormField('profile_img', request.POST, request.FILES)
-        if form.is_valid() and form2.is_valid() and image_form.is_valid():
+        if form.is_valid() and form2.is_valid():
             form.save(commit=True)
             form2.save(commit=True)
-            if 'crop_data' in request.POST:
+            valid = True
+        if image_form.is_valid():
+            valid = True
+            if 'crop_data' in request.POST and request.POST['crop_data']:
                 crop_data = json.loads(request.POST['crop_data'])
                 f = BytesIO()
                 try:
@@ -111,7 +114,6 @@ class SettingAccountView(UpdateView):
                     print("Failed to open and crop image " + str(e))
                 finally:
                     f.close()
-            valid = True
 
         return HttpResponse(
             content=json.dumps(

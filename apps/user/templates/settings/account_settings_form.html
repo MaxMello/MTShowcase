@@ -21,3 +21,13 @@
     </div>
     <input type="submit" name="update" value="Update" class="btn btn-primary btn-success" id="submit-id-update">
 </form>
+ <h3 style="margin-top: 52px; ">Account Löschen</h3>
+<form action="{% url 'delete-account' %}" method="post">
+    {% csrf_token %}
+    <div>
+        <label for="submit-delete">Gib "Löschen" ein um fortzufahren.</label>
+        <input type="text" id="delete-accept" style="display: block;margin-bottom: 8px;"/>
+        <input disabled type="submit" name="delete" value="Account Löschen" class="btn btn-primary btn-danger"
+               id="submit-delete">
+    </div>
+</form>
