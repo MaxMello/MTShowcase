@@ -37,16 +37,13 @@ function TagHandler(){
             newTagSuggestionsPrio2.push.apply(newTagSuggestionsPrio2, project.tags.prio2);
             newTagSuggestionsPrio3.push.apply(newTagSuggestionsPrio3, project.tags.prio3);
         }, this);
-        newTagSuggestionsPrio2 = newTagSuggestionsPrio2.filter( function( el ) {
-          return newTagSuggestions.indexOf( el ) < 0;
-        } );
-        newTagSuggestionsPrio3 = newTagSuggestionsPrio3.filter( function( el ) {
-          return newTagSuggestions.indexOf( el ) < 0 || newTagSuggestionsPrio2.indexOf( el ) < 0;
-        } );
 
         newTagSuggestions = orderTags(newTagSuggestions);
         newTagSuggestions.push.apply(newTagSuggestions, orderTags(newTagSuggestionsPrio2));
         newTagSuggestions.push.apply(newTagSuggestions, orderTags(newTagSuggestionsPrio3));
+        newTagSuggestions = newTagSuggestions.filter(function(item, pos) {
+            return newTagSuggestions.indexOf(item) == pos;
+        });
         tagSuggestions = newTagSuggestions;
     };
 }
