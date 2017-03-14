@@ -53,10 +53,8 @@ class Search:
         return [project.subject.name, project.degree_program.name, project.get_semester_year_string()]
 
     def tags_prio3(self, project):
-        prio3 = []
-        prio3 += list([m.get_public_name() for m in project.members.all()])
-        prio3 += list([m.get_public_name() for m in project.supervisors.all()])
-        return prio3
+        # currently no prio 3 tags
+        return []
 
     """
     SEARCH PROJECTS
