@@ -28,7 +28,7 @@ class UrlToSocialMapper(object):
         except ValidationError:
             return None
         else:
-            return Social.objects.get(name='link')
+            return Social.objects.filter(name='link').first()
 
 
 ALLOWED_AUDIO_MIME_TYPES = ['audio/mp3', 'audio/mp4', 'audio/mpeg', 'audio/ogg', 'audio/wav', 'audio/webm', 'audio/aac']
