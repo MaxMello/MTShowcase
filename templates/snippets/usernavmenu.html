@@ -22,7 +22,10 @@
     <li class="divider"></li>
     <li><a href="/me/settings/"><span class="fa fa-cog fa-fw" aria-hidden="true"></span>&nbsp; <span style="margin-left:5px">Einstellungen</span></a></li>
     <li class="divider"></li>
-    {% if request.user.is_superuser %}
+    {% if request.user.get_lib_user.type == 'professor' %}
+        <li><a href="/admin/"><span class="fa fa-database fa-fw" aria-hidden="true"></span>&nbsp; <span style="margin-left:5px">Professoren-Bereich</span></a></li>
+        <li class="divider"></li>
+    {% elif  request.user.get_lib_user.type == 'admin' %}
         <li><a href="/admin/"><span class="fa fa-database fa-fw" aria-hidden="true"></span>&nbsp; <span style="margin-left:5px">Admin-Bereich</span></a></li>
         <li class="divider"></li>
     {% elif request.user.get_lib_user.type == 'professor'%}
