@@ -277,7 +277,7 @@ class Subject(models.Model):
 
 class ProjectMember(models.Model):
     member = models.ForeignKey('user.User', on_delete=models.PROTECT)
-    project = models.ForeignKey('Project', on_delete=models.PROTECT)
+    project = models.ForeignKey('Project', on_delete=models.CASCADE)
     display_username = models.BooleanField(default=True)
     responsibilities = models.ManyToManyField('Tag', through='ProjectMemberResponsibility',
                                               through_fields=('project_member', 'responsibility'),
@@ -294,8 +294,8 @@ class ProjectMember(models.Model):
 
 
 class ProjectSupervisor(models.Model):
-    supervisor = models.ForeignKey('user.User', on_delete=models.PROTECT, validators=[can_be_supversivor])
-    project = models.ForeignKey('Project', on_delete=models.PROTECT)
+    supervisor = models.ForeignKey('user.User', on_delete=models.CASCADE, validators=[can_be_supversivor])
+    project = models.ForeignKey('Project', on_delete=models.CASCADE)
 
     def __str__(self):
         return "{} (ID: {}) - {} (ID: {})".format(self.project.heading, self.project.id, self.supervisor.unique_name,
@@ -303,7 +303,7 @@ class ProjectSupervisor(models.Model):
 
 
 class ProjectTag(models.Model):
-    project = models.ForeignKey('Project', on_delete=models.PROTECT)
+    project = models.ForeignKey('Project', on_delete=models.CASCADE)
     tag = models.ForeignKey('Tag', on_delete=models.CASCADE)
     position = models.PositiveSmallIntegerField(default=1)
 

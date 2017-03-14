@@ -335,7 +335,7 @@
         var addContentChooseUrl = "{% url 'add-content-choose' %}";
         var addContentChoicesUrl = "{% url 'add-content-choices' %}";
         {% if project %}
-            var project_content = {{ project.contents | safe }};
+            var deletePostUrl = "{% url 'delete-project' base64_unique_id=project.unique_id_base64 %}";
         {% endif %}
         $('.select2').select2();
     </script>

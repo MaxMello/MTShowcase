@@ -1,15 +1,33 @@
 {% extends 'modal.html' %}
 {% block id %}confirm-delete-modal{% endblock %}
 {% block title %}Projekt löschen{% endblock %}
-{% block body %}Das Projekt wird gelöscht und alle bisherigen Fortschritte gehen verloren. Es kann nicht wiederhergestellt werden.{% endblock %}
+{% block body %}Das Projekt wird gelöscht und alle bisherigen Fortschritte gehen verloren. Es kann nicht
+    wiederhergestellt werden.{% endblock %}
 {% block primaryaction %}Löschen{% endblock %}
 {% block actionID %}confirm-delete{% endblock %}
 {% block btnType %}btn-danger{% endblock %}
 {% block more %}
     <script>
-        $('#confirm-delete').on("click", function(){
+        $('#confirm-delete').on("click", function () {
             // TODO backend action to delete project
-            console.log("deleted");
+            var formData = new FormData();
+            formData.append("csrfmiddlewaretoken", window.CSRF_TOKEN);
+            if ($('#project-id').val()) {
+                formData.append("project_unique_id", $('#project-id').val());
+            }
+            $.ajax({
+                type: "POST",
+                contentType: false,
+                processData: false,
+                url: deletePostUrl,
+                data: formData,
+                success: function (json) {
+                    location.replace(json.redirect);
+                },
+                error: function (jqXHR, exception) {
+                    alert("Löschen des Projektes fehlgeschlagen");
+                }
+            });
         });
     </script>
 

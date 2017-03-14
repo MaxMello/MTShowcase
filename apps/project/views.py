@@ -142,6 +142,33 @@ def get_iframe_from_oembed_or_none(url, provider_name):
         return None
 
 
+class DeleteView(LoginRequiredMixin, mixins.JSONResponseMixin, View):
+    def post(self, request, *args, **kwargs):
+        print("delete action")
+        print(request.POST)
+
+        try:
+            project_id = Project.base64_to_uuid(request.POST.get("project_unique_id"))
+            existing_project = Project.objects.filter(unique_id=project_id).first()
+            if existing_project:
+                if existing_project.approval_state != Project.EDIT_STATE:
+                    raise Exception()
+                project_editor = ProjectEditor.objects.filter(
+                    editor=request.user.get_lib_user(),
+                    project=existing_project
+                ).first()
+
+                if project_editor:
+                    print("About to delete")
+                    # user owns this project we can go on deleting
+                    project_editor.project.delete()
+        except Exception as e:
+            print(str(e))
+            return self.render_json_response({}, status=400)
+
+        return self.render_json_response({"redirect": str(reverse_lazy('home'))})
+
+
 class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
     login_url = reverse_lazy('login')
     template_name = 'upload/projectupload.html'
@@ -282,7 +309,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                     print(tag)
                     if tag_validation_pattern.match(tag):
                         new_tag, created = Tag.objects.get_or_create(value=tag)
-                        ProjectTag.objects.create(project=new_project, tag=new_tag, position=index)
+                        ProjectTag.objects.get_or_create(project=new_project, tag=new_tag)
             except (TypeError, AttributeError, Exception):
                 # TODO: add error msg as form validation error collection and display hints for user
                 return HttpResponseBadRequest()
