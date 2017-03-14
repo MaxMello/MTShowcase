@@ -58,12 +58,13 @@
     <input type="checkbox" id="accept-ua"><span style="margin-left:8px">Ich akzeptiere die Nutzungbedingungen</span>
 </div>
 <script>
-    $('#accept-ua').on('change', function(){
+    $(document).on('click', "#accept-ua", function () {
+        console.log("change");
         var checked = $(this).is(":checked");
-        if(checked){
-            $('#submit-id-register').prop("disabled", false);
+        if (checked) {
+            $('#{{ submitid }}').prop("disabled", false);
         } else {
-            $('#submit-id-register').prop("disabled", true);
+            $('#{{ submitid }}').prop("disabled", true);
         }
     });
 </script>

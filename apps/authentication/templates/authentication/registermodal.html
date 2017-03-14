@@ -3,15 +3,12 @@
 {% block id %}registerModal{% endblock %}
 {% block title %}Registrieren{% endblock %}
 {% block modal-body %}
-    <div class="modal-body" id="modal_register">
-    {% include 'authentication/useragreement.html' %}
+    <div class="modal-body" id="modal_register" style="overflow-y: auto">
+    {% include 'authentication/useragreement.html' with submitid='submit-id-register' %}
         <form action='' method="POST" id="register_form">
             {% csrf_token %}
             {{ register_form | crispy }}
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" style="margin:0" data-dismiss="modal">Abbrechen</button>
-                <button type="submit" id="submit-id-register" class="btn btn-primary">Registrieren</button>
-            </div>
+            <input type="submit" style="float:right;" disabled id="submit-id-register" class="btn btn-primary" name="register" value="Registrieren"/>
         </form>
     </div>
     <script>

@@ -1,11 +1,10 @@
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, ButtonHolder, Submit, HTML
+from crispy_forms.layout import Layout, ButtonHolder, Submit, HTML, Button
 from django import forms
 from django.contrib.auth import password_validation, authenticate
 from django.utils.translation import ugettext_lazy as _
 
 from .models import AuthEmailUser
-
 
 
 
@@ -39,9 +38,6 @@ class RegistrationForm(forms.ModelForm):
             'email',
             'password1',
             'password2',
-            ButtonHolder(
-                Submit('register', 'Registrieren', css_class='btn-primary')
-            )
         )
 
     def clean_email(self):

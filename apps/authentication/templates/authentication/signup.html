@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
+
 {% block title %}
     Registrieren - {{ view.names.project_name_long }}
 {% endblock %}
@@ -8,22 +9,21 @@
     <div class="row">
         <div class="col-lg-8 col-md-8 col-sm-10 col-xs-12 col-lg-push-2 col-md-push-2 col-sm-push-1">
             {% if request.user.is_authenticated %}
-            <p>Du hast dich bereits erfolgreich registriert und bist eingeloggt!</p>
+                <p>Du hast dich bereits erfolgreich registriert und bist eingeloggt!</p>
             {% else %}
-                {% include 'authentication/useragreement.html' %}
+                {% include 'authentication/useragreement.html' with submitid='submit-register' %}
                 <br>
-                {% crispy form %}
+                <form action='' method="POST" id="register_form">
+                  {% csrf_token %}
+                    {{ form | crispy }}
+                <input type="submit" disabled id="submit-register" class="btn btn-primary" name="register" value="Registrieren"/>
+                </form>
             {% endif %}
         </div>
     </div>
 {% endblock %}
 {% block scripts %}
     <script>
-        var checked = $('#accept-ua').is(":checked");
-        if(checked){
-            $('#submit-id-register').prop("disabled", false);
-        } else {
-            $('#submit-id-register').prop("disabled", true);
-        }
+
     </script>
 {% endblock %}
