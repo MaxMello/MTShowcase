@@ -292,6 +292,11 @@
 <script src="{% static 'js/getcookie.js' %}" type="text/javascript" charset="utf-8"></script>
 <script src="{% static 'js/login.js' %}" type="text/javascript" charset="utf-8"></script>
 <script src="{% static 'js/register.js' %}" type="text/javascript" charset="utf-8"></script>
+  {% if production %}
+   <script>
+    console.log = function() {}
+   </script>
+    {% endif %}
 {% block scripts %}
 {% endblock %}
 </body>

@@ -144,11 +144,13 @@ $('#pu-publish, #pu-save').on("click", function () {
 
         },
         error: function (jqXHR, exception) {
-            console.log("error", jqXHR.responseText);
-            var json = JSON.parse(jqXHR.responseText);
-            console.log(json["id"], json["msg"]);
-            $('#' + json["id"]).addClass("error-border");
-            $("<label class='error'>" + json["msg"] + "</label>").insertBefore("#" + json["id"]);
+            //console.log("error", jqXHR.responseText);
+            try {
+                var json = JSON.parse(jqXHR.responseText);
+                //console.log(json["id"], json["msg"]);
+                $('#' + json["id"]).addClass("error-border");
+                $("<label class='error'>" + json["msg"] + "</label>").insertBefore("#" + json["id"]);
+            } catch (error) {}
         }
     });
 });

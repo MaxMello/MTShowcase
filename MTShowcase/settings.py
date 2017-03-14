@@ -111,6 +111,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'apps.authentication.context_processor.include_login_form',
                 'apps.authentication.context_processor.include_register_form',
+                'apps.authentication.context_processor.include_production_flag',
             ],
         },
     },

@@ -253,7 +253,7 @@ class DegreeProgram(models.Model):
     academic_degree = models.CharField(max_length=10, choices=ACADEMIC_DEGREE, default=BACHELOR)  # TODO: Add to search
 
     def subjects(self):
-        subjects = Subject.objects.all()
+        subjects = Subject.objects.all().order_by("name")
         return_subjects = []
         for s in subjects:
             for d in s.degree_programs.all():
