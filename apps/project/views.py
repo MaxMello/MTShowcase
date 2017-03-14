@@ -122,23 +122,25 @@ def get_iframe_from_oembed_or_none(url, provider_name):
         return None
 
     from urllib.parse import quote
+    try:
+        if provider_name == 'vimeo.com':
+            embed_base_url = "https://{}/api/oembed.json?url={}"
+            embed_request_url = embed_base_url.format(provider_name, quote(url))
+        elif provider_name == 'youtube.com':
+            embed_base_url = "https://www.youtube.com/oembed?url={}&format=json"
+            embed_request_url = embed_base_url.format(quote(url))
+        elif provider_name == 'soundcloud.com':
+            embed_base_url = "https://soundcloud.com/oembed?format=json&url={}"
+            embed_request_url = embed_base_url.format(quote(url))
+        else:
+            return None
 
-    if provider_name == 'vimeo.com':
-        embed_base_url = "https://{}/api/oembed.json?url={}"
-        embed_request_url = embed_base_url.format(provider_name, quote(url))
-    elif provider_name == 'youtube.com':
-        embed_base_url = "https://www.youtube.com/oembed?url={}&format=json"
-        embed_request_url = embed_base_url.format(quote(url))
-    elif provider_name == 'soundcloud.com':
-        embed_base_url = "https://soundcloud.com/oembed?format=json&url={}"
-        embed_request_url = embed_base_url.format(quote(url))
-    else:
-        return None
-
-    r = requests.get(embed_request_url)
-    if r.status_code == 200:
-        return r.json()['html']
-    else:
+        r = requests.get(embed_request_url)
+        if r.status_code == 200:
+            return r.json()['html']
+        else:
+            return None
+    except:
         return None
 
 
