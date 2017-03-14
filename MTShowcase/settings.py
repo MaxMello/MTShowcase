@@ -12,7 +12,7 @@ SECRET_KEY = secret_key
 # SECURITY WARNING: don't run with debug turned on in production!
 
 DEBUG = not production
-
+#DEBUG = True
 # TODO
 AUTH_DEBUG = True  # enable/disable debug printing for auth workflow
 
@@ -101,7 +101,7 @@ ROOT_URLCONF = 'MTShowcase.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['templates'],
+        'DIRS': ['templates', '/home/showcase/MTShowcase/templates/'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -162,6 +162,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = ['static/']
 if production:
     STATIC_ROOT = "/home/showcase/static/"
+    #STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 else:
     COMPRESS_ROOT = BASE_DIR
 
