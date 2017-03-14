@@ -85,24 +85,24 @@
 
                     {% if content_section.content_type == "TEXT" %}
                         {% for  content in content_section.contents %}
-                            {% include 'upload/content_text.html' with section_subheading=content_section.subheading text=content.text %}
+                            {% include 'upload/content_text.html' with section_subheading=content_section.subheading text=content.text hidden=content_section.visibility %}
                         {% endfor %}
                     {% endif %}
 
                     {% if content_section.content_type == "VIDEO" %}
-                        {% include 'upload/content_video.html' with section_subheading=content_section.subheading content_inputs=content_section.contents %}
+                        {% include 'upload/content_video.html' with section_subheading=content_section.subheading content_inputs=content_section.contents hidden=content_section.visibility %}
                     {% endif %}
 
                     {% if content_section.content_type == "AUDIO" %}
-                        {% include 'upload/content_audio.html' with section_subheading=content_section.subheading content_inputs=content_section.contents %}
+                        {% include 'upload/content_audio.html' with section_subheading=content_section.subheading content_inputs=content_section.contents hidden=content_section.visibility %}
                     {% endif %}
 
                     {% if content_section.content_type == "IMAGE" %}
-                        {% include 'upload/content_image.html' with section_subheading=content_section.subheading content_inputs=content_section.contents %}
+                        {% include 'upload/content_image.html' with section_subheading=content_section.subheading content_inputs=content_section.contents hidden=content_section.visibility %}
                     {% endif %}
 
                     {% if content_section.content_type == "SLIDESHOW" %}
-                        {% include 'upload/content_slideshow.html' with section_subheading=content_section.subheading content_inputs=content_section.contents %}
+                        {% include 'upload/content_slideshow.html' with section_subheading=content_section.subheading content_inputs=content_section.contents hidden=content_section.visibility %}
                     {% endif %}
 
                 {% endfor %}
