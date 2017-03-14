@@ -125,6 +125,7 @@ $('#pu-publish, #pu-save').on("click", function () {
     $('.error').remove();
     $('.error-border').removeClass("error-border");
 
+    $("<div class='loading'>Laden&#8230;</div>").prependTo("#content-body");
     $.ajax({
         url: projectPostUrl,
         type: "POST",
@@ -133,18 +134,19 @@ $('#pu-publish, #pu-save').on("click", function () {
         data: formData,
         success: function (json) {
             console.log("reponse");
+            $(".loading").remove();
             //alert("success");//alert(json.redirect);
             if (json["redirect"]) {
                 location.replace(json.redirect);
             } else if (json["save_success"]) {
                 if (json.save_success) {
-                    alert("Erfolgreich gespeichert.")
+                    window.location = window.location;
                 }
             }
-
         },
         error: function (jqXHR, exception) {
             //console.log("error", jqXHR.responseText);
+            $(".loading").remove();
             try {
                 var json = JSON.parse(jqXHR.responseText);
                 //console.log(json["id"], json["msg"]);

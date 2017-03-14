@@ -629,7 +629,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                 new_project.approval_state = Project.REVIEW_STATE
             elif method == 'save':
                 print("save")
-                response_data = {"save_success": True, }
+                response_data = {"save_success": True}
                 if not existing_project:
                     response_data.update({"redirect": str(
                         reverse_lazy('edit-project', kwargs={'base64_unique_id': new_project.unique_id_base64()}))})
