@@ -237,7 +237,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                 print("########## GOT EXISTING #+++++++++++++++++")
                 project_id = Project.base64_to_uuid(request.POST.get("project_unique_id"))
                 try:
-                    existing_project = Project.objects.filter(unique_id=project_id).get()
+                    existing_project = Project.objects.filter(unique_id=project_id).first()
                 except:
                     pass
 
@@ -300,7 +300,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
 
             for (index, key) in enumerate(non_empty_keys):
                 tags = member_resp_list[key]
-                user = User.objects.get(pk=key)
+                user = User.objects.filter(pk=key).first()
                 member, created = ProjectMember.objects.get_or_create(member=user, project=new_project)
                 for tag in tags:
                     new_tag, created = Tag.objects.get_or_create(value=tag)
@@ -313,7 +313,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
             # supervisors M2M
             all_supervisors = User.objects.filter(type=User.PROF)
             for supervisor_id in supervisors_list:
-                supervisor = User.objects.get(pk=supervisor_id)
+                supervisor = User.objects.filter(pk=supervisor_id).first()
                 if supervisor is None or supervisor not in all_supervisors:
                     print("supervisor unknown or not accepted")
                     return HttpResponseBadRequest()
@@ -536,10 +536,12 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                                 original_name = existing_data['original_name']
                                 if crop_data:
                                     # TODO: test in production
-                                    path = UploadImage.objects.get(file=file_url.replace("/media/", "")).file.path
-                                    saved_file = crop_image_and_save(path, crop_data)
-                                    # delete old image from storage
-                                    UploadImage.objects.get(file=file_url.replace("/media/", "")).file.delete()
+                                    existing_image = UploadImage.objects.filter(file=file_url.replace("/media/", "")).first()
+                                    if existing_image:
+                                        path = existing_image.file.path
+                                        saved_file = crop_image_and_save(path, crop_data)
+                                        # delete old image from storage
+                                        UploadImage.objects.get(file=file_url.replace("/media/", "")).file.delete()
 
                                 current_section['contents'].append({
                                     "content_type": content_type,
