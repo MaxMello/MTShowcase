@@ -13,4 +13,4 @@ def include_register_form(request):
 
 
 def include_production_flag(request):
-    return {'production': secrets.production, "prod": secrets.prod}
+    return {'production': secrets.production}
