@@ -14,9 +14,10 @@
                 <br>
                 {% crispy form %}
             {% endif %}
-
         </div>
     </div>
+{% endblock %}
+{% block scripts %}
     <script>
         var checked = $('#accept-ua').is(":checked");
         if(checked){
