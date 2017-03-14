@@ -41,6 +41,9 @@ function TagHandler(){
         newTagSuggestions = orderTags(newTagSuggestions);
         newTagSuggestions.push.apply(newTagSuggestions, orderTags(newTagSuggestionsPrio2));
         newTagSuggestions.push.apply(newTagSuggestions, orderTags(newTagSuggestionsPrio3));
+        newTagSuggestions = newTagSuggestions.filter(function(item, pos) {
+            return newTagSuggestions.indexOf(item) == pos;
+        });
         tagSuggestions = newTagSuggestions;
     };
 }

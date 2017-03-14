@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+{% load compress %}
+{% load crispy_forms_tags %}
+
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <!-- Latest compiled and minified CSS -->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js" type="text/javascript"
+            charset="utf-8"></script>
+    {% block css %}
+    {% endblock %}
+    {% if debug %}
+        <link rel="stylesheet" type="text/less" media="all" href="{% static 'style/custom.less' %}">
+        <script src="{% static 'js/libs/less.min.js' %}"></script>
+    {% else %}
+        {% compress css %}
+            <link rel="stylesheet" type="text/less" media="all" href="{% static 'style/custom.less' %}">
+        {% endcompress %}
+    {% endif %}
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <title>{% block title %} {% endblock %}</title>
+    <link rel="shortcut icon" href="/static/images/favicon.ico" type="image/x-icon" />
+    <link rel="apple-touch-icon" href="/static/images/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" sizes="57x57" href="/static/images/apple-touch-icon-57x57.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="/static/images/apple-touch-icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="76x76" href="/static/images/apple-touch-icon-76x76.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="/static/images/apple-touch-icon-114x114.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="/static/images/apple-touch-icon-120x120.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="/static/images/apple-touch-icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/static/images/apple-touch-icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/images/apple-touch-icon-180x180.png" />
+</head>
+<body>
+<div class="container">
+    <div id="header-area" class="container-row">
+        <div class="row hidden-xs">
+            <div class="col-xs-12 toplinks">
+                <a href="https://www.haw-hamburg.de" target="_blank" class="pull-right">HAW Hamburg</a>
+                <a href="https://www.haw-hamburg.de/impressum.html" class="pull-right">Impressum</a>
+                <a href="/about" class="pull-right">Über Showcase</a>
+            </div>
+        </div>
+        <!-- Normal Navbar -->
+        <div class="navbar navbar-normal hidden-xs">
+            <a href="/">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 861 385.5403" class="logosvg">
+                    <defs>
+                        <style>
+                            .a {
+                                fill: #fafbff;
+                            }
+
+                            .a, .b {
+                                stroke: #000;
+                                stroke-miterlimit: 10;
+                            }
+
+                            .b {
+                                fill: #334d5c;
+                            }
+                        </style>
+                    </defs>
+                    <path class="a" d="M454.9565,134.4783" transform="translate(-234 -140.618)"></path>
+                    <path class="b"
+                          d="M1094.5,195.5v-34H528.468a183.9885,183.9885,0,0,0-168.3412,0H234.5v344H360.5663a183.9752,183.9752,0,0,0,167.4623,0H1094.5v-34h-267v-31h267v-29h-146v-30h146v-33h-267v-30h267v-30h-146v-30h146v-32h-267v-31h267ZM444.9305,498.2329c-88.9355,0-161.032-73.8508-161.032-164.9505s72.0965-164.9505,161.032-164.9505,161.0319,73.8509,161.0319,164.9505S533.866,498.2329,444.9305,498.2329Z"
+                          transform="translate(-234 -140.618)"></path>
+                </svg>
+                <img class="logotext" src="{% static 'images/logofont.png' %}">
+            </a>
+        </div>
+    </div>
+    <div>
+        {% block error %}{% endblock %}
+    </div>
+    <div class="hidden-lg hidden-md" style="margin-top:80px"></div>
+    <!-- Footer -->
+    <div class="container-row" id="footer-area">
+        <div class="row visible-xs-block">
+            <div class="col-xs- toplinks">
+                <a href="https://www.haw-hamburg.de" target="_blank" class="pull-left">HAW Hamburg</a>
+                <a href="https://www.haw-hamburg.de/impressum.html" class="pull-left">Impressum</a>
+                <a href="/about" class="pull-left">Über Showcase</a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" type="text/javascript"
+        charset="utf-8"
+        integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"
+        crossorigin="anonymous"></script>
+</body>
+</html>

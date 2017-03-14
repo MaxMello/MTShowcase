@@ -12,14 +12,15 @@ SECRET_KEY = secret_key
 # SECURITY WARNING: don't run with debug turned on in production!
 
 DEBUG = not production
-#DEBUG = True
+#DEBUG = False
 # TODO
 AUTH_DEBUG = True  # enable/disable debug printing for auth workflow
 
 if production:
     ALLOWED_HOSTS = ['showcase.mt.haw-hamburg.de', '141.22.50.244']
 else:
-    ALLOWED_HOSTS = []
+    ALLOWED_HOSTS = ['localhost']
+
 
 # MAIL HANDLING
 SITE = names.project_name
