@@ -44,13 +44,15 @@
 {% endblock %}
 {% block imagespace %}
     <div class="upload-title-image-wrapper">
-        <img id="selectedImage" class="{% if project %}{% else %}hidden{% endif %}"
+        <img id="selectedImage" class="{% if not project %}hidden{% endif %}"
              src="{% if project %}{{ project.project_image_cropped.url }}{% endif %}" alt="your image"/>
         <a class="text-center text-primary" data-toggle="modal" data-target="#imgUploadModal">
+            {% if not project %}
             <div id="icon-upload-title-image">
                 <span class="fa fa-upload fa-4x" style="padding-top:22%;"></span><br>
                 <span style="display:inline-block;">Titelbild hochladen</span>
             </div>
+            {% endif %}
         </a>
     </div>
 
