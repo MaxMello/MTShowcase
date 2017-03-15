@@ -3,6 +3,7 @@ import json
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.urlresolvers import reverse_lazy
+from django.http import Http404
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
@@ -56,6 +57,11 @@ class LoginView(FormView):
         return HttpResponse(json.dumps(result), content_type="application/json")
 
 
+# TODO: REMOVE
+allowed_emails = ['benjaminlukas.bartels@haw-hamburg.de', 'dirk.loewenstrom@haw-hamburg.de',
+                  'max.wiechmann@haw-hamburg.de']
+
+
 class RegisterView(FormView):
     form_class = RegistrationForm
     success_url = reverse_lazy('activation_complete')
@@ -66,6 +72,9 @@ class RegisterView(FormView):
         form = self.form_class(data=request.POST)
 
         if form.is_valid():
+            # TODO: REMOVE
+            if form.cleaned_data['email'] not in allowed_emails:
+                raise Http404()
             # build new user from form after validation
             RegistrationProfile.objects.create_inactive_user(form)
 

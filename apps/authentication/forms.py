@@ -7,8 +7,6 @@ from django.utils.translation import ugettext_lazy as _
 from .models import AuthEmailUser
 
 
-
-
 class RegistrationForm(forms.ModelForm):
     prefix = "signup"
     error_messages = {
