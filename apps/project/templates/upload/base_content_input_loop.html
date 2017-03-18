@@ -1,8 +1,8 @@
 {% if content_inputs %}
     {% for input in content_inputs %}
-        {% if input.filename %}
+        {% if 'filename' in input %}
             {% include file_template with text=input.text placeholder=input.filename original_name=input.original_name %}
-        {% elif input.url %}
+        {% elif 'url' in input %}
             {% include link_template with text=input.text url=input.url %}
         {% endif %}
     {% endfor %}

@@ -297,6 +297,8 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
 
             # socials M2M
             try:
+                # delete existing
+                ProjectSocial.objects.filter(project=new_project).delete()
                 for social_url in project_links:
                     social = UrlToSocialMapper.return_social_from_url_or_none(social_url)
                     if social:
@@ -402,7 +404,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
             old_project_json = new_project.contents
 
             section_content_list = project_contents['content']
-            for key in sorted(section_content_list):  # for all content sections (add-content-areas)
+            for section_index, key in enumerate(sorted(section_content_list)): # for all content sections (add-content-areas)
                 current_section = {}
                 content_section_obj = section_content_list[key]
                 content_type = content_section_obj['content_type']
@@ -412,7 +414,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                 current_section['visibility'] = visibility
                 current_section['contents'] = []
 
-                for content in content_section_obj['content']:  # single input content inside each content section
+                for content_index, content in enumerate(content_section_obj['content']):  # single input content inside each content section
                     print("###################################")
                     print(content)
 # VIDEO             # +++++++++++++++++++++++++++++++++++++++++++++
@@ -444,6 +446,22 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                                             })
                                         except KeyError as e:
                                             print("error while video labels" + str(e))
+                                else:
+                                    if method == 'save':
+                                        current_section['contents'].append({
+                                            "content_type": content_type,
+                                            "filename": None,
+                                            "original_name": None,
+                                            "text": content['text']
+                                        })
+                                    elif method == 'publish':
+                                        return self.render_json_response({
+                                            "section": section_index,
+                                            "input": content_index,
+                                             "msg": "Der Datei-Input ist nicht korrekt. Füge einen hinzu oder entferne den Input!"
+                                             }, status=400
+                                        )
+
                         elif 'url' in content:
                             try:
                                 url_validator(content['url'])
@@ -499,7 +517,20 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                                             print("error while audio " + str(e))
 
                                 else:
-                                    print(form.errors)
+                                    if method == 'save' and not field:
+                                        current_section['contents'].append({
+                                            "content_type": content_type,
+                                            "filename": None,
+                                            "original_name": None,
+                                            "text": content['text']
+                                        })
+                                    elif method == 'publish':
+                                        return self.render_json_response({
+                                            "section": section_index,
+                                            "input": content_index,
+                                             "msg": "Der Datei-Input ist nicht korrekt. Füge einen hinzu oder entferne den Input!"
+                                             }, status=400
+                                        )
 
                         elif 'url' in content:
                             try:
@@ -595,6 +626,22 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                                         "original_name": original_name,
                                         "text": content['text']
                                     })
+
+                                else:
+                                    if method == 'save' and not field_name:
+                                        current_section['contents'].append({
+                                            "content_type": content_type,
+                                            "filename": None,
+                                            "original_name": None,
+                                            "text": content['text']
+                                        })
+                                    elif method == 'publish':
+                                        return self.render_json_response({
+                                            "section": section_index,
+                                            "input": content_index,
+                                             "msg": "Der Datei-Input ist nicht korrekt. Füge einen hinzu oder entferne den Input!"
+                                             }, status=400
+                                        )
 
                         elif 'url' in content:
                             try:

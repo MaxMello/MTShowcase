@@ -334,6 +334,12 @@ class ProjectMemberResponsibility(models.Model):
         return a
 
 
+class ProjectUploadContentFiles(models.Model):
+    project = models.ForeignKey('Project', on_delete=models.CASCADE)
+    file = models.FileField(upload_to=None)
+    visible = models.BooleanField(default=False)
+
+
 class UploadImage(models.Model):
     file = models.ImageField(upload_to="new")
 

@@ -55,9 +55,13 @@ function buildProjectContent(formData) {
                         value = {existing: {url: url, original_name: original_name}}
                     } else {
                         // build unique filename to find it during backend validation
-                        var file_unique_name = section_index + $(this).attr('data-file-prefix') + "[" + content_index + "]";
-                        formData.append(file_unique_name, obj.files[0]);
-                        value = file_unique_name;
+                        if ($(this).val()) {
+                            var file_unique_name = section_index + $(this).attr('data-file-prefix') + "[" + content_index + "]";
+                            formData.append(file_unique_name, obj.files[0]);
+                            value = file_unique_name;
+                        } else {
+                            value = "";
+                        }
                     }
 
                 } else if (key == 'slideshow') {
@@ -145,13 +149,20 @@ $('#pu-publish, #pu-save').on("click", function () {
             }
         },
         error: function (jqXHR, exception) {
-            //console.log("error", jqXHR.responseText);
+            //
             $(".loading").remove();
             try {
+                console.log("error", JSON.parse(jqXHR.responseText));
                 var json = JSON.parse(jqXHR.responseText);
-                //console.log(json["id"], json["msg"]);
-                $('#' + json["id"]).addClass("error-border");
-                $("<label class='error'>" + json["msg"] + "</label>").insertBefore("#" + json["id"]);
+                if (json["id"]) {
+                    //console.log(json["id"], json["msg"]);
+                    $('#' + json["id"]).addClass("error-border");
+                    $("<label class='error'>" + json["msg"] + "</label>").insertBefore("#" + json["id"]);
+                } else {
+                    var error_element = $('.upload-content-section').eq(json["section"]).find('.input-container').children().eq(json["input"]);
+                    error_element.addClass('error-border');
+                    $("<label class='error'>" + json["msg"] + "</label>").insertBefore(error_element.parent());
+                }
             } catch (error) {}
         }
     });
