@@ -7,6 +7,7 @@ from django.contrib import admin
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Count
+from django.utils.crypto import get_random_string
 from jsonfield import JSONField
 
 from MTShowcase.settings import STATIC_URL, MEDIA_ROOT, MEDIA_URL
@@ -334,9 +335,17 @@ class ProjectMemberResponsibility(models.Model):
         return a
 
 
-class ProjectUploadContentFiles(models.Model):
+def project_content_path(instance, filename):
+    # add some randomness to file path to make it harder to guess
+    random_string = get_random_string(length=128).encode('utf-8')
+    # media/xxx/private will be routed through a django view to check for serve permission
+    visibility = 'public' if instance.visible else 'private'
+    return "project{}/{}/{}".format(random_string, visibility, filename)
+
+
+class ProjectUploadContentFile(models.Model):
     project = models.ForeignKey('Project', on_delete=models.CASCADE)
-    file = models.FileField(upload_to=None)
+    file = models.FileField(upload_to=project_content_path)
     visible = models.BooleanField(default=False)
 
 

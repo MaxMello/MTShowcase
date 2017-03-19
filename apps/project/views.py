@@ -25,7 +25,8 @@ from apps.administration.mail_utils import mail
 from apps.project.forms import ImageFormField, AudioFileField, VideoFileField
 from apps.project.image_crop import crop_image_and_save
 from apps.project.models import *
-from apps.project.validators import UrlToSocialMapper, url_validator, is_provider_url, validate_empty
+from apps.project.providers import EmbedProvider, Youtube, Vimeo, Soundcloud
+from apps.project.validators import UrlToSocialMapper, url_validator, validate_empty
 
 char_umlaut_range = '[a-zA-Z\u00c4\u00e4\u00d6\u00f6\u00dc\u00fc\u00df]'
 tag_validation_pattern = re.compile(
@@ -115,33 +116,6 @@ class ProjectView(TemplateView):
 
         else:
             raise PermissionDenied()
-
-
-def get_iframe_from_oembed_or_none(url, provider_name):
-    if provider_name is None:
-        return None
-
-    from urllib.parse import quote
-    try:
-        if provider_name == 'vimeo.com':
-            embed_base_url = "https://{}/api/oembed.json?url={}"
-            embed_request_url = embed_base_url.format(provider_name, quote(url))
-        elif provider_name == 'youtube.com':
-            embed_base_url = "https://www.youtube.com/oembed?url={}&format=json"
-            embed_request_url = embed_base_url.format(quote(url))
-        elif provider_name == 'soundcloud.com':
-            embed_base_url = "https://soundcloud.com/oembed?format=json&url={}"
-            embed_request_url = embed_base_url.format(quote(url))
-        else:
-            return None
-
-        r = requests.get(embed_request_url)
-        if r.status_code == 200:
-            return r.json()['html']
-        else:
-            return None
-    except:
-        return None
 
 
 class DeleteView(LoginRequiredMixin, mixins.JSONResponseMixin, View):
@@ -403,6 +377,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
             project_json_content = []
             old_project_json = new_project.contents
 
+            # region project json
             section_content_list = project_contents['content']
             for section_index, key in enumerate(sorted(section_content_list)): # for all content sections (add-content-areas)
                 current_section = {}
@@ -463,28 +438,18 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                                         )
 
                         elif 'url' in content:
-                            try:
-                                url_validator(content['url'])
-                                provider = None
-                                if is_provider_url(content['url'], 'vimeo.com'):
-                                    provider = 'vimeo.com'
-                                    media_host = "VIMEO"
-                                elif is_provider_url(content['url'], 'youtube.com'):
-                                    provider = 'youtube.com'
-                                    media_host = "YOUTUBE"
+                            embed_provider = EmbedProvider([Youtube(), Vimeo()])
+                            result = embed_provider.get_iframe(content['url'])
+                            if result:
+                                iframe, media_host = result
+                                current_section['contents'].append({
+                                    "content_type": content_type,
+                                    "media_host": media_host,
+                                    "url": content['url'],
+                                    "i_frame": iframe,
+                                    "text": content['text']
+                                })
 
-                                iframe_html = get_iframe_from_oembed_or_none(content['url'], provider)
-                                if iframe_html and media_host:
-                                    current_section['contents'].append({
-                                        "content_type": content_type,
-                                        "media_host": media_host,
-                                        "url": content['url'],
-                                        "i_frame": iframe_html,
-                                        "text": content['text']
-                                    })
-                            except ValidationError as e:
-                                print("error vimeo " + str(e))
-                                pass
 # AUDIO             # +++++++++++++++++++++++++++++++++++++++++++++
                     elif content_type == Project.AUDIO:
                         if 'filename' in content:
@@ -533,24 +498,18 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                                         )
 
                         elif 'url' in content:
-                            try:
-                                url_validator(content['url'])
-                                iframe_html = None
-                                if is_provider_url(content['url'], 'soundcloud.com'):
-                                    provider = 'soundcloud.com'
-                                    media_host = 'SOUNDCLOUD'
-                                    iframe_html = get_iframe_from_oembed_or_none(content['url'], provider)
+                            embed_provider = EmbedProvider([Soundcloud()])
+                            result = embed_provider.get_iframe(content['url'])
+                            if result:
+                                iframe, media_host = result
+                                current_section['contents'].append({
+                                    "content_type": content_type,
+                                    "media_host": media_host,
+                                    "url": content['url'],
+                                    "i_frame": iframe,
+                                    "text": content['text']
+                                })
 
-                                if iframe_html:
-                                    current_section['contents'].append({
-                                        "content_type": content_type,
-                                        "media_host": media_host,
-                                        "url": content['url'],
-                                        "i_frame": iframe_html,
-                                        "text": content['text']
-                                    })
-                            except ValidationError:
-                                pass
 # TEXT              # +++++++++++++++++++++++++++++++++++++++++++++
                     elif content_type == Project.TEXT:
                         current_section['contents'].append({
@@ -657,7 +616,7 @@ class UploadView(LoginRequiredMixin, mixins.JSONResponseMixin, TemplateView):
                 # end for content in section
 
                 project_json_content.append(current_section)
-
+            # endregion
             print("###########################################################################")
             print(project_json_content)
             print("###########################################################################")
