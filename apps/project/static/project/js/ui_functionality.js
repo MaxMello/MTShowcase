@@ -386,7 +386,7 @@ function initializePreLoadedContent() {
                     };
                     console.log(mockFile.url);
                     myDropzone.emit("addedfile", mockFile);
-                    myDropzone.createThumbnailFromUrl(mockFile, mockFile.url, null, null);
+                    myDropzone.createThumbnailFromUrl(mockFile, media_url + mockFile.url, null, null);
                     myDropzone.files.push(mockFile);
                     myDropzone.emit("complete", mockFile);
                 });

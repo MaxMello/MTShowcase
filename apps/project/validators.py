@@ -57,13 +57,8 @@ class MimeTypeValidator(object):
             raise ValidationError('Value could not be validated' + str(e))
 
 
-def validate_empty(test_str, id, msg_stub):
-    try:
-        test_str = test_str.strip()
-        if not test_str:
-            raise Exception()
-    except:
-        print("string was empty")
-        return True, {"id": id, "msg": "{} darf nicht leer sein.".format(msg_stub)}
-    else:
-        return False, None
+def validate_empty(test_str):
+    test_str = test_str.strip()
+    if not test_str:
+        return ''
+    return test_str

@@ -275,7 +275,7 @@
                 {% endif %}
             </div>
             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <button class="btn btn-danger btn-block" data-toggle="modal" data-target="#confirm-publish-modal" href="#" id="publish-project">Veröffentlichen</button>
+                <button class="btn btn-danger btn-block" data-toggle="modal" name="publish" data-target="#confirm-publish-modal" href="#" id="publish-project">Veröffentlichen</button>
                 {% include 'upload/confirm_publish.html' %}
             </div>
         </div>
@@ -337,6 +337,7 @@
         var supervisorChoicesUrl = "{% url 'supervisor-choices' %}";
         var addContentChooseUrl = "{% url 'add-content-choose' %}";
         var addContentChoicesUrl = "{% url 'add-content-choices' %}";
+        var media_url = "{{ MEDIA_URL }}";
         {% if project %}
             var deletePostUrl = "{% url 'delete-project' base64_unique_id=project.unique_id_base64 %}";
         {% endif %}

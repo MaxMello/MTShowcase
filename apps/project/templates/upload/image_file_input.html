@@ -23,7 +23,7 @@
             <button style="float:right;" class="crop_button btn btn-primary" disabled>Bestätigen</button>
         </div>
         <img class="add_content_image {% if placeholder %}{% else %}hidden{% endif %}"
-             {% if placeholder %}src="{{ placeholder }}"{% else %} src=""{% endif %} alt="image"/>
+             {% if placeholder %}src="{{ MEDIA_URL }}{{ placeholder }}"{% else %} src=""{% endif %} alt="image"/>
         <input type="hidden" data-type-key="crop_data" class="content-input crop-data"/>
     </div>
 {% endblock %}

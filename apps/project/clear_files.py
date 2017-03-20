@@ -1,50 +1,42 @@
-from apps.project.models import Project, UploadImage, UploadAudio, UploadVideo
+from apps.project.models import Project, ProjectUploadContentFile
 
 
-def clear_removed_files(old_project_content, new_project_content):
-    old_images, old_audios, old_videos = extract_file_paths_from_json(old_project_content)
-    new_images, new_audios, new_videos = extract_file_paths_from_json(new_project_content)
+def clear_removed_files(project, old_project_content, new_project_content):
+    old_files = extract_file_paths_from_json(old_project_content)
+    new_files = extract_file_paths_from_json(new_project_content)
 
-    delete_files(old_images, new_images, UploadImage)
-    delete_files(old_audios, new_audios, UploadAudio)
-    delete_files(old_videos, new_videos, UploadVideo)
-
-
-def delete_files(old_files, new_files, model_cls):
     try:
-        for file in old_files:
-            if file not in new_files:
+        for filename in old_files:
+            if filename not in new_files:
                 print("##############################################")
-                print("About to delete: " + file)
-                obj = model_cls.objects.filter(file=file.replace("/media/", "")).first()
+                print("About to delete: " + filename)
+                obj = ProjectUploadContentFile.objects.filter(project=project, file=filename).first()
                 if obj:
-                    obj.file.delete()
+                    obj.file.delete(False)
                     obj.delete()
-    except:
-        pass
+    except Exception as e:
+        print("Error during ClearFiles: " + str(e))
 
 
 def extract_file_paths_from_json(json_content):
-    images = []
-    audios = []
-    videos = []
+    files = []
     try:
         for section in json_content:
             for content in section['contents']:
                 if content['content_type'] == Project.IMAGE and 'filename' in content:
-                    images.append(content['filename'])
+                    files.append(content['filename'])
 
                 elif content['content_type'] == Project.AUDIO and 'filename' in content:
-                    audios.append(content['filename'])
+                    files.append(content['filename'])
 
                 elif content['content_type'] == Project.VIDEO and 'filename' in content:
-                    videos.append(content['filename'])
+                    files.append(content['filename'])
 
                 elif content['content_type'] == Project.SLIDESHOW and 'images' in content:
                     for filename in content['images']:
-                        images.append(filename)
+                        files.append(filename)
     except:
-        print("PATH FROM JSON: ", images, audios, videos)
-        return images, audios, videos
+        print("PATH FROM JSON: ", files)
+        return files
     else:
-        return images, audios, videos
+        return files

@@ -33,7 +33,7 @@
                         {% elif content.content_type == "IMAGE" %}
                             {% if content.filename %}
                                 <div class="image-wrapper">
-                                    <img src="{{ content.content_path }}{{ content.filename }}" class="img-responsive">
+                                    <img src="{{ MEDIA_URL }}{{ content.content_path }}{{ content.filename }}" class="img-responsive">
                                 </div>
                             {% elif content.url %}
                                 <div class="image-wrapper">
@@ -47,7 +47,7 @@
                         {% elif content.content_type == "VIDEO" %}
                             {% if content.filename %}
                                 <video class="embedded" controls style="margin-bottom: 20px;">
-                                    <source src="{{ content.content_path }}{{ content.filename }}" type="video/mp4">
+                                    <source src="{{ MEDIA_URL }}{{ content.content_path }}{{ content.filename }}" type="video/mp4">
                                 </video>
                             {% elif content.media_host %}
                                 {% if content.media_host == "YOUTUBE" %}
@@ -69,7 +69,7 @@
                         {% elif content.content_type == "AUDIO" %}
                             {% if content.filename %}
                                 <audio controls class="embedded" style="margin-bottom: 20px;">
-                                    <source src="{{ content.filename }}">
+                                    <source src="{{ MEDIA_URL }}{{ content.filename }}">
                                 </audio>
                                 {{ content.text }}
                             {% elif content.media_host %}
@@ -100,11 +100,11 @@
                                 </ol>
                                 <!-- Wrapper for slides -->
                                 <div class="carousel-inner" role="listbox">
-                                    {% for image_abs_path in content.images %}
+                                    {% for filename in content.images %}
                                         <div class="item {% if forloop.counter0 == 0 %}active{% endif %}"
                                              class="img-responsive">
                                             <div class="carousel-image-wrapper">
-                                                <img src="{{ image_abs_path }}">
+                                                <img src="{{ MEDIA_URL }}{{ filename }}">
                                             </div>
                                         </div>
                                     {% endfor %}

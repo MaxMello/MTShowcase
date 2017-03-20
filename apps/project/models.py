@@ -1,5 +1,6 @@
 import base64
 import datetime
+import os
 import re
 import uuid
 
@@ -7,9 +8,11 @@ from django.contrib import admin
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Count
+from django.db.models.signals import post_save
 from django.utils.crypto import get_random_string
 from jsonfield import JSONField
 
+from MTShowcase import settings
 from MTShowcase.settings import STATIC_URL, MEDIA_ROOT, MEDIA_URL
 from apps.project import stopwords
 from apps.user.models import User
@@ -337,16 +340,55 @@ class ProjectMemberResponsibility(models.Model):
 
 def project_content_path(instance, filename):
     # add some randomness to file path to make it harder to guess
-    random_string = get_random_string(length=128).encode('utf-8')
+    random_string = get_random_string(length=128)
     # media/xxx/private will be routed through a django view to check for serve permission
     visibility = 'public' if instance.visible else 'private'
-    return "project{}/{}/{}".format(random_string, visibility, filename)
+    return "project_{}/{}/{}{}".format(instance.project.id, visibility, random_string, filename)
+
+
+def update_content_file_path(sender, instance, **kwargs):
+    print("FILE POST SAVE")
+    instance.update_file_path()
 
 
 class ProjectUploadContentFile(models.Model):
     project = models.ForeignKey('Project', on_delete=models.CASCADE)
-    file = models.FileField(upload_to=project_content_path)
+    file = models.FileField(upload_to=project_content_path, max_length=200)
     visible = models.BooleanField(default=False)
+
+    def __str__(self):
+        return "Project: ID = ( {} ) | Title: {} | {}".format(
+            self.project.id,
+            self.project.heading,
+            "SICHTBAR" if self.visible else "PRIVAT"
+        )
+
+    def update_file_path(self):
+        initial_path = self.file.path
+        visibility = 'public' if self.visible else 'private'
+        directory_path = settings.MEDIA_ROOT + "project_{}/{}/".format(self.project.id, visibility)
+        new_filename = "project_{}/{}/{}".format(self.project.id, visibility, self.file.name.split("/")[2])
+        self.file.name = new_filename
+        new_path = settings.MEDIA_ROOT + new_filename
+
+        # check if private/public directory not exists
+        try:
+            os.makedirs(directory_path)
+        except:
+            pass
+
+        if initial_path != new_path:
+            print("##### Move File to " + new_path)
+            try:
+                os.rename(initial_path, new_path)
+            except Exception as e:
+                print("MOVE ERROR:" ,str(e))
+
+            self.save()
+            print("##### After Move: " + self.file.path)
+
+
+post_save.connect(update_content_file_path, sender=ProjectUploadContentFile)
 
 
 class UploadImage(models.Model):
