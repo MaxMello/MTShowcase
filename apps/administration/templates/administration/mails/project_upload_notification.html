@@ -1,0 +1,10 @@
+ Das Projekt <p>{{ project.heading }}</p> wurde von den Studierenden
+ {% for stud in studis %}
+ <span>{{ stud.member.auth_user.first_name }}  {{ stud.member.auth_user.last_name }},</span>
+ {% endfor %} hochgeladen und Sie als Betreuer angegeben. Damit das Projekt auf dem MTShowcase
+sichtbar werden kann, muss es noch kontrolliert und freigegeben werden.
+<br>
+Zum Projekt gelangen Sie über diesen Link:
+<a href="{{ domain }}{% url 'project' base64_unique_id=project.unique_id_base64 %}">{{ domain }}{% url 'project' base64_unique_id=project.unique_id_base64 %}</a>
+<br>
+oder Sie navigieren zu Ihrem "Professoren-Bereich" von der Webseite aus.

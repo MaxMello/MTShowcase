@@ -6,6 +6,7 @@ import uuid
 
 from django.contrib import admin
 from django.core.exceptions import ValidationError
+from django.core.mail import send_mail
 from django.db import models
 from django.db.models import Count
 from django.db.models.signals import post_save
@@ -13,7 +14,8 @@ from django.utils.crypto import get_random_string
 from jsonfield import JSONField
 
 from MTShowcase import settings
-from MTShowcase.settings import STATIC_URL, MEDIA_ROOT, MEDIA_URL
+from MTShowcase.settings import STATIC_URL
+from apps.administration.mail_utils import mail
 from apps.project import stopwords
 from apps.user.models import User
 
@@ -205,6 +207,38 @@ class Project(models.Model):
     def get_approval_string(self):
         return dict(self.APPROVAL_STATES)[self.approval_state]
 
+    def send_prof_notification(self):
+        self.approval_state = Project.REVIEW_STATE
+        self.save()
+
+        print("##### Send prof notification mail")
+        try:
+            context = {
+                'project': self,
+                'studis': ProjectMember.objects.filter(project=self),
+                'domain': settings.DOMAIN
+            }
+            subject, html_message = mail(
+                'administration/mails/project_upload_notification_subject.txt',
+                'administration/mails/project_upload_notification.html',
+                context,
+                commit=False
+            )
+            recipient_list = []
+            for supervisor in self.supervisors.all():
+                recipient_list.append(supervisor.auth_user.email)
+
+            send_mail(
+                subject,
+                '',
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                html_message=html_message,
+                recipient_list=recipient_list,
+                fail_silently=False
+            )
+        except Exception as e:
+            print(str(e))
+
 
 class ProjectContentRevision(models.Model):
     """
@@ -382,7 +416,7 @@ class ProjectUploadContentFile(models.Model):
             try:
                 os.rename(initial_path, new_path)
             except Exception as e:
-                print("MOVE ERROR:" ,str(e))
+                print("MOVE ERROR:", str(e))
 
             self.save()
             print("##### After Move: " + self.file.path)

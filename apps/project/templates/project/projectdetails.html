@@ -22,7 +22,7 @@
 {% block contentbody %}
     <div class="project-content">
         {% for content_section in project.contents %}
-            {% if not content_section.visibility or request.user.is_authenticated %}
+            {% if content_section.visibility or request.user.is_authenticated %}
                 {% if content_section.subheading %}
                     <h4>{{ content_section.subheading }}</h4>
                 {% endif %}
@@ -68,7 +68,7 @@
                             {{ content.text }}
                         {% elif content.content_type == "AUDIO" %}
                             {% if content.filename %}
-                                <audio controls class="embedded" style="margin-bottom: 20px;">
+                                <audio controls class="embedded">
                                     <source src="{{ MEDIA_URL }}{{ content.filename }}">
                                 </audio>
                                 {{ content.text }}

@@ -1,13 +1,8 @@
 import json
-import os
-from io import BytesIO
 from random import randint
 
-import requests
-from PIL import Image
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.core.files.base import ContentFile
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse_lazy
 from django.http import Http404
@@ -20,15 +15,9 @@ from django.views.generic.base import TemplateView, View
 
 import apps.administration.mixins as mixins
 from MTShowcase import names
-from MTShowcase import settings
 from apps.administration.mail_utils import mail
-from apps.project.content_handler import EmptyFileContentException
-from apps.project.forms import ImageFormField, AudioFileField, VideoFileField
-from apps.project.image_crop import crop_image_and_save
 from apps.project.models import *
-from apps.project.providers import EmbedProvider, Youtube, Vimeo, Soundcloud
 from apps.project.upload import Uploader, UploaderInitializationException
-from apps.project.validators import UrlToSocialMapper, url_validator, validate_empty
 
 char_umlaut_range = '[a-zA-Z\u00c4\u00e4\u00d6\u00f6\u00dc\u00fc\u00df]'
 tag_validation_pattern = re.compile(

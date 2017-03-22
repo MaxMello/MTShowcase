@@ -1,5 +1,5 @@
 import os
-from MTShowcase.secrets import db_dic, secret_key, email_pw, production
+from MTShowcase.secrets import db_dic, secret_key, email_pw, production, email
 import MTShowcase.names as names
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -33,7 +33,7 @@ else:
 
 # TODO: Use HAW Mail Host
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'mtshowcase.haw@gmail.com'  # TODO: Move to secrets.py
+EMAIL_HOST_USER = email
 EMAIL_HOST_PASSWORD = email_pw
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True

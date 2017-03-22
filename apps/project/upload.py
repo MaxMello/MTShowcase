@@ -4,7 +4,7 @@ import json
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse_lazy
 
-from apps.project.content_handler import ProjectJsonBuilder, EmptyFileContentException
+from apps.project.content_handler import ProjectJsonBuilder
 from apps.project.forms import ImageFormField
 from apps.project.image_crop import crop_compress_save_title_image
 from apps.project.models import DegreeProgram, Subject, Project, ProjectSocial, Tag, ProjectTag, ProjectMember, \
@@ -38,10 +38,8 @@ class Uploader(object):
 
             self.__start()
         except UnsupportedJsonFormatException:
-            print("Init unsupported catch")
+            print("Init Format Exception")
             raise UploaderInitializationException()
-        except EmptyFileContentException as efce:
-            raise efce
         except Exception as e:
             print("Init Upload Exception: " + str(e))
             raise UploaderInitializationException()
@@ -91,11 +89,11 @@ class Uploader(object):
                     print("-Project Content build")
                     print(self.project.contents)
 
-                    # 5: If in publish set state for professor review
-                    if self.__in_publish_mode():
-                        self.project.approval_state = Project.REVIEW_STATE
-
                     self.project.save()
+
+                    # 5: If in publish set state for professor review and send notification mail
+                    if self.__in_publish_mode():
+                        self.project.send_prof_notification()
 
                     # 6: Remove files that are not used any more in this version of the project
                     # to clear storage space
@@ -341,7 +339,6 @@ class Uploader(object):
                 int(supervisor_id)
 
             member_resp_list = request_json['p_member_responsibilities']
-            # TODO:
             non_empty_keys = {key for key in member_resp_list.keys() if key and key.isdigit()}
             if not non_empty_keys:
                 raise Exception("Member resp were empty")
@@ -351,8 +348,9 @@ class Uploader(object):
                         raise Exception("Member resp value wrong")
 
             project_contents = request_json['p_contents']
-            self.title_image_crop_data = json.loads(
-                self.request.POST['crop_data']) if 'crop_data' in self.request.POST else None
+
+            self.title_image_crop_data = \
+                json.loads(self.request.POST['crop_data']) if 'crop_data' in self.request.POST else None
 
             print("Validate FormatTypes success")
         except Exception as e:
