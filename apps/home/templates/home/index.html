@@ -53,14 +53,22 @@
         projectLoader.onAjaxSuccess(onActiveProjectsSet).onFailedSearch(onFailedSearch).onLoadMoreProjectsSuccess(onLoadMoreProjectsSuccess)
                 .onLoadMoreProjectsFailure(onLoadMoreProjectsFailure);
 
+        function saveTagInLocalStorage() {
+            localStorage.clear();
+            localStorage.setItem("tags", JSON.stringify($('#tag-bar').tagit("assignedTags")));
+        }
 
         $(document).ready(function () {
             $("#tag-bar").tagit({
                 placeholderText: 'Suchbegriff eingeben',
                 afterTagAdded: function (event, ui) {
+                    console.log("ADDED");
+                    saveTagInLocalStorage();
                     onTagChange();
                 },
                 afterTagRemoved: function (event, ui) {
+                    console.log("REMOVED");
+                    saveTagInLocalStorage();
                     onTagChange();
                 }
             });
@@ -96,9 +104,21 @@
                 projectLoader.setActiveTags($("#tag-bar").tagit("assignedTags")).getProjects(false);
                 onTagBarHeightChange();
             }
+
+            // load cached tags from local storage and start project loader
+            try {
+                var tags = JSON.parse(localStorage.getItem("tags"));
+                if (tags.length > 0) {
+                    $.each(tags, function (i, tag) {
+                        $('#tag-bar').tagit("createTag", tag);
+                    });
+                }
+            } catch (Exception) {
+            }
         });
 
-
-        projectLoader.getProjects(false);
+        if (!("tags" in localStorage) || JSON.parse(localStorage.getItem("tags")).length == 0) {
+            projectLoader.getProjects(false);
+        }
     </script>
 {% endblock %}

@@ -48,7 +48,7 @@ function ProjectLoader() {
 
     this.setProjectColors = function (tagSuggestions) {
         var first10 = tagSuggestions.slice(0, 10);
-        console.log(first10);
+        //console.log(first10);
         activeProjects.forEach(function (project) {
             var hasColor = false;
             var tagalikes = [];
@@ -61,7 +61,7 @@ function ProjectLoader() {
                     break;
                 }
                 for (var t = 0; t < tagalikes.length; t++) {
-                    console.log(tagalikes[t] + " --- " + first10[i]);
+                    //console.log(tagalikes[t] + " --- " + first10[i]);
                     if (tagalikes[t].toLowerCase() == first10[i].toLowerCase()) {
                         console.log("Gleich");
                         project['colorNr'] = i + 1;
@@ -180,14 +180,14 @@ function ProjectLoader() {
             parameters: JSON.stringify({tags: activeTags, except: project_ids, user_id: user, order: order, maximum: maximum}),
             csrfmiddlewaretoken: window.CSRF_TOKEN
         };
-        console.log(ajaxData);
+        //console.log(ajaxData);
         $.ajax({
             url: "/search/",
             dataType: 'json',
             type: 'POST',
             data: ajaxData,
             success: function (data) {
-                console.log(data);
+                //console.log(data);
                 newActiveProjects = data.projects;
                 var newOldActiveProjects = activeProjects;
                 if (caching) {
@@ -208,14 +208,14 @@ function ProjectLoader() {
                         activeProjects = oldActiveProjects;
                         failedSearch();
                     } else {
-                        console.log("Ajax success");
+                        //console.log("Ajax success");
                         ajaxSuccess();
                     }
                 }
                 oldActiveProjects = newOldActiveProjects;
             },
             error: function (request, status, error) {
-                console.log("Ajax Request Error - Status: " + status, " - Error: " + error);
+                //console.log("Ajax Request Error - Status: " + status, " - Error: " + error);
             }
         });
     };
