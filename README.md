@@ -23,8 +23,22 @@ Er bietet folgenden Funktionsumfang:
 Der MT Showcase soll als Anlaufstelle für Studierende, Professoren und Studieninteressierte eine Schnittstelle bilden, über welche die 
 gesammelten Studierendenprojekte des Departments Medientechnik sichtbar und langlebig platziert werden.
 ## Technologien
-Der MTShowcase ist mit dem Web-Framework Django in der Programmiersprache Python 3 geschrieben. Zusätzlich gibt es HTML5-Komponenten, sowie
+Der MT Showcase ist mit dem Web-Framework Django in der Programmiersprache Python 3 geschrieben. Zusätzlich gibt es HTML5-Komponenten, sowie
  Javascript (+ jQuery) Code. Für das Styling der Webseite wurde mit dem CSS-Pre-Processor Less auf Bootstrap 3 mit einem Custom Theme aufgesetzt. Da Django mit einem ORM arbeitet, ist das DBMS grundsätzlich austauschbar,
- der MTShowcase ist allerdings in der Praxis mit MySQL umgesetzt.
+ der MT Showcase ist allerdings in der Praxis mit MySQL umgesetzt.
+## Projektstruktur
+* ``MTShowcase/`` - Der Top-Level-Order für das Projekt, ohne eigentlichen Logik-Code
+    * ``settings.py `` - Zentrale Datei für Einstellungen (z.B. Datenbank, Middlewares)
+    * ``urls.py`` - Top Level File, in der alle URL-Definitionen inkludiert werden
+* ``apps/`` - Unter dem apps-Ordner sind alle nach Funktionen getrennten Module (bei Django "Apps") vorhanden
+    * ``home/`` - Funktionen für die Homepage der Seite, u.a. die Suchfunktion und Tags
+    * ``user/`` - Nutzermodels, Profilseite und Nutzereinstellungen
+    * ``project/`` - Projekt-Detailansicht und Projekt-Upload
+    * ``authentication/`` - Registierung und Anmeldung
+    * ``administration/`` - Admin & Professoren-Interface
+* ``static/`` - Top Level Folder für statische Dateien, die von diversen Apps genutzt werden (Bilder, Styles, JS Libraries)
+* ``templates/`` - Top Level Django-Templates, die in diversen Apps genutzt werden
+* ``manage.py`` - Top-Level Python Script zum ausführen von Command Line Utilities von Django
+* ``requirements.txt`` - Alle benötigten Dependencies, einfach über pip install -r requirements.txt innerhalb der VirtualEnv zu installieren
 ## Ansprechpartner
-Der MTShowcase wird von Dirk Löwenstrom (@d1rkHH) und Max Wiechmann (@MaxMello) betreut und aktiv entwickelt.
+Der MT Showcase wird von Dirk Löwenstrom (@d1rkHH) und Max Wiechmann (@MaxMello) betreut und aktiv entwickelt.
